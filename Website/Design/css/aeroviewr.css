@@ -49,39 +49,49 @@ header {
     -moz-box-shadow: 0 0 20px #000;
     -webkit-box-shadow: 0 0 20px #000;
     background: url("../images/texture-darker.png");
-    padding: 20px;
+    padding: 20px !important;
     color: white;
 }
 
-header label {
+header #search-box {
     float: right;
-    font-size: 1.2em;
+    font-size: 1.3em;
 }
 
-header input {
+header label {
+    font-size: 1.2em;
+    font-weight: normal;
+}
+
+header #search-input {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    color: white;
     background: #222;
     background: rgba(0, 0, 0, 0.4);
     border: 1px solid #555;
     border: 1px solid rgba(255,255,255,.2);
-    appearance: none;
-    -moz-appearance: none;
-    -webkit-appearance: none;
-    border-radius: 16px;
-    color: white;
-    font-size: 1em;
-    padding: 2px 5px;
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+    padding: 3px 15px;
+    height: 30px;
     outline: 0;
+    line-height: normal;
 }
 
-header #slideshow-button {
+header #search-button {
     appearance: none;
     -moz-appearance: none;
     -webkit-appearance: none;
     color: white;
-    border: 1px solid white;
     background: rgba(90,90,90,.4);
-    position: absolute;
-    margin-top: 7px;
+    border: 1px solid #555;
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
+    margin-left: -5px;
+    padding: 3px 8px;
+    line-height: 23px;
 }
 
 /***************************
@@ -169,7 +179,7 @@ header #slideshow-button {
     float: left;
 }
 
-#image-container {
+#container {
     height: 100%;
     width: 100%;
     display: table;
@@ -180,14 +190,16 @@ header #slideshow-button {
     background: url("../images/texture.png");
 }
 
-#image-container #image-wrap {
+#container #container-wrap {
     display: table-cell;
     vertical-align: middle;
     text-align: center;
     width: 100%;
+    padding-top: 100px;
+    padding-bottom: 23px;
 }
 
-#image-inner-wrap .loading
+#container-inner-wrap .loading
 {
     background: url("../images/loading.gif") no-repeat 50% 50%;
     display: inline-block;
@@ -198,7 +210,7 @@ header #slideshow-button {
     -webkit-transition: width 200ms;
 }
 
-#image-inner-wrap .image {
+#container-inner-wrap .image {
     background-size: 100% 100%;
     -webkit-background-size: 100% 100%;
     height: 500px;
@@ -207,8 +219,9 @@ header #slideshow-button {
     -webkit-transition: width 200ms;
 }
 
-#image-inner-wrap {
-    height: 502px;
+#container-inner-wrap {
+    min-height: 502px;
+    min-width: 800px;
     white-space: nowrap;
     border: 1px solid #555;
     border: 1px solid rgba(255,255,255,.2);
@@ -337,21 +350,21 @@ footer:hover .scroll-arrow {
 
     html,
     body,
-    #image-wrap,
-    #image-inner-wrap
+    #container-wrap,
+    #container-inner-wrap
     {
         -webkit-tap-highlight-color: rgba(0,0,0,0);
         -webkit-transform: translatez(0);
     }
 
-    #image-inner-wrap .loading,
-    #image-inner-wrap .image,
+    #container-inner-wrap .loading,
+    #container-inner-wrap .image,
     #details
     {
         height: 400px;
     }
 
-    #image-inner-wrap
+    #container-inner-wrap
     {
         height: 402px;
     }
