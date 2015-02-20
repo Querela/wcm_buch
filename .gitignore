@@ -1,3 +1,14 @@
+#########
+# Project
+#########
+
+.brackets.json
+*.hidden
+
+######
+# Java
+######
+
 *.class
 
 # Mobile Tools for Java (J2ME)
