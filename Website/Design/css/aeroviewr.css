@@ -1,4 +1,4 @@
-// from: http://demos.telerik.com/kendo-ui/content/spa/aeroviewr/css/aeroviewr.css
+/* from: http://demos.telerik.com/kendo-ui/content/spa/aeroviewr/css/aeroviewr.css */
 
 * {
     font-family: "Droid Sans", sans-serif;
@@ -183,6 +183,7 @@ header #search-button {
     height: 100%;
     width: 100%;
     display: table;
+    -ms-user-select: none;
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
@@ -302,6 +303,7 @@ footer {
     border-radius: 30px;
     -webkit-border-radius: 30px;
     -moz-border-radius: 30px;
+    -ms-user-select: none;
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
