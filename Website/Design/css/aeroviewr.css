@@ -408,6 +408,7 @@ footer:hover .scroll-arrow {
 
 #result-list-header {
     border: 1px solid white; /* DEBUG */
+    cursor: default;
     margin-top: 15px;
     margin-bottom: 15px;
 }
