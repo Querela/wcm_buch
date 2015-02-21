@@ -37,6 +37,46 @@ header, footer
 }
 
 /***************************
+ * Search inputs
+ **************************/
+
+.search-box {
+    color: white;
+    font-size: 1.3em;
+}
+
+.search-input {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    color: white;
+    background: #222;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid #555;
+    border: 1px solid rgba(255,255,255,.2);
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+    padding: 3px 15px;
+    height: 30px;
+    outline: 0;
+    line-height: normal;
+}
+
+.search-input-button {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    color: white;
+    background: rgba(90,90,90,.4);
+    border: 1px solid #555;
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
+    margin-left: -5px;
+    padding: 3px 8px;
+    line-height: 23px;
+}
+
+/***************************
  * Header
 ***************************/
 header {
@@ -55,7 +95,6 @@ header {
 
 header #search-box {
     float: right;
-    font-size: 1.3em;
 }
 
 header label {
@@ -64,34 +103,9 @@ header label {
 }
 
 header #search-input {
-    appearance: none;
-    -moz-appearance: none;
-    -webkit-appearance: none;
-    color: white;
-    background: #222;
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid #555;
-    border: 1px solid rgba(255,255,255,.2);
-    border-top-left-radius: 16px;
-    border-bottom-left-radius: 16px;
-    padding: 3px 15px;
-    height: 30px;
-    outline: 0;
-    line-height: normal;
 }
 
 header #search-button {
-    appearance: none;
-    -moz-appearance: none;
-    -webkit-appearance: none;
-    color: white;
-    background: rgba(90,90,90,.4);
-    border: 1px solid #555;
-    border-top-right-radius: 16px;
-    border-bottom-right-radius: 16px;
-    margin-left: -5px;
-    padding: 3px 8px;
-    line-height: 23px;
 }
 
 /***************************
@@ -320,7 +334,9 @@ footer:hover .scroll-arrow {
     right: 0;
 }
 
-/* AeroViewr Logo */
+/***************************
+ * AeroViewr Logo
+ **************************/
 
 .aeroLogo,
 .aeroLogo a,
@@ -346,7 +362,10 @@ footer:hover .scroll-arrow {
     font-size: 1.1em;
 }
 
-/* Small screen fallback */
+
+/***************************
+ * Small screen fallback
+ **************************/
 
 @media only screen and (max-device-width: 1024px) {
 
@@ -383,10 +402,33 @@ footer:hover .scroll-arrow {
 
 }
 
+/***************************
+ * Search result list
+ **************************/
 
+#result-list-header {
+    border: 1px solid white; /* DEBUG */
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+#results-search-box {
+    text-align: left;
+}
+
+#results-search-box input.search-input {
+    min-width: 300px;
+    width: 85%; /* TODO: input width ? */
+}
+
+#results-statistics {
+    text-align: left;
+    font-size: 90%;
+    color: orange;
+}
 
 #result-list {
-    outline: orange 1px dotted;
+    outline: orange 1px dotted; /* DEBUG */
     cursor: default;
     display: inline-block;
 }
@@ -397,7 +439,7 @@ footer:hover .scroll-arrow {
     margin-bottom: 5px;
     border: 1px solid rgba(255,255,255,.2);
     display: inline-block;
-    width: 100%;
+    width: 100%; /* TODO: find solution for smaller screen sizes */
     float: left;
 }
 

@@ -25,11 +25,11 @@
 <body>
     <div id="root">
         <header>
-            <div id="search-box">
+            <div class="search-box" id="search-box">
                 <form>
                     <label for="search-input">Search:&nbsp;</label>
-                    <input id="search-input" name="search-input" type="search" />
-                    <input id="search-button" type="button" value="GO" />
+                    <input class="search-input" id="search-input" name="search-input" type="search" />
+                    <input class="search-input-button" id="search-button" type="button" value="GO" />
                 </form>
             </div>
             <h1 class="aeroLogo"><a href="">wcm<span>buch</span></a></h1>
@@ -39,6 +39,18 @@
                 <div id="container-inner-wrap">
                     <!-- content area -->
                     <!-- header -->
+                    <div id="result-list-header">
+                        <div class="search-box" id="results-search-box">
+                            <form>
+                                <label for="results-search-input">Search for:&nbsp;</label>
+                                <input class="search-input" id="results-search-input" name="results-search-input" type="search" />
+                                <input class="search-input-button" id="results-search-button" type="button" value="GO" />
+                            </form>
+                        </div>
+                        <div id="results-statistics">
+                            Showing 1-20 of 42535 results for '...' (Goodreads search in 0.10s)
+                        </div>
+                    </div>
                     <!-- list -->
                     <div id="result-list">
                         <div class="result-list-item">
@@ -59,6 +71,7 @@
                                 </div>
                             </div>
                             <div class="result-list-item-options">
+                                <!-- TODO: modify options -->
                                 <button>Option 1</button>
                             </div>
                         </div>
@@ -80,6 +93,7 @@
                                 </div>
                             </div>
                             <div class="result-list-item-options">
+                                <!-- TODO: modify options -->
                                 <button>Option 1</button>
                             </div>
                         </div>
@@ -101,9 +115,13 @@
                                 </div>
                             </div>
                             <div class="result-list-item-options">
+                                <!-- TODO: modify options -->
                                 <button>Option 1</button>
                             </div>
                         </div>
+                    </div>
+                    <div id="result-list-pagination">
+                        <!-- TODO: add pagination -->
                     </div>
                 </div>
             </div>
