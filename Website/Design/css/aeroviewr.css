@@ -382,3 +382,45 @@ footer:hover .scroll-arrow {
     }
 
 }
+
+
+
+#result-list {
+    outline: orange 1px dotted;
+    cursor: default;
+}
+
+#result-list > .result-list-item {
+    text-align: left;
+    color: orange;
+    margin-bottom: 5px;
+    outline: yellow 1px dotted;
+}
+
+#result-list > .result-list-item > div:last-child {
+    /* position right adjust */
+}
+
+.result-list-item > div {
+    float: left;
+    padding: 5px;
+}
+
+.result-list-item {
+    clear: both;
+}
+
+.result-list-item-details > .title {
+    font-size: 120%;
+}
+
+.result-list-item-details > div {
+    margin-bottom: 3px;
+}
+
+.result-list-item-details > div:not(.title) {
+    font-size: 80%;
+}
+
+.result-list-item-options {
+}
