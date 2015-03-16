@@ -21,6 +21,7 @@ Wir haben dabei die folgenden Plug-Ins benutzt, um die Produktivität zu erhöhe
 
 zusätzlich noch empfohlen:
 
+-   Minimap
 -   Static Preview
 -   Theseus for Brackets (_sollte am Anfang bei Nicht-Benutzung evtl. deaktiviert werden_)
 -   Brackets Diagnostic Report
@@ -43,6 +44,7 @@ Zusätzlich werden die folgenden Einstellungen empfohlen (anzupassen unter _"Deb
     "debug.showErrorsInStatusBar": true,
     "theseus.enabled": false,
     "me.drewh.jsbeautify.on_save": false,
+    "dragDropText": true,
 
 Der Entwurf der Website ist unter [Github Design Ordner](https://github.com/Querela/wcm_buch/tree/website-design/Website/Design) zu finden.
 
