@@ -37,33 +37,15 @@ header, footer
 }
 
 /***************************
- * Header
-***************************/
-header {
-    position: fixed;
-    z-index: 100;
-    top: 0;
-    width: 100%;
-    border-bottom: 1px solid rgba(255,255,255,.2);
-    box-shadow: 0 0 20px #000;
-    -moz-box-shadow: 0 0 20px #000;
-    -webkit-box-shadow: 0 0 20px #000;
-    background: url("../images/texture-darker.png");
-    padding: 20px !important;
-    color: white;
-}
+ * Search inputs
+ **************************/
 
-header #search-box {
-    float: right;
+.search-box {
+    color: white;
     font-size: 1.3em;
 }
 
-header label {
-    font-size: 1.2em;
-    font-weight: normal;
-}
-
-header #search-input {
+.search-input {
     appearance: none;
     -moz-appearance: none;
     -webkit-appearance: none;
@@ -80,7 +62,7 @@ header #search-input {
     line-height: normal;
 }
 
-header #search-button {
+.search-input-button {
     appearance: none;
     -moz-appearance: none;
     -webkit-appearance: none;
@@ -92,6 +74,39 @@ header #search-button {
     margin-left: -5px;
     padding: 3px 8px;
     line-height: 23px;
+}
+
+/***************************
+ * Header
+***************************/
+
+header {
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    width: 100%;
+    border-bottom: 1px solid rgba(255,255,255,.2);
+    box-shadow: 0 0 20px #000;
+    -moz-box-shadow: 0 0 20px #000;
+    -webkit-box-shadow: 0 0 20px #000;
+    background: url("../images/texture-darker.png");
+    padding: 20px !important;
+    color: white;
+}
+
+header #search-box {
+    float: right;
+}
+
+header label {
+    font-size: 1.2em;
+    font-weight: normal;
+}
+
+header #search-input {
+}
+
+header #search-button {
 }
 
 /***************************
@@ -320,7 +335,9 @@ footer:hover .scroll-arrow {
     right: 0;
 }
 
-/* AeroViewr Logo */
+/***************************
+ * AeroViewr Logo
+ **************************/
 
 .aeroLogo,
 .aeroLogo a,
@@ -346,7 +363,10 @@ footer:hover .scroll-arrow {
     font-size: 1.1em;
 }
 
-/* Small screen fallback */
+
+/***************************
+ * Small screen fallback
+ **************************/
 
 @media only screen and (max-device-width: 1024px) {
 
@@ -381,4 +401,160 @@ footer:hover .scroll-arrow {
         width: 300px;
     }
 
+}
+
+/***************************
+ * Search result list
+ **************************/
+
+#result-list-header {
+    /* border: 1px solid white; /* DEBUG */
+    cursor: default;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    -ms-user-select: text;
+    user-select: text;
+    -moz-user-select: text;
+    -webkit-user-select: text;
+}
+
+#results-search-box {
+    text-align: left;
+}
+
+#results-search-box input.search-input {
+    min-width: 300px;
+    width: 80%;
+}
+
+#results-statistics {
+    text-align: left;
+    font-size: 90%;
+    color: #ffd200;
+}
+
+#result-list {
+    /* outline: orange 1px dotted; /* DEBUG */
+    cursor: default;
+    display: inline-block;
+    -ms-user-select: text;
+    user-select: text;
+    -moz-user-select: text;
+    -webkit-user-select: text;
+    display: block;
+}
+
+#result-list > .result-list-item {
+    text-align: left;
+    color: #ffd200;
+    margin-bottom: 5px;
+    border: 1px solid rgba(255,255,255,.2);
+    position: relative;
+}
+
+#result-list > .result-list-item > div:last-child {
+    position: absolute;
+    right: 0px;
+}
+
+#result-list > .result-list-item > div {
+    display: inline-block;
+    padding: 5px;
+    vertical-align: middle;
+}
+
+#result-list .result-list-item-details > .title {
+    font-size: 120%;
+}
+
+#result-list .result-list-item-details > div:not(.title) {
+    font-size: 80%;
+}
+
+#result-list .result-list-item-details > div {
+    margin-bottom: 3px;
+}
+
+#result-list > .result-list-item > .result-list-item-options {
+    display: none; /* TODO: what to use for ... */
+}
+
+/***************************
+ * Empty search result list
+ **************************/
+
+.result-list-no-item {
+    margin-top: 50px;
+    color: #ffd200;
+    font-size: 150%;
+}
+
+/******************************
+ * Pager (for search results)
+ *****************************/
+
+.k-icon {
+    background-image: url("../images/sprite-negative.png");
+    border-color: transparent;
+    color: #fff;
+    display: inline-block;
+    opacity: 1;
+    width: 16px;
+    height: 16px;
+    overflow: hidden;
+    background-repeat: no-repeat;
+    font-size: 0px;
+    line-height: 0;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.k-i-arrow-w {
+    background-position: 0px -48px;
+}
+
+.k-i-arrow-e {
+    background-position: 0px -16px;
+}
+
+.k-i-seek-w {
+    background-position: 0px -112px;
+}
+
+.k-i-seek-e {
+    background-position: 0px -80px;
+}
+
+.k-pager-wrap {
+    background-image: none;
+    background-position: 50% 50%;
+    line-height: 2em;
+    text-align: left;
+}
+
+ul.k-reset {
+    list-style: outside none none;
+    display: inline-block;
+    padding-left: 0px;
+}
+
+ul.k-pager-numbers > li {
+    display: inline-block;
+}
+
+.k-pager-wrap > .k-link, .k-pager-numbers .k-link, .k-pager-numbers .k-state-selected {
+    min-width: 2em;
+    display: inline-block;
+    border: 1px solid rgba(255,255,255,.2);
+    margin-left: 0px; /* -4px */
+    text-align: center;
+}
+
+.k-state-selected {
+    color: #fff;
+    background: #ffd200; /*background-color: #428BCA;*/
+}
+
+.k-state-disabled {
+    opacity: 0.5;
 }
