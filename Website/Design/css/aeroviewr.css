@@ -79,6 +79,7 @@ header, footer
 /***************************
  * Header
 ***************************/
+
 header {
     position: fixed;
     z-index: 100;
@@ -407,10 +408,14 @@ footer:hover .scroll-arrow {
  **************************/
 
 #result-list-header {
-    border: 1px solid white; /* DEBUG */
+    /* border: 1px solid white; /* DEBUG */
     cursor: default;
     margin-top: 15px;
     margin-bottom: 15px;
+    -ms-user-select: text;
+    user-select: text;
+    -moz-user-select: text;
+    -webkit-user-select: text;
 }
 
 #results-search-box {
@@ -429,9 +434,13 @@ footer:hover .scroll-arrow {
 }
 
 #result-list {
-    outline: orange 1px dotted; /* DEBUG */
+    /* outline: orange 1px dotted; /* DEBUG */
     cursor: default;
     display: inline-block;
+    -ms-user-select: text;
+    user-select: text;
+    -moz-user-select: text;
+    -webkit-user-select: text;
 }
 
 #result-list > .result-list-item {
@@ -463,4 +472,79 @@ footer:hover .scroll-arrow {
 
 #result-list .result-list-item-details > div {
     margin-bottom: 3px;
+}
+
+#result-list > .result-list-item > .result-list-item-options {
+    display: none; /* TODO: what to use for ... */
+}
+
+/******************************
+ * Pager (for search results)
+ *****************************/
+
+.k-icon {
+    background-image: url("../images/sprite-negative.png");
+    border-color: transparent;
+    color: #fff;
+    display: inline-block;
+    opacity: 1;
+    width: 16px;
+    height: 16px;
+    overflow: hidden;
+    background-repeat: no-repeat;
+    font-size: 0px;
+    line-height: 0;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.k-i-arrow-w {
+    background-position: 0px -48px;
+}
+
+.k-i-arrow-e {
+    background-position: 0px -16px;
+}
+
+.k-i-seek-w {
+    background-position: 0px -112px;
+}
+
+.k-i-seek-e {
+    background-position: 0px -80px;
+}
+
+.k-pager-wrap {
+    background-image: none;
+    background-position: 50% 50%;
+    line-height: 2em;
+}
+
+ul.k-reset {
+    list-style: outside none none;
+}
+
+.k-pager-wrap > .k-link {
+    float: left;
+    margin: 0px;
+}
+
+ul.k-pager-numbers > li {
+    float: left;
+}
+
+.k-pager-wrap > .k-link, .k-pager-numbers .k-link, .k-pager-numbers .k-state-selected {
+    min-width: 2em;
+    display: inline-block;
+    border: 1px solid rgba(255,255,255,.2);
+    margin-left: 2px;
+}
+
+.k-state-selected {
+    color: #fff;
+    background: #ffd200; /*background-color: #428BCA;*/
+}
+
+.k-state-disabled {
+    opacity: 0.5;
 }
