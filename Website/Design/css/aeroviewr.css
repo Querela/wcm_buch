@@ -430,7 +430,7 @@ footer:hover .scroll-arrow {
 #results-statistics {
     text-align: left;
     font-size: 90%;
-    color: orange;
+    color: #ffd200;
 }
 
 #result-list {
@@ -446,7 +446,7 @@ footer:hover .scroll-arrow {
 
 #result-list > .result-list-item {
     text-align: left;
-    color: orange;
+    color: #ffd200;
     margin-bottom: 5px;
     border: 1px solid rgba(255,255,255,.2);
     position: relative;
@@ -477,6 +477,16 @@ footer:hover .scroll-arrow {
 
 #result-list > .result-list-item > .result-list-item-options {
     display: none; /* TODO: what to use for ... */
+}
+
+/***************************
+ * Empty search result list
+ **************************/
+
+.result-list-no-item {
+    margin-top: 50px;
+    color: #ffd200;
+    font-size: 150%;
 }
 
 /******************************
