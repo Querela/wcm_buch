@@ -424,7 +424,7 @@ footer:hover .scroll-arrow {
 
 #results-search-box input.search-input {
     min-width: 300px;
-    width: 85%; /* TODO: input width ? */
+    width: 80%;
 }
 
 #results-statistics {
@@ -441,6 +441,7 @@ footer:hover .scroll-arrow {
     user-select: text;
     -moz-user-select: text;
     -webkit-user-select: text;
+    display: block;
 }
 
 #result-list > .result-list-item {
@@ -448,18 +449,18 @@ footer:hover .scroll-arrow {
     color: orange;
     margin-bottom: 5px;
     border: 1px solid rgba(255,255,255,.2);
-    display: inline-block;
-    width: 100%; /* TODO: find solution for smaller screen sizes */
-    float: left;
+    position: relative;
 }
 
 #result-list > .result-list-item > div:last-child {
-    float: right;
+    position: absolute;
+    right: 0px;
 }
 
 #result-list > .result-list-item > div {
-    float: left;
+    display: inline-block;
     padding: 5px;
+    vertical-align: middle;
 }
 
 #result-list .result-list-item-details > .title {
@@ -518,26 +519,25 @@ footer:hover .scroll-arrow {
     background-image: none;
     background-position: 50% 50%;
     line-height: 2em;
+    text-align: left;
 }
 
 ul.k-reset {
     list-style: outside none none;
-}
-
-.k-pager-wrap > .k-link {
-    float: left;
-    margin: 0px;
+    display: inline-block;
+    padding-left: 0px;
 }
 
 ul.k-pager-numbers > li {
-    float: left;
+    display: inline-block;
 }
 
 .k-pager-wrap > .k-link, .k-pager-numbers .k-link, .k-pager-numbers .k-state-selected {
     min-width: 2em;
     display: inline-block;
     border: 1px solid rgba(255,255,255,.2);
-    margin-left: 2px;
+    margin-left: 0px; /* -4px */
+    text-align: center;
 }
 
 .k-state-selected {
