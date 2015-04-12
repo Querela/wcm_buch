@@ -7,7 +7,9 @@
     <groupId>de.uni-leizig.cmprak</groupId>
     <artifactId>books</artifactId>
     <name>WCMBookServer</name>
-    <description>TODO: Tools for extracting data from goodreads (via API or screen scraping), processing and importing into a document database.</description>
+    <description>TODO: Tools for extracting data from goodreads (via API or screen scraping), processing and importing
+        into a document database.
+    </description>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -26,9 +28,14 @@
         <jersey.version>2.13</jersey.version>
         <junit.version>4.11</junit.version>
         <mongodb.version>2.13.0-rc0</mongodb.version>
+        <!-- -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- output directory for dependency jars of this project -->
         <libs.dir>dependency-jars/</libs.dir>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <config.templates.dir>templates</config.templates.dir>
+        <!-- source and destination directories of static webapp resources -->
+        <project.build.webapp-static.dir>webapp-static</project.build.webapp-static.dir>
+        <webapp-static.source.dir>../../Website/Final</webapp-static.source.dir>
     </properties>
 
     <dependencyManagement>
@@ -210,7 +217,23 @@
     -->
 
     <build>
-        <finalName>WCMBookServer</finalName>
+        <finalName>${project.name}</finalName>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <excludes>
+                    <exclude>**/*.template</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <targetPath>${project.build.outputDirectory}/${config.templates.dir}</targetPath>
+                <includes>
+                    <include>**/*.template</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <!-- Set the source code / compiler version -->
             <plugin>
@@ -220,7 +243,7 @@
                 <configuration>
                     <source>${jdk.version}</source>
                     <target>${jdk.version}</target>
-                    <encoding>UTF-8</encoding>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
             <!-- Package Resources? -->
@@ -243,8 +266,52 @@
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.5</version>
                 <configuration>
-                    <encoding>UTF-8</encoding>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
+                <executions>
+                    <execution>
+                        <!-- Copy static resources into jar -->
+                        <id>copy-webapp-statics</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/${project.build.webapp-static.dir}/
+                            </outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${webapp-static.source.dir}</directory>
+                                    <excludes>
+                                        <exclude>**/.ignore_me</exclude>
+                                        <exclude>**/.*re</exclude>
+                                    </excludes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <!--
+                    <execution>
+                        <id>copy-templates</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/${config.templates.dir}/</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources</directory>
+                                    <includes>
+                                        <include>**/*.template</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    -->
+                </executions>
             </plugin>
             <!-- Generate Javadoc -->
             <plugin>
@@ -260,6 +327,17 @@
                     <linksource>true</linksource>
                     <show>package</show>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <!--
+                            <goal>javadoc</goal>
+                            -->
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <!-- Make this jar executable -->
             <plugin>
@@ -268,7 +346,7 @@
                 <version>2.5</version>
                 <configuration>
                     <excludes>
-                        <exclude>**/simplelogger.properties</exclude>
+                        <exclude>simplelogger.properties</exclude>
                     </excludes>
                     <archive>
                         <manifest>
