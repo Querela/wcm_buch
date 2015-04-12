@@ -1,4 +1,4 @@
-package de.uni_leipzig.comprak.books.wcmbookserver.extract.data;
+package de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;

@@ -1,4 +1,4 @@
-package de.uni_leipzig.comprak.books.wcmbookserver.extract.utils;
+package de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils;
 
 import java.util.Properties;
 

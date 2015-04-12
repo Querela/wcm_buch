@@ -1,8 +1,9 @@
-package de.uni_leipzig.comprak.books.wcmbookserver.extract;
+package de.uni_leipzig.wcmprak.books.wcmbookserver.extract;
 
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.utils.Configurable;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.utils.Initializable;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.utils.Props;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Configurable;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Initializable;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Props;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.JSoup;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -17,7 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Properties;
 
-import static de.uni_leipzig.comprak.books.wcmbookserver.extract.utils.JSoup.getAttributeValue;
+import static de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.JSoup.getAttributeValue;
 
 /**
  * Adapter-class to wrap all query calls in simple methods.
@@ -102,9 +103,9 @@ public class GoodreadsAPIAdapter implements Configurable, Initializable {
         } // if
 
         Element paginateEle = Jsoup.parse(firstPage, AUTHORS_BOOKS_URI + '/' + authorID, Parser.xmlParser()).select("GoodreadsResponse > author > books").first();
-        int start = Integer.parseInt(getAttributeValue(paginateEle, "start"));
-        int end = Integer.parseInt(getAttributeValue(paginateEle, "end"));
-        int total = Integer.parseInt(getAttributeValue(paginateEle, "total"));
+        int start = Integer.parseInt(JSoup.getAttributeValue(paginateEle, "start"));
+        int end = Integer.parseInt(JSoup.getAttributeValue(paginateEle, "end"));
+        int total = Integer.parseInt(JSoup.getAttributeValue(paginateEle, "total"));
         log.debug("First result page: Results {} - {} of {}", start, end, total);
         int resultsPerPage = end - start + 1;
         int countPages = ((total + resultsPerPage - 1) / resultsPerPage);

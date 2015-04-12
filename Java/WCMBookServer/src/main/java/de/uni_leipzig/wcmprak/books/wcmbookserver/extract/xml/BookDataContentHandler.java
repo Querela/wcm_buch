@@ -1,6 +1,9 @@
-package de.uni_leipzig.comprak.books.wcmbookserver.extract.xml;
+package de.uni_leipzig.wcmprak.books.wcmbookserver.extract.xml;
 
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.data.*;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.AuthorInfo;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.Book;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.SeriesInfo;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.Shelf;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;

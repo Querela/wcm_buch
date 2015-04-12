@@ -1,13 +1,13 @@
-package de.uni_leipzig.comprak.books.wcmbookserver.extract;
+package de.uni_leipzig.wcmprak.books.wcmbookserver.extract;
 
 import com.mongodb.*;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.data.AuthorInfo;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.data.Book;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.data.SeriesInfo;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.data.Shelf;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.utils.Configurable;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.utils.Initializable;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.utils.Props;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.AuthorInfo;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.Book;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.SeriesInfo;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.Shelf;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Configurable;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Initializable;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Props;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

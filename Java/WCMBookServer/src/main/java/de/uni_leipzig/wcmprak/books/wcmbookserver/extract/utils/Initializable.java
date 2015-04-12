@@ -1,4 +1,4 @@
-package de.uni_leipzig.comprak.books.wcmbookserver.extract.utils;
+package de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils;
 
 /**
  * Marks a class so that initialize should be called prior to execution.

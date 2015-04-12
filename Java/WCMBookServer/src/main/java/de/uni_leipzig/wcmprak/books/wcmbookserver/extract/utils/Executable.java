@@ -1,4 +1,4 @@
-package de.uni_leipzig.comprak.books.wcmbookserver.extract.utils;
+package de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils;
 
 /**
  * Interface for marking a module as executable (that the module has a single method for execution).

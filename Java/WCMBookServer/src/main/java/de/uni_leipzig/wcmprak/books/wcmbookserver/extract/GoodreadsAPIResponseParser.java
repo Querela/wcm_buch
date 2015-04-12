@@ -1,12 +1,12 @@
-package de.uni_leipzig.comprak.books.wcmbookserver.extract;
+package de.uni_leipzig.wcmprak.books.wcmbookserver.extract;
 
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.data.AuthorInfo;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.data.Book;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.data.SeriesInfo;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.data.Shelf;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.utils.Configurable;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.utils.Initializable;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.utils.Props;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.AuthorInfo;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.Book;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.SeriesInfo;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.Shelf;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Configurable;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Initializable;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Props;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
-import static de.uni_leipzig.comprak.books.wcmbookserver.extract.utils.JSoup.*;
+import static de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.JSoup.*;
 
 /**
  * Created by Erik on 01.12.2014.
@@ -151,10 +151,10 @@ public class GoodreadsAPIResponseParser implements Configurable, Initializable {
     }
 
     /**
-     * Merges multiple <i>{@link de.uni_leipzig.comprak.books.wcmbookserver.extract.data.AuthorInfo}</i> object into a single one -> i. e. move all books to the first object.
+     * Merges multiple <i>{@link AuthorInfo}</i> object into a single one -> i. e. move all books to the first object.
      *
-     * @param authorsBookInfos Array of <i>{@link de.uni_leipzig.comprak.books.wcmbookserver.extract.data.AuthorInfo}</i> objects whose books should be concatenated
-     * @return {@link de.uni_leipzig.comprak.books.wcmbookserver.extract.data.AuthorInfo} with all the books from the other objects
+     * @param authorsBookInfos Array of <i>{@link AuthorInfo}</i> objects whose books should be concatenated
+     * @return {@link AuthorInfo} with all the books from the other objects
      */
     protected AuthorInfo mergeMultipleAuthorsBookDataPages(AuthorInfo[] authorsBookInfos) {
         if (authorsBookInfos == null || authorsBookInfos.length == 0) {

@@ -1,12 +1,12 @@
-package de.uni_leipzig.comprak.books.wcmbookserver.extract;
+package de.uni_leipzig.wcmprak.books.wcmbookserver.extract;
 
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.data.AuthorInfo;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.data.BookEditionInfo;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.data.BookEditionsList;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.utils.Configurable;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.utils.Initializable;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.utils.JSoup;
-import de.uni_leipzig.comprak.books.wcmbookserver.extract.utils.Props;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.BookEditionInfo;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Props;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.AuthorInfo;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.BookEditionsList;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Configurable;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Initializable;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.JSoup;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -81,7 +81,7 @@ public class GoodreadsScreenScraper implements Configurable, Initializable {
     /**
      * Retrieves the web pages associated with the editions id from goodreads, parses them and returns nice wrapper objects.
      * @param editionsID edition id of a book
-     * @return {@link de.uni_leipzig.comprak.books.wcmbookserver.extract.data.BookEditionsList} with parsed data or null on error
+     * @return {@link BookEditionsList} with parsed data or null on error
      */
     public BookEditionsList parseEditionsPage(int editionsID) {
         log.debug("Request and parse content for edition id={} (all pages) ...", editionsID);

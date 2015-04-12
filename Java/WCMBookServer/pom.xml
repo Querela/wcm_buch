@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>de.uni-leizig.cmprak</groupId>
-    <artifactId>books</artifactId>
+    <groupId>de.uni-leizig.wcmprak.books</groupId>
+    <artifactId>wcmbookserver</artifactId>
     <name>WCMBookServer</name>
     <description>TODO: Tools for extracting data from goodreads (via API or screen scraping), processing and importing
         into a document database.
@@ -350,7 +350,7 @@
                     </excludes>
                     <archive>
                         <manifest>
-                            <mainClass>de.uni_leipzig.comprak.books.wcmbookserver.Main</mainClass>
+                            <mainClass>de.uni_leipzig.wcmprak.books.wcmbookserver.Main</mainClass>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>${libs.dir}</classpathPrefix>
                         </manifest>
