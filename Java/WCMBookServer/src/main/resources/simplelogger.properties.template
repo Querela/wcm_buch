@@ -4,3 +4,23 @@ org.slf4j.simpleLogger.levelInBrackets = true
 org.slf4j.simpleLogger.showShortLogName = true
 
 #org.slf4j.simpleLogger.logFile = WCMBookServer.log
+
+
+org.slf4j.simpleLogger.log.de.uni_leipzig.wcmprak.books.wcmbookserver.serve.StartEmbeddedServer = debug
+
+org.slf4j.simpleLogger.log.org.eclipse.jetty.http.PreEncodedHttpField = info
+org.slf4j.simpleLogger.log.org.eclipse.jetty.servlet.BaseHolder = info
+org.slf4j.simpleLogger.log.org.eclipse.jetty.servlet.ServletHolder = info
+org.slf4j.simpleLogger.log.org.eclipse.jetty.server.handler.AbstractHandler = info
+org.slf4j.simpleLogger.log.org.eclipse.jetty.server.handler.ContextHandlerCollection = info
+org.slf4j.simpleLogger.log.org.eclipse.jetty.util.component.ContainerLifeCycle = info
+org.slf4j.simpleLogger.log.org.eclipse.jetty.util.component.AbstractLifeCycle = info
+org.slf4j.simpleLogger.log.org.eclipse.jetty.server.handler.ContextHandler = debug
+org.slf4j.simpleLogger.log.org.eclipse.jetty.server.AbstractNCSARequestLog = debug
+org.slf4j.simpleLogger.log.org.eclipse.jetty.server.Server = debug
+org.slf4j.simpleLogger.log.org.eclipse.jetty.server.ServerConnector = debug
+org.slf4j.simpleLogger.log.org.eclipse.jetty.servlet.ServletHandler = debug
+org.slf4j.simpleLogger.log.org.eclipse.jetty.util.log = debug
+org.slf4j.simpleLogger.log.org.eclipse.jetty.io.ManagedSelector = info
+org.slf4j.simpleLogger.log.org.eclipse.jetty.util.thread.strategy.ExecuteProduceRun = info
+org.slf4j.simpleLogger.log.org.eclipse.jetty.util.thread.QueuedThreadPool = info

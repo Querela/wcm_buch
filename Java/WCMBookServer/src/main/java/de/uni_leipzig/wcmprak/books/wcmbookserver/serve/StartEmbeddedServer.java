@@ -1,6 +1,9 @@
 package de.uni_leipzig.wcmprak.books.wcmbookserver.serve;
 
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.*;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -23,7 +26,7 @@ public class StartEmbeddedServer {
 
     protected static ServletContextHandler createContext() {
         String webDir = StartEmbeddedServer.class.getClassLoader().getResource("webapp-static").toExternalForm();
-        log.info("webdir = {}", webDir);
+        log.debug("WEB_DIR = {}", webDir);
 
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         context.setContextPath("/");
@@ -48,7 +51,37 @@ public class StartEmbeddedServer {
 
         Server server = new Server(8080);
 
-        server.setHandler(createContext());
+        // server.setHandler(createContext());
+
+        server.setDumpAfterStart(true);
+        server.setDumpBeforeStop(true);
+        server.setStopAtShutdown(true);
+
+        // Handler Structure
+        HandlerCollection handlers = new HandlerCollection();
+        ContextHandlerCollection contexts = new ContextHandlerCollection();
+        handlers.setHandlers(new Handler[]{contexts, new DefaultHandler()});
+        server.setHandler(handlers);
+
+        contexts.addHandler(createContext());
+
+        // === jetty-requestlog.xml ===
+        NCSARequestLog requestLog = new NCSARequestLog();
+        requestLog.setFilename("requestlog_yyyy_mm_dd.request.log");
+        requestLog.setFilenameDateFormat("yyyy_MM_dd");
+        requestLog.setRetainDays(90);
+        requestLog.setAppend(true);
+        requestLog.setExtended(true);
+        requestLog.setLogCookies(false);
+        requestLog.setLogTimeZone("GMT");
+        RequestLogHandler requestLogHandler = new RequestLogHandler();
+        requestLogHandler.setRequestLog(requestLog);
+        handlers.addHandler(requestLogHandler);
+
+        // === jetty-stats.xml ===
+        StatisticsHandler stats = new StatisticsHandler();
+        stats.setHandler(server.getHandler());
+        server.setHandler(stats);
 
         return server;
     }
@@ -87,7 +120,7 @@ public class StartEmbeddedServer {
             System.in.read();
 
             // Stop server
-            server.dumpStdErr();
+            // server.dumpStdErr();
             server.stop();
             server.join();
         } catch (IOException ioex) {
