@@ -23,9 +23,10 @@
         <!-- source code java version -->
         <jdk.version>1.7</jdk.version>
         <!-- lib versions of dependencies -->
-        <slf4j.version>1.7.7</slf4j.version>
+        <slf4j.version>1.7.12</slf4j.version>
         <jsoup.version>1.8.1</jsoup.version>
-        <jersey.version>2.13</jersey.version>
+        <jersey.version>2.7</jersey.version>
+        <jetty.version>9.3.0.M2</jetty.version>
         <junit.version>4.11</junit.version>
         <mongodb.version>2.13.0-rc0</mongodb.version>
         <!-- -->
@@ -77,13 +78,29 @@
 
         <!-- Jersey, Jetty, Grizzly -> Server -->
         <dependency>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-grizzly2-http</artifactId>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-server</artifactId>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-grizzly2-servlet</artifactId>
+            <artifactId>jersey-container-servlet-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-jetty-http</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-moxy</artifactId>
@@ -112,6 +129,18 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jul-to-slf4j</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
             <version>${slf4j.version}</version>
             <scope>runtime</scope>
         </dependency>
@@ -327,7 +356,7 @@
                     <links>
                         <link>http://docs.oracle.com/javase/7/docs/api/</link>
                     </links>
-                    <detectLinks>true</detectLinks>
+                    <!--<detectLinks>true</detectLinks>-->
                     <linksource>true</linksource>
                     <show>package</show>
                 </configuration>

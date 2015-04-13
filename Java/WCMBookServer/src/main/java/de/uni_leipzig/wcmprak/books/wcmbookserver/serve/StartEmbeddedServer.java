@@ -1,26 +1,14 @@
 package de.uni_leipzig.wcmprak.books.wcmbookserver.serve;
 
-import org.glassfish.grizzly.http.server.CLStaticHttpHandler;
-import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.grizzly.http.server.StaticHttpHandler;
-import org.glassfish.grizzly.servlet.FilterRegistration;
-import org.glassfish.grizzly.servlet.ServletRegistration;
-import org.glassfish.grizzly.servlet.WebappContext;
-import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.DispatcherType;
-import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.EnumSet;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Erik on 12.04.2015.
@@ -28,49 +16,39 @@ import java.util.concurrent.TimeUnit;
 public class StartEmbeddedServer {
     private final static Logger log = LoggerFactory.getLogger(StartEmbeddedServer.class);
 
-    // Base URI the Grizzly HTTP server will listen on
-    public static final String BASE_URI = getBaseURI().toString();
-    public static final String JERSEY_SERVLET_CONTEXT_PATH = "";
-
-    protected static URI getBaseURI() {
-        return UriBuilder
-                .fromUri("http://localhost/")
-                .port(8080)
-                .path("wcmbook")
-                .build();
-    }
-
     protected static ResourceConfig getResources() {
         return new ResourceConfig()
                 .packages("de.uni_leipzig.wcmprak.books.wcmbookserver.serve.resources");
     }
 
-    protected static WebappContext getWebappContext() {
-        WebappContext webappContext = new WebappContext("Grizzly WebappContext", JERSEY_SERVLET_CONTEXT_PATH);
+    protected static ServletContextHandler createContext() {
+        String webDir = StartEmbeddedServer.class.getClassLoader().getResource("webapp-static").toExternalForm();
+        log.info("webdir = {}", webDir);
 
-        return webappContext;
+        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
+        context.setContextPath("/");
+        //context.setResourceBase(webDir);
+
+        // Add jersey
+        ServletHolder jerseyServlet = context.addServlet(org.glassfish.jersey.servlet.ServletContainer.class, "/api/*");
+        jerseyServlet.setInitOrder(1);
+        jerseyServlet.setInitParameter("jersey.config.server.provider.packages", "de.uni_leipzig.wcmprak.books.wcmbookserver.serve.resources");
+
+        // Add static
+        ServletHolder staticServlet = context.addServlet(DefaultServlet.class, "/static/*");
+        staticServlet.setInitParameter("resourceBase", webDir);
+        staticServlet.setInitParameter("pathInfoOnly", "true");
+        // staticServlet.setInitParameter("dirAllowed", "false");
+
+        return context;
     }
 
-    protected static HttpServer createServer() {
+    protected static Server createServer() {
         // Build grizzly httpServer with jersey/jax-rs resources
-        final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(getBaseURI(), getResources(), false);
 
-        // Build webapp context for registering additional servlets
-        WebappContext webappContext = getWebappContext();
-        webappContext.deploy(server);
+        Server server = new Server(8080);
 
-        /*
-        try {
-            server.getServerConfiguration()
-                    .addHttpHandler(
-                            new CLStaticHttpHandler(
-                                    new URLClassLoader(
-                                            new URL[]{new URL("file:///D/Documents/Universität/WCM-Praktikum/wcm_buch/Java/WCMBookServer/target/WCMBookServer-javadoc.jar")}
-                                    )), "/");
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        //*/
+        server.setHandler(createContext());
 
         return server;
     }
@@ -84,26 +62,34 @@ public class StartEmbeddedServer {
         log.info("Start embedded server for [WCMBookServer] ...");
 
         // Build & configure server
-        final HttpServer server = createServer();
+        final Server server = createServer();
 
         try {
             // Start server
             server.start();
+            log.info("--> Server listening on: {}", server.getURI().toASCIIString());
 
             // Register shutdown hook
             Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
                 @Override
                 public void run() {
                     log.info("Stopping server ...");
-                    server.shutdown();
+                    try {
+                        server.stop();
+                    } catch (Exception e) {
+                        log.error("server stop", e);
+                    }
                 }
             }, "shutdownHook-server"));
 
             // Wait for ENTER OR CTRL^C
             log.info("Press ENTER or CTRL^C to exit ...");
             System.in.read();
+
             // Stop server
-            server.shutdown(3, TimeUnit.SECONDS);
+            server.dumpStdErr();
+            server.stop();
+            server.join();
         } catch (IOException ioex) {
             log.error("IO Exception while configuring and starting the server ...", ioex);
         }
