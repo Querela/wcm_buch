@@ -1,10 +1,9 @@
 package de.uni_leipzig.wcmprak.books.wcmbookserver.serve;
 
 import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ContextHandlerCollection;
-import org.eclipse.jetty.server.handler.DefaultHandler;
-import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.*;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -25,23 +24,6 @@ import java.util.Map;
 public class StartEmbeddedServer {
     private final static Logger log = LoggerFactory.getLogger(StartEmbeddedServer.class);
 
-    protected static ResourceConfig getResources() {
-        final Map<String, String> namespacePrefixMapper = new HashMap<>();
-        namespacePrefixMapper.put("http://www.w3.org/2001/XMLSchema-instance", "xsi");
-
-        final MoxyJsonConfig moxyJsonConfig = new MoxyJsonConfig()
-                .setNamespacePrefixMapper(namespacePrefixMapper)
-                .setNamespaceSeparator(':');
-
-        final ContextResolver<MoxyJsonConfig> jsonConfigResolver = moxyJsonConfig.resolver();
-
-        return new ResourceConfig()
-                .packages("de.uni_leipzig.wcmprak.books.wcmbookserver.serve.resources")
-                .property(MarshallerProperties.JSON_NAMESPACE_SEPARATOR, ".")
-                        // .register(MoxyJsonFeature.class)
-                .register(jsonConfigResolver);
-    }
-
     protected static ServletContextHandler createContext() {
         String webDir = ".";
         try {
@@ -59,8 +41,6 @@ public class StartEmbeddedServer {
         ServletHolder jerseyServlet = context.addServlet(org.glassfish.jersey.servlet.ServletContainer.class, "/api/*");
         jerseyServlet.setInitOrder(1);
         jerseyServlet.setInitParameter("jersey.config.server.provider.packages", "de.uni_leipzig.wcmprak.books.wcmbookserver.serve.resources");
-        // jerseyServlet.setInitParameter("jersey.config.server.provider.classnames", RequestHandler.class.getCanonicalName());
-        // jerseyServlet.setInitParameter("javax.ws.rs.Application", "de.uni_leipzig.wcmprak.books.wcmbookserver.serve.MyApplication");
 
         // Add static
         ServletHolder staticServlet = context.addServlet(DefaultServlet.class, "/*");
@@ -74,13 +54,12 @@ public class StartEmbeddedServer {
     protected static Server createServer() {
         // Build grizzly httpServer with jersey/jax-rs resources
 
-        // Server server = JettyHttpContainerFactory.createServer(URI.create("http://localhost:8080/"), getResources(), false);
         Server server = new Server(8080);
 
         server.setHandler(createContext());
 
-        // server.setDumpAfterStart(true);
-        // server.setDumpBeforeStop(true);
+        server.setDumpAfterStart(false);
+        server.setDumpBeforeStop(true);
         server.setStopAtShutdown(true);
 
         // Handler Structure
@@ -91,7 +70,6 @@ public class StartEmbeddedServer {
 
         contexts.addHandler(createContext());
 
-        /*
         // === jetty-requestlog.xml ===
         NCSARequestLog requestLog = new NCSARequestLog();
         requestLog.setFilename("requestlog_yyyy_mm_dd.request.log");
@@ -109,7 +87,6 @@ public class StartEmbeddedServer {
         StatisticsHandler stats = new StatisticsHandler();
         stats.setHandler(server.getHandler());
         server.setHandler(stats);
-        */
 
         return server;
     }

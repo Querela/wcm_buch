@@ -93,7 +93,7 @@ public class GoodreadsMongoAdapter implements Configurable, Initializable {
 
     @Override
     public void initialize() throws Exception {
-// If it has been initialized then it doesn't need to be called again.
+        // If it has been initialized then it doesn't need to be called again.
         if (this.hasBeenInitialized) {
             return;
         } // if
@@ -106,7 +106,7 @@ public class GoodreadsMongoAdapter implements Configurable, Initializable {
 
         collBooks = db.getCollection(COLLECTION_NAME_BOOKS);
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
                 // this.setName("ShutdownHook-mongo");
@@ -119,7 +119,7 @@ public class GoodreadsMongoAdapter implements Configurable, Initializable {
                     } // try-catch
                 } // if
             }
-        });
+        }, "shutdownHook-mongo"));
 
         this.hasBeenInitialized = true;
     }

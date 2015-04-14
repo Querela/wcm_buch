@@ -31,12 +31,19 @@ public class RequestHandler {
     public RequestHandler() {
     }
 
+    /**
+     * Converts an object <i>obj</i> into an XML-String (or JSON if <i>doJSON</i> is <i>true</i>).
+     *
+     * @param obj    Object to convert (marshall)
+     * @param doJSON if <i>true</i> then we convert to JSON instead of XML
+     * @return String (XML / JSON)
+     */
     protected String marshallObject(Object obj, boolean doJSON) {
         // boolean doJSON = headers.getMediaType().isCompatible(MediaType.APPLICATION_JSON);
         boolean doFancy = false;
         try {
             doFancy = Boolean.parseBoolean(url.getQueryParameters(true).getFirst("doFancy"));
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
 
@@ -59,6 +66,29 @@ public class RequestHandler {
         }
     }
 
+    /**
+     * Converts an object <i>obj</i> into String-form. Uses the <i>ACCEPT</i>-HTTP-Header to determine if XML or JSON.
+     *
+     * @param obj Object to serialize/convert/marshall
+     * @return String (XML / JSON depending on Content-Encoding (?))
+     * @see {@link #marshallObject}
+     */
+    protected String marshallObjectByMediaType(Object obj) {
+        boolean doJSON = true;
+        try {
+            doJSON = headers.getMediaType().isCompatible(MediaType.APPLICATION_JSON_TYPE);
+        } catch (Exception ignored) {
+        }
+
+        return marshallObject(obj, doJSON);
+    }
+
+    /**
+     * Convert an Exception/Throwable into a String ...
+     *
+     * @param t Exception
+     * @return String
+     */
     protected static String serializeError(Throwable t) {
         if (t == null) {
             return "no error ...";
@@ -70,26 +100,42 @@ public class RequestHandler {
     }
 
     @GET
+    @Path("/search/{searchString}")
     @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
-    public String getDataXML(@DefaultValue("???") @QueryParam("field") String field) {
-        Data d = new Data(field);
-
-        return marshallObject(d, false);
+    public String getBookResultListForSearchTermXML(@PathParam("searchString") String searchString) {
+        return (new Object() {
+        }.getClass().getEnclosingMethod().getName() + ": ") + searchString;
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getDataJSON(@DefaultValue("???") @QueryParam("field") String field) {
-        Data d = new Data(field);
-
-        return marshallObject(d, true);
+    @Path("/book/{id}")
+    @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
+    public String getBookByGoodreadsIDXML(@PathParam("id") String bookID) {
+        return (new Object() {
+        }.getClass().getEnclosingMethod().getName() + ": ") + bookID;
     }
 
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public String getDataPlain(@DefaultValue("???") @QueryParam("field") String field) {
-        Data d = new Data(field);
+    @Path("/book/{id}/editions")
+    @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
+    public String getBookEditionsByBookGoodreadsIDXML(@PathParam("id") String bookID) {
+        return (new Object() {
+        }.getClass().getEnclosingMethod().getName() + ": ") + bookID;
+    }
 
-        return d.toString();
+    @GET
+    @Path("/author/{id}")
+    @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
+    public String getAuthorByGoodreadsIDXML(@PathParam("id") String authorID) {
+        return (new Object() {
+        }.getClass().getEnclosingMethod().getName() + ": ") + authorID;
+    }
+
+    @GET
+    @Path("/author/{id}/books")
+    @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
+    public String getAuthorBooksByAuthorGoodreadsIDXML(@PathParam("id") String authorID) {
+        return (new Object() {
+        }.getClass().getEnclosingMethod().getName() + ": ") + authorID;
     }
 }

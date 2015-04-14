@@ -80,6 +80,7 @@ public class GoodreadsScreenScraper implements Configurable, Initializable {
 
     /**
      * Retrieves the web pages associated with the editions id from goodreads, parses them and returns nice wrapper objects.
+     *
      * @param editionsID edition id of a book
      * @return {@link BookEditionsList} with parsed data or null on error
      */
