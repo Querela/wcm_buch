@@ -51,8 +51,8 @@ public class BookEditionsList {
         this.mainBookGoodreadsID = mainBookGoodreadsID;
     }
 
-    @XmlElement
-    @XmlElementWrapper
+    @XmlElement(name = "book")
+    @XmlElementWrapper(name = "books")
     public List<BookEditionInfo> getBooks() {
         return books;
     }

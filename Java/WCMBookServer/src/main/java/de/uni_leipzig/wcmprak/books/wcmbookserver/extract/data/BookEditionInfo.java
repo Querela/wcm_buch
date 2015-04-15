@@ -82,8 +82,8 @@ public class BookEditionInfo {
     }
 
     // TODO: change class type lookup to support generics?
-    @XmlElement
-    @XmlElementWrapper
+    @XmlElement(name = "author")
+    @XmlElementWrapper(name = "authors")
     public List<AuthorInfo> getAuthors() {
         return authors;
     }

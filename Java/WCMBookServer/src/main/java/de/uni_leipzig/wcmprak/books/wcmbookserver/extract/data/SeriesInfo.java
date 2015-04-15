@@ -53,8 +53,8 @@ public class SeriesInfo {
         this.countSeries = count;
     }
 
-    @XmlElement
-    @XmlElementWrapper
+    @XmlElement(name = "book")
+    @XmlElementWrapper(name = "books")
     public List<Book> getBooks() {
         return books;
     }

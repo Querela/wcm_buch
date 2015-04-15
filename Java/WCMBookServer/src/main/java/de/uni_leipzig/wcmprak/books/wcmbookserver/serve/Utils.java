@@ -21,19 +21,20 @@ public class Utils {
     }
 
     public final static String WILDCARD_URI = "/*";
-    public final static String API_URI = "/api";
-    public final static String STATIC_FILES_URI = "/static";
-    public final static String STATIC_HTML_URI = "/html";
-    public final static String STATIC_IMAGES_URI = "/images";
-    public final static String STATIC_FONTS_URI = "/fonts";
-    public final static String STATIC_SCRIPTS_URI = "/js";
-    public final static String STATIC_STYLES_URI = "/css";
+    public final static String API_URI = "/api/";
+    public final static String STATIC_FILES_URI = "/static/";
+    public final static String STATIC_HTML_URI = "/html/";
+    public final static String STATIC_IMAGES_URI = "/images/";
+    public final static String STATIC_FONTS_URI = "/fonts/";
+    public final static String STATIC_SCRIPTS_URI = "/js/";
+    public final static String STATIC_STYLES_URI = "/css/";
 
-    public final static String API_URI_SERVLET_MAPPING = API_URI + WILDCARD_URI;
-    public final static String STATIC_FILES_URI_SERVLET_MAPPING = STATIC_FILES_URI + WILDCARD_URI;
+    public final static String WILDCARD_SERVLET_MAPPING = WILDCARD_URI;
+    public final static String API_URI_SERVLET_MAPPING = API_URI + "*";
+    public final static String STATIC_FILES_URI_SERVLET_MAPPING = STATIC_FILES_URI + "*";
 
     // TODO: use correct file, not testing thingy ...
-    public final static String STATIC_FILE_SPA_INDEX_URI = STATIC_FILES_URI + "/readme.txt";
+    public final static String STATIC_FILE_SPA_INDEX_URI = STATIC_FILES_URI + "readme.txt";
 
     // -------------------------------------------------------------------------
 

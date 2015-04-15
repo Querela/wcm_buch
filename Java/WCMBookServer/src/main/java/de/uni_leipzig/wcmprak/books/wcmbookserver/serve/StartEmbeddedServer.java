@@ -5,6 +5,7 @@ import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.*;
 import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
@@ -34,7 +35,13 @@ public class StartEmbeddedServer {
         // context.setResourceBase(webDir);
 
         // Filter requests to redirect to single web page
-        context.addFilter(SPAFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
+        context.addFilter(SPAFilter.class, Utils.WILDCARD_SERVLET_MAPPING, EnumSet.of(DispatcherType.REQUEST));
+
+        // Add some filters ...
+        // TODO: configure?
+        FilterHolder dosFilter = context.addFilter(org.eclipse.jetty.servlets.DoSFilter.class, Utils.WILDCARD_SERVLET_MAPPING, EnumSet.of(DispatcherType.REQUEST));
+        FilterHolder qosFilter = context.addFilter(org.eclipse.jetty.servlets.QoSFilter.class, Utils.WILDCARD_SERVLET_MAPPING, EnumSet.of(DispatcherType.REQUEST));
+        FilterHolder gzipFilter = context.addFilter(org.eclipse.jetty.servlets.GzipFilter.class, Utils.WILDCARD_SERVLET_MAPPING, EnumSet.of(DispatcherType.REQUEST));
 
         // Add jersey
         ServletHolder jerseyServlet = context.addServlet(org.glassfish.jersey.servlet.ServletContainer.class, Utils.API_URI_SERVLET_MAPPING);
@@ -45,17 +52,14 @@ public class StartEmbeddedServer {
         ServletHolder staticServlet = context.addServlet(DefaultServlet.class, Utils.STATIC_FILES_URI_SERVLET_MAPPING);
         staticServlet.setInitParameter("resourceBase", webDir);
         staticServlet.setInitParameter("pathInfoOnly", "true");
-        // staticServlet.setInitParameter("dirAllowed", "false");
+        staticServlet.setInitParameter("dirAllowed", "false");
 
         return context;
     }
 
     protected static Server createServer() {
-        // Build grizzly httpServer with jersey/jax-rs resources
 
         Server server = new Server(8080);
-
-        server.setHandler(createContext());
 
         server.setDumpAfterStart(false);
         server.setDumpBeforeStop(true);

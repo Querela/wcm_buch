@@ -23,7 +23,10 @@ public class SPAFilter implements Filter {
         String path = req.getRequestURI().substring(req.getContextPath().length());
         log.debug("SPAFilter: path=\"{}\" [\"{}\"]", path, req.getRequestURI());
 
-        if (path.startsWith(Utils.API_URI)) {
+        if ("OPTIONS".equalsIgnoreCase(req.getMethod())) {
+            // don't filter OPTIONS ...
+            chain.doFilter(request, response);
+        } else if (path.startsWith(Utils.API_URI)) {
             // Ignore api requests ...
             chain.doFilter(request, response);
         } else if (path.startsWith(Utils.STATIC_FILES_URI) ||
@@ -34,7 +37,7 @@ public class SPAFilter implements Filter {
             // Ignore normal file requests ...
             chain.doFilter(request, response);
         } else {
-            log.debug("SPAFilter: redirect path=\"{}\" to \"{}\"", path, Utils.STATIC_FILE_SPA_INDEX_URI);
+            log.info("SPAFilter: redirect path=\"{}\" to \"{}\"", path, Utils.STATIC_FILE_SPA_INDEX_URI);
             // Redirect everything else to SPA index file
             request.getRequestDispatcher(Utils.STATIC_FILE_SPA_INDEX_URI).forward(request, response);
         }

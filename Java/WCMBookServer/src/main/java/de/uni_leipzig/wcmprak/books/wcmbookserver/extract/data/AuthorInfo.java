@@ -53,8 +53,8 @@ public class AuthorInfo {
         this.role = role;
     }
 
-    @XmlElement
-    @XmlElementWrapper
+    @XmlElement(name = "book")
+    @XmlElementWrapper(name = "books")
     public List<Book> getBooks() {
         return books;
     }
