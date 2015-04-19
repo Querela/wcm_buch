@@ -29,15 +29,17 @@ public class SPAFilter implements Filter {
         } else if (path.startsWith(Utils.API_URI)) {
             // Ignore api requests ...
             chain.doFilter(request, response);
-        } else if (path.startsWith(Utils.STATIC_FILES_URI) ||
-                path.startsWith(Utils.STATIC_SCRIPTS_URI) ||
+        } else if (path.startsWith(Utils.STATIC_FILES_URI)) {
+            // Ignore normal file requests to static file servlet ...
+            chain.doFilter(request, response);
+        } else if (path.startsWith(Utils.STATIC_SCRIPTS_URI) ||
                 path.startsWith(Utils.STATIC_STYLES_URI) ||
                 path.startsWith(Utils.STATIC_FONTS_URI) ||
                 path.startsWith(Utils.STATIC_IMAGES_URI)) {
-            // Ignore normal file requests ...
-            chain.doFilter(request, response);
+            // Redirect static file requests to static file servlet
+            request.getRequestDispatcher(Utils.STATIC_FILES_URI + path.substring(1)).forward(request, response);
         } else {
-            log.info("SPAFilter: redirect path=\"{}\" to \"{}\"", path, Utils.STATIC_FILE_SPA_INDEX_URI);
+            log.debug("SPAFilter: redirect path=\"{}\" to \"{}\"", path, Utils.STATIC_FILE_SPA_INDEX_URI);
             // Redirect everything else to SPA index file
             request.getRequestDispatcher(Utils.STATIC_FILE_SPA_INDEX_URI).forward(request, response);
         }

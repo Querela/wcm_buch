@@ -15,6 +15,8 @@ public class Main {
      * @param args Arguments
      */
     public static void main(String[] args) throws Exception {
+        System.setProperty("org.slf4j.simpleLogger.log.de.uni_leipzig.wcmprak.books.wcmbookserver", "debug"); // TODO: remove in final version
+
         Logger log = LoggerFactory.getLogger(Main.class);
         log.info("Start WCMBookServer ...");
 
