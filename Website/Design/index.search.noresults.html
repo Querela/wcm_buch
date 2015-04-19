@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>wcmbuch - search - &lt;search term&gt;</title>
+    <meta content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no, width=device-width" name="viewport" />
+    <meta content="Wissens- und Content-Management Praktikum 2014/15 - Buch" name="description" />
+
+    <link rel="shortcut icon" href="favicon.ico">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-theme.css">
+    <link rel="stylesheet" href="css/aeroviewr.css" />
+    <link href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700" rel="stylesheet" type="text/css">
+
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+    <!-- see licensing ...
+    <script src="http://cdn.kendostatic.com/2014.3.1411/js/angular.min.js"></script>
+    <script src="http://cdn.kendostatic.com/2014.3.1411/js/jszip.min.js"></script>
+    <script src="http://cdn.kendostatic.com/2014.3.1411/js/kendo.all.min.js"></script>
+    -->
+</head>
+
+<body>
+    <div id="root">
+        <header>
+            <div class="search-box" id="search-box">
+                <form>
+                    <label for="search-input">Search:&nbsp;</label>
+                    <input class="search-input" id="search-input" name="search-input" type="search" />
+                    <input class="search-input-button" id="search-button" type="button" value="GO" />
+                </form>
+            </div>
+            <h1 class="aeroLogo"><a href="">wcm<span>buch</span></a></h1>
+        </header>
+        <section id="container">
+            <div id="container-wrap">
+                <div id="container-inner-wrap">
+                    <!-- content area -->
+                    <!-- header -->
+                    <div id="result-list-header">
+                        <div class="search-box" id="results-search-box">
+                            <form>
+                                <label for="results-search-input">Search for:&nbsp;</label>
+                                <input class="search-input" id="results-search-input" name="results-search-input" type="search" />
+                                <input class="search-input-button" id="results-search-button" type="button" value="GO" />
+                            </form>
+                        </div>
+                        <div id="results-statistics">
+                            Found <span class="results-total">0</span> results for <span class="results-search-term">'...'</span> (<span class="results-provider">Goodreads</span> search in <span class="results-time">0.10s</span>)
+                        </div>
+                    </div>
+                    <!-- list -->
+                    <div id="result-list">
+                        <div class="result-list-no-item">
+                            <div class="title">Keine Ergebnisse gefunden!</div>
+                            Versuchen Sie eine andere Anfrage ...
+                        </div>
+                        <div class="did-you-mean">
+                            <!-- TODO: possible similiar search terms? -->
+                        </div>
+                    </div>
+                    <div id="result-list-pagination">
+                        <!-- no content -> no navigation/pager -->
+                    </div>
+                </div>
+            </div>
+        </section>
+        <footer>
+            <!-- no footer -->
+            <!-- copyright, imprint, sitelinks, ..., status bar (?) -->
+        </footer>
+    </div>
+</body>
+
+</html>
