@@ -20,6 +20,10 @@ public class Book {
 
     private String originalTitle;
     private String language;
+    private float avgRating;
+
+    private String publisher;
+    private String publishingDate;
 
     private float numberInSeries;
     private SeriesInfo series;
@@ -48,7 +52,7 @@ public class Book {
     }
 
     @XmlElement(name = "author")
-    @XmlElementWrapper(name = "authors")
+    @XmlElementWrapper(name = "authors", nillable = true)
     // @XmlAnyElement
     public List<AuthorInfo> getAuthors() {
         return authors;
@@ -105,6 +109,33 @@ public class Book {
         this.language = lang;
     }
 
+    @XmlElement
+    public float getAverageRating() {
+        return avgRating;
+    }
+
+    public void setAverageRating(float avgRating) {
+        this.avgRating = avgRating;
+    }
+
+    @XmlElement
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+
+    @XmlElement
+    public String getPublishingDate() {
+        return publishingDate;
+    }
+
+    public void setPublishingDate(String publishingDate) {
+        this.publishingDate = publishingDate;
+    }
+
     @XmlTransient
     public boolean isPartOfSeries() {
         return this.series != null;
@@ -129,7 +160,7 @@ public class Book {
     }
 
     @XmlElement(type = Shelf.class, name = "shelf")
-    @XmlElementWrapper(name = "shelves")
+    @XmlElementWrapper(name = "shelves", nillable = true)
     public List<Shelf> getShelves() {
         return shelves;
     }

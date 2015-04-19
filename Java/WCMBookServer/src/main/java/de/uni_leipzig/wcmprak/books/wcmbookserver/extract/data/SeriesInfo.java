@@ -54,7 +54,7 @@ public class SeriesInfo {
     }
 
     @XmlElement(name = "book")
-    @XmlElementWrapper(name = "books")
+    @XmlElementWrapper(name = "books", nillable = true)
     public List<Book> getBooks() {
         return books;
     }

@@ -2,8 +2,8 @@ package de.uni_leipzig.wcmprak.books.wcmbookserver.extract;
 
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Configurable;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Initializable;
-import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Props;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.JSoup;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Props;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -18,8 +18,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Properties;
 
-import static de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.JSoup.getAttributeValue;
-
 /**
  * Adapter-class to wrap all query calls in simple methods.
  * <p/>
@@ -32,6 +30,7 @@ public class GoodreadsAPIAdapter implements Configurable, Initializable {
     private final static String BOOK_URI = BASE_URI + "book/show";
     private final static String AUTHORS_BOOKS_URI = BASE_URI + "author/list";
     private final static String SERIES_BOOKS_URI = BASE_URI + "series/show.xml";
+    private final static String SEARCH_BOOKS_URI = BASE_URI + "search/index.xml";
 
     private String API_KEY = null;
 
@@ -80,6 +79,26 @@ public class GoodreadsAPIAdapter implements Configurable, Initializable {
     }
 
     /**
+     * Returns the String response for a search metadata query for the given <i>searchTerm</i> and <i>page</i>.
+     *
+     * @param searchTerm search term
+     * @param page       Page of result list
+     * @return String with XML-Document or null on error
+     */
+    public String getDataForSearchTerm(String searchTerm, int page) {
+        log.debug("Request content for search: {} (page {}) ...", searchTerm, page);
+        Response response = getWebTargetForSearchTerm(searchTerm, page).request().buildGet().invoke();
+
+        // Check if correct response type (application/xml)
+        if (isValidXMLResponseType(response)) {
+            log.debug("Read {} bytes ...", response.getLength());
+            return response.readEntity(String.class);
+        } else {
+            return null;
+        } // if-else
+    }
+
+    /**
      * Returns the String response for a author metadata query for the given <i>authorID</i> and first page.
      *
      * @param authorID ID of author to query
@@ -87,6 +106,16 @@ public class GoodreadsAPIAdapter implements Configurable, Initializable {
      */
     public String getFirstPageDataForAuthorID(String authorID) {
         return getDataForAuthorID(authorID, 1);
+    }
+
+    /**
+     * Returns the String response for a search metadata query for the given <i>searchTerm</i> and first page.
+     *
+     * @param searchTerm search term to query
+     * @return String with XML-Document or null on error
+     */
+    public String getFirstPageDataForSearchTerm(String searchTerm) {
+        return getDataForSearchTerm(searchTerm, 1);
     }
 
     /**
@@ -116,6 +145,39 @@ public class GoodreadsAPIAdapter implements Configurable, Initializable {
 
         for (int pageNr = 2; pageNr <= countPages; pageNr++) {
             result[pageNr - 1] = getDataForAuthorID(authorID, pageNr);
+            // TODO: check null pages? -> List.toArray()?
+        } // for
+
+        return result;
+    }
+
+    /**
+     * Returns the String responses for a search metadata query for the given <i>searchTerm</i> and all pages.
+     *
+     * @param searchTerm search term to query
+     * @return String[] with each entry either a XML-Document or null on error
+     */
+    public String[] getAllPagesDataForSearchTerm(String searchTerm) {
+        log.debug("Request content for search term: {} (all pages) ...", searchTerm);
+        String firstPage = getDataForSearchTerm(searchTerm, 1);
+        if (firstPage == null) {
+            return new String[0];
+        } // if
+
+        Element paginateEle = Jsoup.parse(firstPage, SEARCH_BOOKS_URI, Parser.xmlParser()).select("GoodreadsResponse > search").first();
+        int start = Integer.parseInt(JSoup.getElementValue(paginateEle.select("results-start")));
+        int end = Integer.parseInt(JSoup.getElementValue(paginateEle.select("results-end")));
+        int total = Integer.parseInt(JSoup.getElementValue(paginateEle.select("total-results")));
+        log.debug("First result page: Results {} - {} of {}", start, end, total);
+        int resultsPerPage = end - start + 1;
+        int countPages = ((total + resultsPerPage - 1) / resultsPerPage);
+        log.debug("Total pages to request: {}, pages left: {}", countPages, countPages - 1);
+
+        String[] result = new String[countPages];
+        result[0] = firstPage;
+
+        for (int pageNr = 2; pageNr <= countPages; pageNr++) {
+            result[pageNr - 1] = getDataForSearchTerm(searchTerm, pageNr);
             // TODO: check null pages? -> List.toArray()?
         } // for
 
@@ -211,7 +273,8 @@ public class GoodreadsAPIAdapter implements Configurable, Initializable {
 
         MediaType type = response.getMediaType();
         if (!type.isCompatible(MediaType.APPLICATION_XML_TYPE)) {
-            log.warn("Incompatible mediatype (actual: \"{}\", expected: \"{}\") for request: {}", type, MediaType.APPLICATION_XML_TYPE, response);
+            log.warn("Incompatible mediatype (actual: \"{}\", expected: \"{}\") for request: {}",
+                    type, MediaType.APPLICATION_XML_TYPE, response);
             return false;
         } // if
 
@@ -225,7 +288,11 @@ public class GoodreadsAPIAdapter implements Configurable, Initializable {
      * @return {@link WebTarget}
      */
     protected WebTarget getWebTargetForBookID(String bookID) {
-        return client.target(BOOK_URI).path(bookID).queryParam("key", API_KEY).queryParam("format", "XML");
+        return client
+                .target(BOOK_URI)
+                .path(bookID)
+                .queryParam("key", API_KEY)
+                .queryParam("format", "XML");
     }
 
     /**
@@ -236,7 +303,11 @@ public class GoodreadsAPIAdapter implements Configurable, Initializable {
      * @return {@link WebTarget}
      */
     protected WebTarget getWebTargetForAuthorID(String authorID, int page) {
-        return client.target(AUTHORS_BOOKS_URI).path(authorID).queryParam("key", API_KEY).queryParam("page", String.valueOf(page));
+        return client
+                .target(AUTHORS_BOOKS_URI)
+                .path(authorID)
+                .queryParam("key", API_KEY)
+                .queryParam("page", String.valueOf(page));
     }
 
     /**
@@ -246,7 +317,24 @@ public class GoodreadsAPIAdapter implements Configurable, Initializable {
      * @return {@link WebTarget}
      */
     protected WebTarget getWebTargetForSeriesID(String seriesID) {
-        return client.target(SERIES_BOOKS_URI).queryParam("key", API_KEY).queryParam("id", seriesID);
+        return client
+                .target(SERIES_BOOKS_URI)
+                .queryParam("key", API_KEY)
+                .queryParam("id", seriesID);
+    }
+
+    /**
+     * Creates a new WebTarget from the REST Client with the given <i>search term</i>. This target can then be used to request the remote data.
+     *
+     * @param searchTerm search term, will be part of the query parameter
+     * @return {@link WebTarget}
+     */
+    protected WebTarget getWebTargetForSearchTerm(String searchTerm, int page) {
+        return client
+                .target(SEARCH_BOOKS_URI)
+                .queryParam("key", API_KEY)
+                .queryParam("q", searchTerm)
+                .queryParam("page", String.valueOf(page));
     }
 
     @Override
