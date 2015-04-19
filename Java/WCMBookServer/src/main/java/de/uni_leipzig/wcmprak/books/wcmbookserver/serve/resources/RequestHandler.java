@@ -6,10 +6,7 @@ import de.uni_leipzig.wcmprak.books.wcmbookserver.serve.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
 /**
@@ -65,9 +62,19 @@ public class RequestHandler {
     @GET
     @Path("/search/{searchString}")
     @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML, MediaType.APPLICATION_JSON})
-    public String getBookResultListForSearchTerm(@PathParam("searchString") String searchString) {
-        return marshallObjectByMediaType((new Object() {
-        }.getClass().getEnclosingMethod().getName() + ": ") + searchString);
+    public String getBookResultListForSearchTerm(@PathParam("searchString") String searchString, @DefaultValue("1") @QueryParam("page") int page) {
+        SearchResultList searchResultList = DataExtractor.getInstance().getSearchResults(searchString, page);
+
+        return marshallObjectByMediaType(searchResultList);
+    }
+
+    @GET
+    @Path("/search/{searchString}/{page}")
+    @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML, MediaType.APPLICATION_JSON})
+    public String getBookResultListForSearchTerm2(@PathParam("searchString") String searchString, @PathParam("page") int page) {
+        SearchResultList searchResultList = DataExtractor.getInstance().getSearchResults(searchString, page);
+
+        return marshallObjectByMediaType(searchResultList);
     }
 
     @GET
@@ -152,6 +159,7 @@ public class RequestHandler {
     @Path("/author/{id}/books")
     @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML, MediaType.APPLICATION_JSON})
     public String getAuthorBooksByAuthorGoodreadsID(@PathParam("id") String authorID) {
+        // TODO: subset of: "/author/{id}"
         return marshallObjectByMediaType((new Object() {
         }.getClass().getEnclosingMethod().getName() + ": ") + authorID);
     }

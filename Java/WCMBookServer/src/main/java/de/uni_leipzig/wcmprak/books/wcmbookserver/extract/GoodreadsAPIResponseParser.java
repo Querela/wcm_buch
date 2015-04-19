@@ -1,9 +1,6 @@
 package de.uni_leipzig.wcmprak.books.wcmbookserver.extract;
 
-import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.AuthorInfo;
-import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.Book;
-import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.SeriesInfo;
-import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.Shelf;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.*;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Configurable;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Initializable;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Props;
@@ -14,6 +11,7 @@ import org.jsoup.parser.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
 import java.util.Properties;
 
 import static de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.JSoup.*;
@@ -26,6 +24,8 @@ public class GoodreadsAPIResponseParser implements Configurable, Initializable {
 
     private boolean hasBeenInitialized = false;
     private Props props = null;
+
+    protected static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy");
 
     public Book parseBookData(String data, String url) {
         if (data == null) {
@@ -41,8 +41,6 @@ public class GoodreadsAPIResponseParser implements Configurable, Initializable {
         if (!"book_show".equals(getElementValue(doc.select("GoodreadsResponse > Request > method")))) {
             return null;
         } // if
-
-        // TODO: add content // SAX?
 
         Book book = new Book();
 
@@ -83,6 +81,74 @@ public class GoodreadsAPIResponseParser implements Configurable, Initializable {
         return book;
     }
 
+    public SearchResultList parseSearchResultData(String data, String url) {
+        if (data == null) {
+            return null;
+        } // if
+
+        Document doc = Jsoup.parse(data, url, Parser.xmlParser());
+        if (doc == null) {
+            return null;
+        } // if
+
+        // Check for right document format
+        if (!"search_index".equals(getElementValue(doc.select("GoodreadsResponse > Request > method")))) {
+            return null;
+        } // if
+
+        SearchResultList searchResultList = new SearchResultList();
+
+        searchResultList.setSearchTerm(getElementValue(doc.select("GoodreadsResponse > search > query")));
+        searchResultList.setResultsStart(Integer.parseInt(getElementValue(doc.select("GoodreadsResponse > search > results-start"))));
+        searchResultList.setResultsEnd(Integer.parseInt(getElementValue(doc.select("GoodreadsResponse > search > results-end"))));
+        searchResultList.setResultsTotal(Integer.parseInt(getElementValue(doc.select("GoodreadsResponse > search > total-results"))));
+        searchResultList.setTimeToSearch(Float.parseFloat(getElementValue(doc.select("GoodreadsResponse > search > query-time-seconds"))));
+
+        for (Element workEle : doc.select("GoodreadsResponse > search > results > work")) {
+            Book book = new Book();
+
+            book.setGoodreadsEditionsID(Integer.parseInt(getElementValue(workEle.select("id"))));
+            book.setAverageRating(Float.parseFloat(getElementValue(workEle.select("average_rating"))));
+
+            try {
+                String yyyyVal = getElementValue(workEle.select("original_publication_year"));
+                if (yyyyVal != null) {
+                    int yyyy = Integer.parseInt(yyyyVal);
+
+                    String MMVal = getElementValue(workEle.select("original_publication_month"));
+                    String pubDate = "" + yyyy;
+                    if (MMVal != null) {
+                        int MM = Integer.parseInt(MMVal);
+                        int dd = Integer.parseInt(getElementValue(workEle.select("original_publication_day")));
+                        pubDate = dd + "." + MM + "." + pubDate;
+                    } // if
+                    book.setPublishingDate(pubDate);
+                } // if
+            } catch (NumberFormatException e) {
+            } // try-catch
+
+            Element bookEle = getSingleElement(workEle.select("best_book"));
+
+            book.setGoodreadsID(Integer.parseInt(getElementValue(bookEle.select("id"))));
+            book.setTitle(getElementValue(bookEle.select("title")));
+            book.setImageURL(getElementValue(bookEle.select("small_image_url")));
+
+            Element authorEle = getSingleElement(bookEle.select("author"));
+            if (authorEle != null) {
+                AuthorInfo author = new AuthorInfo();
+
+                author.setGoodreadsID(Integer.parseInt(getElementValue(authorEle.select("id"))));
+                author.setName(getElementValue(authorEle.select("name")));
+
+                book.addAuthor(author);
+            } // if
+
+            searchResultList.addBook(book);
+        } // for
+
+        return searchResultList;
+    }
+
     public AuthorInfo parseAuthorsBookData(String data, String url) {
         if (data == null) {
             return null;
@@ -111,6 +177,25 @@ public class GoodreadsAPIResponseParser implements Configurable, Initializable {
             book.setUrl(getElementValue(bookEle.select("link")));
             book.setImageURL(getElementValue(bookEle.select("image_url")));
             book.setDescription(getElementValue(bookEle.select("description")));
+
+            book.setAverageRating(Float.parseFloat(getElementValue(bookEle.select("average_rating"))));
+            book.setPublisher(getElementValue(bookEle.select("publisher")));
+            try {
+                String yyyyVal = getElementValue(bookEle.select("publication_year"));
+                if (yyyyVal != null) {
+                    int yyyy = Integer.parseInt(yyyyVal);
+
+                    String MMVal = getElementValue(bookEle.select("publication_month"));
+                    String pubDate = "" + yyyy;
+                    if (MMVal != null) {
+                        int MM = Integer.parseInt(MMVal);
+                        int dd = Integer.parseInt(getElementValue(bookEle.select("publication_day")));
+                        pubDate = dd + "." + MM + "." + pubDate;
+                    } // if
+                    book.setPublishingDate(pubDate);
+                } // if
+            } catch (NumberFormatException e) {
+            } // try-catch
 
             // TODO: needed?
             // TODO: Check authors
@@ -150,6 +235,21 @@ public class GoodreadsAPIResponseParser implements Configurable, Initializable {
         return mergeMultipleAuthorsBookDataPages(authorsBookss);
     }
 
+    public SearchResultList parseSearchResultData(String[] datas, String[] urls) {
+        if (datas == null || urls == null || (datas.length != urls.length)) {
+            return null;
+        } // if
+
+        SearchResultList[] searchResultss = new SearchResultList[datas.length];
+        // Parse each file/page
+        for (int idx = 0; idx < datas.length; idx++) {
+            searchResultss[idx] = parseSearchResultData(datas[idx], urls[idx]);
+        } // for
+
+        // merge results
+        return mergeMultipleSearchResultPages(searchResultss);
+    }
+
     /**
      * Merges multiple <i>{@link AuthorInfo}</i> object into a single one -> i. e. move all books to the first object.
      *
@@ -171,6 +271,30 @@ public class GoodreadsAPIResponseParser implements Configurable, Initializable {
         } // for
 
         return authorBook;
+    }
+
+    /**
+     * Merges multiple <i>{@link SearchResultList}</i> object into a single one -> i. e. move all books to the first object.
+     *
+     * @param searchResultLists Array of <i>{@link SearchResultList}</i> objects whose books should be concatenated
+     * @return {@link SearchResultList} with all the books from the other objects
+     */
+    protected SearchResultList mergeMultipleSearchResultPages(SearchResultList[] searchResultLists) {
+        if (searchResultLists == null || searchResultLists.length == 0) {
+            return null;
+        } // if
+
+        SearchResultList searchResultList = searchResultLists[0];
+
+        // Add other books to first book collection
+        for (int idx = 1; idx < searchResultLists.length; idx++) {
+            // Concatenate books
+            searchResultList.getBooks().addAll(searchResultLists[idx].getBooks());
+            // Accumulate time from remote search
+            searchResultList.setTimeToSearch(searchResultList.getTimeToSearch() + searchResultLists[idx].getTimeToSearch());
+        } // for
+
+        return searchResultList;
     }
 
     public SeriesInfo parseSeriesData(String data, String url) {
@@ -232,8 +356,6 @@ public class GoodreadsAPIResponseParser implements Configurable, Initializable {
                 this.props = new Props(props);
             } // if-else
         } // if-else
-
-        // TODO: more
     }
 
     @Override
@@ -247,8 +369,6 @@ public class GoodreadsAPIResponseParser implements Configurable, Initializable {
         if (this.hasBeenInitialized) {
             return;
         } // if
-
-        // TODO: initialization code
 
         // SAXParserFactory spf = SAXParserFactory.newInstance();
         // SAXParser parser = spf.newSAXParser();

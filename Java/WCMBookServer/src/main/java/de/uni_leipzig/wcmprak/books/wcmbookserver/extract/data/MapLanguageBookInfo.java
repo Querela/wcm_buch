@@ -14,7 +14,7 @@ public class MapLanguageBookInfo {
     private int editionsID;
     private int mainBookGoodreadsID;
     private String mainBookTitle;
-    private HashMap<String, BookEditionInfo> mapLanguageBook = new HashMap<>();
+    private HashMap<String, Book> mapLanguageBook = new HashMap<>();
 
     public MapLanguageBookInfo() {
 
@@ -26,8 +26,8 @@ public class MapLanguageBookInfo {
         this.setEditionsID(bookEditionsList.getEditionsID());
         this.setMainBookGoodreadsID(bookEditionsList.getMainBookGoodreadsID());
         this.setMainBookTitle(bookEditionsList.getMainBookTitle());
-        for (BookEditionInfo bei : bookEditionsList.getBooks()) {
-            this.addBook(bei);
+        for (Book book : bookEditionsList.getBooks()) {
+            this.addBook(book);
         }
     }
 
@@ -36,12 +36,12 @@ public class MapLanguageBookInfo {
         public String language;
 
         @XmlElement
-        public BookEditionInfo book;
+        public Book book;
 
         public MyHashMapEntryType() {
         }
 
-        public MyHashMapEntryType(Map.Entry<String, BookEditionInfo> e) {
+        public MyHashMapEntryType(Map.Entry<String, Book> e) {
             language = e.getKey();
             book = e.getValue();
         }
@@ -79,7 +79,7 @@ public class MapLanguageBookInfo {
         List<MyHashMapEntryType> books = new ArrayList<>();
 
         // Sort languages for output ...
-        TreeMap<String, BookEditionInfo> tm = new TreeMap<>(new Comparator() {
+        TreeMap<String, Book> tm = new TreeMap<>(new Comparator() {
             @Override
             public int compare(Object o1, Object o2) {
                 return ((String) o1).compareTo((String) o2);
@@ -87,14 +87,14 @@ public class MapLanguageBookInfo {
         });
         tm.putAll(mapLanguageBook);
 
-        for (Map.Entry<String, BookEditionInfo> entry : tm.entrySet()) {
+        for (Map.Entry<String, Book> entry : tm.entrySet()) {
             books.add(new MyHashMapEntryType(entry));
         }
 
         return books;
     }
 
-    public void addBook(BookEditionInfo book) {
+    public void addBook(Book book) {
         if (book != null) {
             String language = book.getLanguage();
             if (language == null) {

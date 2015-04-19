@@ -37,6 +37,22 @@ public class DataExtractor {
         return instance;
     }
 
+    public SearchResultList getSearchResults(String searchTerm, int page) {
+        String searchResultPage = grAPI.getDataForSearchTerm(searchTerm, page);
+        SearchResultList searchResultList = grAPIPars.parseSearchResultData(searchResultPage, GOODREADS_BASE_URL);
+        return searchResultList;
+    }
+
+    public SearchResultList getAllSearchResults(String searchTerm) {
+        String[] searchPages = grAPI.getAllPagesDataForSearchTerm(searchTerm);
+
+        String[] urls = new String[searchPages.length];
+        for (int i = 0; i < searchPages.length; i++) urls[i] = GOODREADS_BASE_URL;
+
+        SearchResultList searchResultList = grAPIPars.parseSearchResultData(searchPages, urls);
+        return searchResultList;
+    }
+
     public Book getBook(String bookID) {
         String bookContent = grAPI.getDataForBookID(bookID);
         Book book = grAPIPars.parseBookData(bookContent, GOODREADS_BASE_URL);
@@ -66,7 +82,6 @@ public class DataExtractor {
         String[] urls = new String[authorsBooks.length];
         for (int i = 0; i < authorsBooks.length; i++) urls[i] = GOODREADS_BASE_URL;
 
-        // TODO: editions id for books ...
         AuthorInfo authorInfo = grAPIPars.parseAuthorsBookData(authorsBooks, urls);
         return authorInfo;
     }

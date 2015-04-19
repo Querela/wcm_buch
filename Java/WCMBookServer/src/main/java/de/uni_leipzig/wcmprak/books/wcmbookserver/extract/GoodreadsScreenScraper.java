@@ -1,7 +1,7 @@
 package de.uni_leipzig.wcmprak.books.wcmbookserver.extract;
 
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.AuthorInfo;
-import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.BookEditionInfo;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.Book;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.BookEditionsList;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Configurable;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Initializable;
@@ -57,8 +57,6 @@ public class GoodreadsScreenScraper implements Configurable, Initializable {
                 this.props = new Props(props);
             } // if-else
         } // if-else
-
-        // TODO: more
     }
 
     @Override
@@ -72,8 +70,6 @@ public class GoodreadsScreenScraper implements Configurable, Initializable {
         if (this.hasBeenInitialized) {
             return;
         } // if
-
-        // TODO: initialization code
 
         this.hasBeenInitialized = true;
     }
@@ -137,7 +133,7 @@ public class GoodreadsScreenScraper implements Configurable, Initializable {
         list.setMainAuthor(author);
 
         // Append books
-        for (BookEditionInfo book : parseEditionsPageBooks(doc)) {
+        for (Book book : parseEditionsPageBooks(doc)) {
             list.addBook(book);
         } // for
         // Append books from following pages
@@ -146,7 +142,7 @@ public class GoodreadsScreenScraper implements Configurable, Initializable {
             log.debug("Parse books from edition page: {}", url);
             doc = getDOM(url);
 
-            for (BookEditionInfo book : parseEditionsPageBooks(doc)) {
+            for (Book book : parseEditionsPageBooks(doc)) {
                 list.addBook(book);
             } // for
         } // for
@@ -158,10 +154,10 @@ public class GoodreadsScreenScraper implements Configurable, Initializable {
      * Parse all edition books from a given page DOM.
      *
      * @param doc DOM of web page of book editions
-     * @return list of {@link BookEditionInfo}
+     * @return list of {@link Book}
      */
-    protected static List<BookEditionInfo> parseEditionsPageBooks(Document doc) {
-        List<BookEditionInfo> books = new ArrayList<>();
+    protected static List<Book> parseEditionsPageBooks(Document doc) {
+        List<Book> books = new ArrayList<>();
 
         if (doc == null) {
             return books;
@@ -174,7 +170,7 @@ public class GoodreadsScreenScraper implements Configurable, Initializable {
         } // if
 
         for (Element element : eles) {
-            BookEditionInfo book = parseEditionBook(element);
+            Book book = parseEditionBook(element);
             if (book != null) {
                 books.add(book);
             } // if
@@ -184,15 +180,15 @@ public class GoodreadsScreenScraper implements Configurable, Initializable {
     }
 
     /**
-     * Parses a DOM element into a {@link BookEditionInfo}.
+     * Parses a DOM element into a {@link Book}.
      *
      * @param element DOM data
-     * @return {@link BookEditionInfo} or null on error
+     * @return {@link Book} or null on error
      */
-    protected static BookEditionInfo parseEditionBook(Element element) {
-        BookEditionInfo book = new BookEditionInfo();
+    protected static Book parseEditionBook(Element element) {
+        Book book = new Book();
 
-        book.setImageUrl(JSoup.getAttributeValue(element.select("div.leftAlignedImage img"), "src"));
+        book.setImageURL(JSoup.getAttributeValue(element.select("div.leftAlignedImage img"), "src"));
         book.setTitle(JSoup.getElementValue(element.select("div.editionData a.bookTitle")));
         book.setUrl(JSoup.getAttributeValue(element.select("div.editionData a.bookTitle"), "href"));
         book.setGoodreadsID(getGoodreadsIDFromUrl(book.getUrl()));
@@ -225,7 +221,6 @@ public class GoodreadsScreenScraper implements Configurable, Initializable {
             author.setGoodreadsID(getGoodreadsIDFromUrl(author.getUrl()));
             author.setName(JSoup.getElementValue(ele));
 
-            // TODO: get role/type
             Node n = ele.nextSibling();
             if (n != null) {
                 n = n.nextSibling();

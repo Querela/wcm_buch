@@ -20,6 +20,10 @@ public class Book {
 
     private String originalTitle;
     private String language;
+    private float avgRating;
+
+    private String publisher;
+    private String publishingDate;
 
     private float numberInSeries;
     private SeriesInfo series;
@@ -103,6 +107,33 @@ public class Book {
 
     public void setLanguage(String lang) {
         this.language = lang;
+    }
+
+    @XmlElement
+    public float getAverageRating() {
+        return avgRating;
+    }
+
+    public void setAverageRating(float avgRating) {
+        this.avgRating = avgRating;
+    }
+
+    @XmlElement
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+
+    @XmlElement
+    public String getPublishingDate() {
+        return publishingDate;
+    }
+
+    public void setPublishingDate(String publishingDate) {
+        this.publishingDate = publishingDate;
     }
 
     @XmlTransient
