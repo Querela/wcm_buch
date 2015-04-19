@@ -4,6 +4,7 @@
 
 .brackets.json
 *.hidden
+.*rc
 
 ######
 # Java
