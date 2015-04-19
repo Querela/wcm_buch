@@ -1,13 +1,7 @@
 package de.uni_leipzig.wcmprak.books.wcmbookserver.serve.resources;
 
-import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.GoodreadsAPIAdapter;
-import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.GoodreadsAPIResponseParser;
-import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.GoodreadsScreenScraper;
-import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.AuthorInfo;
-import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.Book;
-import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.BookEditionsList;
-import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.SeriesInfo;
-import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Props;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.*;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.serve.DataExtractor;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.serve.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +27,6 @@ public class RequestHandler {
 
     @Context
     HttpHeaders headers;
-
-    private final static String GOODREADS_BASE_URL = "https://www.goodreads.com/";
 
     public RequestHandler() {
     }
@@ -82,27 +74,7 @@ public class RequestHandler {
     @Path("/book/{id}")
     @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML, MediaType.APPLICATION_JSON})
     public String getBookByGoodreadsID(@PathParam("id") String bookID) {
-        GoodreadsAPIAdapter api = new GoodreadsAPIAdapter();
-        GoodreadsAPIResponseParser parser = new GoodreadsAPIResponseParser();
-        GoodreadsScreenScraper sscraper = new GoodreadsScreenScraper();
-
-        Props props = new Props();
-        props.setStringProp("goodreads.api.key", "RwUzZwkv94PCodD1lMF5g");
-
-        api.configureWith(props);
-        parser.configureWith(props);
-        sscraper.configureWith(props);
-
-        try {
-            api.initialize();
-            parser.initialize();
-            sscraper.initialize();
-        } catch (Exception e) {
-            log.error("init goodreads", e);
-        }
-
-        String bookContent = api.getDataForBookID(bookID);
-        Book book = parser.parseBookData(bookContent, GOODREADS_BASE_URL); // TODO: url?
+        Book book = DataExtractor.getInstance().getBook(bookID);
 
         return marshallObjectByMediaType(book);
     }
@@ -111,15 +83,18 @@ public class RequestHandler {
     @Path("/book/{id}/editions")
     @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML, MediaType.APPLICATION_JSON})
     public String getBookEditionsByBookGoodreadsID(@PathParam("id") String bookID) {
-        GoodreadsScreenScraper gss = new GoodreadsScreenScraper();
-        gss.configureWith(null);
-        try {
-            gss.initialize();
-        } catch (Exception e) {
-            log.error("goodreads init", e);
-        }
+        Book book = DataExtractor.getInstance().getBook(bookID);
 
-        BookEditionsList bookEditionsList = gss.parseEditionsPage(4640799);
+        BookEditionsList bookEditionsList = DataExtractor.getInstance().getEditions("" + book.getGoodreadsEditionsID());
+
+        return marshallObjectByMediaType(bookEditionsList);
+    }
+
+    @GET
+    @Path("/book/editions/{id}")
+    @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML, MediaType.APPLICATION_JSON})
+    public String getBookEditionsByEditionsGoodreadsID(@PathParam("id") String editionsID) {
+        BookEditionsList bookEditionsList = DataExtractor.getInstance().getEditions(editionsID);
 
         return marshallObjectByMediaType(bookEditionsList);
     }
@@ -128,40 +103,38 @@ public class RequestHandler {
     @Path("/book/{id}/languages")
     @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML, MediaType.APPLICATION_JSON})
     public String getBookLanguagesByBookGoodreadsID(@PathParam("id") String bookID) {
-        return marshallObjectByMediaType((new Object() {
-        }.getClass().getEnclosingMethod().getName() + ": ") + bookID);
+        Book book = DataExtractor.getInstance().getBook(bookID);
+
+        MapLanguageBookInfo mapLanguageBookInfo = DataExtractor.getInstance().getLanguages("" + book.getGoodreadsEditionsID());
+
+        return marshallObjectByMediaType(mapLanguageBookInfo);
+    }
+
+    @GET
+    @Path("/book/languages/{id}")
+    @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML, MediaType.APPLICATION_JSON})
+    public String getBookLanguagesByEditionsGoodreadsID(@PathParam("id") String editionsID) {
+        MapLanguageBookInfo mapLanguageBookInfo = DataExtractor.getInstance().getLanguages(editionsID);
+
+        return marshallObjectByMediaType(mapLanguageBookInfo);
     }
 
     @GET
     @Path("/book/{id}/series")
     @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML, MediaType.APPLICATION_JSON})
     public String getBooksSeriesByBookGoodreadsID(@PathParam("id") String bookID) {
-        return marshallObjectByMediaType((new Object() {
-        }.getClass().getEnclosingMethod().getName() + ": ") + bookID);
+        Book book = DataExtractor.getInstance().getBook(bookID);
+
+        SeriesInfo series = DataExtractor.getInstance().getSeries("" + book.getSeries().getGoodreadsID());
+
+        return marshallObjectByMediaType(series);
     }
 
     @GET
     @Path("/series/{id}")
     @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML, MediaType.APPLICATION_JSON})
     public String getSeriesByGoodreadsID(@PathParam("id") String seriesID) {
-        GoodreadsAPIAdapter api = new GoodreadsAPIAdapter();
-        GoodreadsAPIResponseParser parser = new GoodreadsAPIResponseParser();
-
-        Props props = new Props();
-        props.setStringProp("goodreads.api.key", "RwUzZwkv94PCodD1lMF5g");
-
-        api.configureWith(props);
-        parser.configureWith(props);
-
-        try {
-            api.initialize();
-            parser.initialize();
-        } catch (Exception e) {
-            log.error("init goodreads", e);
-        }
-
-        String seriesContent = api.getDataForSeriesID(seriesID);
-        SeriesInfo series = parser.parseSeriesData(seriesContent, GOODREADS_BASE_URL);
+        SeriesInfo series = DataExtractor.getInstance().getSeries(seriesID);
 
         return marshallObjectByMediaType(series);
     }
@@ -170,26 +143,7 @@ public class RequestHandler {
     @Path("/author/{id}")
     @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML, MediaType.APPLICATION_JSON})
     public String getAuthorByGoodreadsID(@PathParam("id") String authorID) {
-        GoodreadsAPIAdapter api = new GoodreadsAPIAdapter();
-        GoodreadsAPIResponseParser parser = new GoodreadsAPIResponseParser();
-
-        Props props = new Props();
-        props.setStringProp("goodreads.api.key", "RwUzZwkv94PCodD1lMF5g");
-
-        api.configureWith(props);
-        parser.configureWith(props);
-
-        try {
-            api.initialize();
-            parser.initialize();
-        } catch (Exception e) {
-            log.error("init goodreads", e);
-        }
-
-        String[] authorsBooks = api.getAllPagesDataForAuthorID(authorID);
-        String[] urls = new String[authorsBooks.length];
-        for (int i = 0; i < authorsBooks.length; i++) urls[i] = GOODREADS_BASE_URL;
-        AuthorInfo authorInfo = parser.parseAuthorsBookData(authorsBooks, urls);
+        AuthorInfo authorInfo = DataExtractor.getInstance().getAuthorInfo(authorID);
 
         return marshallObjectByMediaType(authorInfo);
     }

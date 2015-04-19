@@ -1,5 +1,6 @@
 package de.uni_leipzig.wcmprak.books.wcmbookserver.serve;
 
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Props;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
@@ -104,6 +105,12 @@ public class StartEmbeddedServer {
 
         // Build & configure server
         final Server server = createServer();
+
+        // Configure and initialize an instance of DataExtractor
+        Props props = new Props();
+        props.setStringProp("goodreads.api.key", "RwUzZwkv94PCodD1lMF5g");
+        DataExtractor.configureWith(props);
+        DataExtractor.initialize();
 
         try {
             // Start server

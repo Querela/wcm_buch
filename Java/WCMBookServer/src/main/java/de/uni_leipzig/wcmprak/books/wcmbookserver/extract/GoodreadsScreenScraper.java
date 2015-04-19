@@ -1,12 +1,12 @@
 package de.uni_leipzig.wcmprak.books.wcmbookserver.extract;
 
-import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.BookEditionInfo;
-import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Props;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.AuthorInfo;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.BookEditionInfo;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.BookEditionsList;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Configurable;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Initializable;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.JSoup;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Props;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -196,7 +196,21 @@ public class GoodreadsScreenScraper implements Configurable, Initializable {
         book.setTitle(JSoup.getElementValue(element.select("div.editionData a.bookTitle")));
         book.setUrl(JSoup.getAttributeValue(element.select("div.editionData a.bookTitle"), "href"));
         book.setGoodreadsID(getGoodreadsIDFromUrl(book.getUrl()));
-        book.setLanguage(JSoup.getElementValue(element.select("div.editionData > div.moreDetails > div.dataRow:eq(2) > div.dataValue")));
+
+        String testKeyRating = JSoup.getElementValue(element.select("div.editionData > div.moreDetails > div.dataRow:eq(2) > div.dataTitle"));
+        String testKeyISBN = JSoup.getElementValue(element.select("div.editionData > div.moreDetails > div.dataRow:eq(1) > div.dataTitle"));
+
+        if (testKeyRating != null && testKeyRating.contains("rating")) {
+            if (testKeyISBN != null && testKeyISBN.contains("ISBN")) {
+                log.debug("Found no language for {} ...", book.getGoodreadsID());
+                book.setLanguage(null);
+            } else {
+                book.setLanguage(JSoup.getElementValue(element.select("div.editionData > div.moreDetails > div.dataRow:eq(1) > div.dataValue")));
+            } // if-else
+        } else {
+            book.setLanguage(JSoup.getElementValue(element.select("div.editionData > div.moreDetails > div.dataRow:eq(2) > div.dataValue")));
+        } // if-else
+
         String publish = JSoup.getElementValue(element.select("div.editionData > div.dataRow:eq(1)"));
         Matcher pmatcher = PATTERN_BOOK_PUBLISH.matcher(publish);
         if (pmatcher.matches()) {

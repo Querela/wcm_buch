@@ -48,7 +48,7 @@ public class Book {
     }
 
     @XmlElement(name = "author")
-    @XmlElementWrapper(name = "authors")
+    @XmlElementWrapper(name = "authors", nillable = true)
     // @XmlAnyElement
     public List<AuthorInfo> getAuthors() {
         return authors;
@@ -129,7 +129,7 @@ public class Book {
     }
 
     @XmlElement(type = Shelf.class, name = "shelf")
-    @XmlElementWrapper(name = "shelves")
+    @XmlElementWrapper(name = "shelves", nillable = true)
     public List<Shelf> getShelves() {
         return shelves;
     }

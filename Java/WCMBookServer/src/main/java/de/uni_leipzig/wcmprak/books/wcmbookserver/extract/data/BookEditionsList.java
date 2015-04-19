@@ -2,12 +2,14 @@ package de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Erik on 02.01.2015.
  */
+@XmlRootElement(name = "editions")
 public class BookEditionsList {
     private int editionsID;
     private int mainBookGoodreadsID;
