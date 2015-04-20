@@ -4,12 +4,26 @@
 
 .brackets.json
 *.hidden
+.*rc
 
 ######
 # Java
 ######
 
 *.class
+*.properties
+
+#########
+# Idea 14
+#########
+
+.idea/
+*.iml
+target/
+
+######
+# Rest
+######
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
