@@ -10,12 +10,20 @@ wcm_buch_app.config([
             .when("/search/:searchTerm", {
                 templateUrl: "tpl_search.html",
                 controller: "wcm_buch_search_controller",
-                controllerAs: "controller"
+                controllerAs: "controller",
+                resolve: wcm_buch_controllers.resolveSearch
+            })
+            .when("/search/:searchTerm/:page", {
+                templateUrl: "tpl_search.html",
+                controller: "wcm_buch_search_controller",
+                controllerAs: "controller",
+                resolve: wcm_buch_controllers.resolveSearchWithPage
             })
             .when("/book/:bookID", {
-                templateUrl: "",
+                templateUrl: "tpl_book.html",
                 controller: "wcm_buch_book_controller",
-                controllerAs: "controller"
+                controllerAs: "controller",
+                resolve: wcm_buch_controllers.resolveBook
             })
             .when("/series/:seriesID", {
                 templateUrl: "",
@@ -23,6 +31,7 @@ wcm_buch_app.config([
                 controllerAs: "controller"
             })
             .otherwise({
+                /*TODO: create home page/controller ...*/
                 /*redirectTo: "/"*/
                 templateUrl: "tpl_search.html",
                 controller: "wcm_buch_dummy_controller as controller",

@@ -57,7 +57,7 @@
                 </div>
                 <div class="result-list-item-details">
                     <div class="title">
-                        <a href="{{book.url}}">{{book.title}} <span class="series">({{book.series.name}}, #{{book.series.number}})</span></a>
+                        <a href="{{book.url}}">{{book.title}} <span class="series" ng-if="book.series !== null && book.series.name !== null && book.series.number !== null">({{book.series.name}}, #{{book.series.number}})</span></a>
                     </div>
                     <div class="authors">
                         by <span class="author">{{book.author.name}}</span> (Goodreads Author), ...
@@ -85,7 +85,7 @@
                 <a tabindex="-1" href="{{search.pagination.first}}" title="Go to the first page" class="k-link k-pager-nav k-pager-first" ng-class="{'k-state-disabled': search.pagination.first === null}">
                     <span class="k-icon k-i-seek-w">Go to the first page</span>
                 </a>
-                <a tabindex="-1" href="{{search.pagination.prev}}" title="Go to the previous page" class="k-link k-pager-nav" ng-class="{'k-state-disabled': prev === null}">
+                <a tabindex="-1" href="{{search.pagination.prev}}" title="Go to the previous page" class="k-link k-pager-nav" ng-class="{'k-state-disabled': search.pagination.prev === null}">
                     <span class="k-icon k-i-arrow-w">Go to the previous page</span>
                 </a>
                 <ul class="k-pager-numbers k-reset">

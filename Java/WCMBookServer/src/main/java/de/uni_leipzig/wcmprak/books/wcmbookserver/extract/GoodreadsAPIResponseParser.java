@@ -102,6 +102,7 @@ public class GoodreadsAPIResponseParser implements Configurable, Initializable {
         searchResultList.setResultsStart(Integer.parseInt(getElementValue(doc.select("GoodreadsResponse > search > results-start"))));
         searchResultList.setResultsEnd(Integer.parseInt(getElementValue(doc.select("GoodreadsResponse > search > results-end"))));
         searchResultList.setResultsTotal(Integer.parseInt(getElementValue(doc.select("GoodreadsResponse > search > total-results"))));
+        searchResultList.setResultsPerPage(searchResultList.getResultsEnd() - searchResultList.getResultsStart() + 1);
         searchResultList.setTimeToSearch(Float.parseFloat(getElementValue(doc.select("GoodreadsResponse > search > query-time-seconds"))));
 
         for (Element workEle : doc.select("GoodreadsResponse > search > results > work")) {

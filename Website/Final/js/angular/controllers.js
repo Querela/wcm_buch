@@ -1,13 +1,45 @@
 var API_URI = "api/";
 
 var SEARCH_ROUTE_URI = "/search/";
-var BOOK_ROUTE_URI = "#/book/";
+var BOOK_ROUTE_URI = "/book/";
 
-var wcm_buch_controllers = angular.module("wcm_buch_controllers", []);
+var HREF_SEARCH_ROUTE_URI = "#" + SEARCH_ROUTE_URI;
+var HREF_BOOK_ROUTE_URI = "#" + BOOK_ROUTE_URI;
+
+var PAGINATION_MAX_PAGES = 5;
 
 function log() {
     window.console.log.apply(console, arguments);
 }
+
+// -----------------------------------------------------------------------------
+
+var wcm_buch_controllers = angular.module("wcm_buch_controllers", []);
+
+wcm_buch_controllers.resolveSearch = {
+    get_data: function ($q, $http, $route) {
+        return $http.get(API_URI + "search/" + $route.current.params.searchTerm).then(function (response) {
+            return response.data;
+        });
+    }
+};
+
+wcm_buch_controllers.resolveSearchWithPage = {
+    get_data: function ($q, $http, $route) {
+        return $http.get(API_URI + "search/" + $route.current.params.searchTerm + "/" + $route.current.params.page).then(function (response) {
+            return response.data;
+        });
+    }
+};
+
+wcm_buch_controllers.resolveBook = {
+    get_data: function ($http, $route) {
+        log("resolveBook", $route);
+        return $http.get(API_URI + "book/" + $route.current.params.bookID).then(function (response) {
+            return response.data;
+        });
+    }
+};
 
 wcm_buch_controllers.controller(
     "wcm_buch_search_header_controller", ["$scope", "$rootScope", "$location",
@@ -20,116 +52,100 @@ wcm_buch_controllers.controller(
 );
 
 wcm_buch_controllers.controller(
-    "wcm_buch_search_controller", ["$scope", "$rootScope", "$http", "$routeParams",
-        function ($scope, $rootScope, $http, $routeParams) {
-            var url = API_URI + "search/" + $routeParams.searchTerm;
-            log("Search using url: \"" + url + "\"");
+    "wcm_buch_search_controller", ["$scope", "$rootScope", "$http", "$routeParams", "get_data",
+        function ($scope, $rootScope, $http, $routeParams, get_data) {
             $rootScope.title = "Search \"" + $routeParams.searchTerm + "\"";
 
-            $http.get(url)
-                .success(function (data, status, headers, config) {
-                    // TODO:
-                    log("get success", url, data, status, headers, config);
+            var data = get_data;
+            log("search", data);
 
-                    var search = {};
-                    search.results_total = data.search.resultsTotal;
-                    search.results_start = data.search.resultsStart;
-                    search.results_end = data.search.resultsEnd;
-                    search.searchTerm = data.search.searchTerm;
-                    search.provider = "Goodreads";
-                    search.timeToSearch = data.search.timeToSearch;
+            var search = {};
+            search.results_total = data.search.resultsTotal;
+            search.results_start = data.search.resultsStart;
+            search.results_end = data.search.resultsEnd;
+            search.searchTerm = data.search.searchTerm;
+            search.provider = "Goodreads";
+            search.timeToSearch = data.search.timeToSearch;
 
-                    search.results = [];
-                    for (var idx = 0; idx < data.search.books.book.length; idx++) {
-                        var book = data.search.books.book[idx];
+            search.results = [];
+            for (var idx = 0; idx < data.search.books.book.length; idx++) {
+                var book = data.search.books.book[idx];
 
-                        var title = book.title;
-                        var series_name = null;
-                        var series_number = null;
+                var title = book.title;
+                var series_name = null;
+                var series_number = null;
 
-                        if (title.indexOf("#") !== -1 && title.indexOf("(") !== -1) {
-                            var i = title.lastIndexOf("(");
+                if (title.indexOf("#") !== -1 && title.indexOf("(") !== -1) {
+                    var i = title.lastIndexOf("(");
 
-                            series_name = title.substring(i + 1, title.length - 1);
-                            title = title.substring(0, i).trim();
+                    series_name = title.substring(i + 1, title.length - 1);
+                    title = title.substring(0, i).trim();
 
-                            i = series_name.lastIndexOf(",");
-                            series_number = +(series_name.substring(i + 3));
-                            series_name = series_name.substring(0, i);
-                        }
+                    i = series_name.lastIndexOf(",");
+                    series_number = +(series_name.substring(i + 3));
+                    series_name = series_name.substring(0, i);
+                }
 
-                        search.results.push({
-                            url: BOOK_ROUTE_URI + book.goodreadsID,
-                            grID: book.goodreadsID,
-                            grEdID: book.goodreadsEditionsID,
-                            imageUrl: book.imageURL,
-                            rating: book.averageRating,
-                            title: title,
-                            series: {
-                                name: series_name,
-                                number: series_number
-                            },
-                            author: {
-                                name: book.authors.author[0].name,
-                                grID: book.authors.author[0].goodreadsID
-                            },
-                            description: ""
-                        });
-                    }
-
-                    search.pagination = {
-                        first: null,
-                        prev: "#prev",
-                        next: null,
-                        last: "#last",
-                        numbers: [
-                            {
-                                number: "1",
-                                url: "#1",
-                                selected: true
-                            },
-                            {
-                                number: "2",
-                                url: "#2"
-                            },
-                            {
-                                number: "3",
-                                url: "#3"
-                            },
-                            {
-                                number: "4",
-                                url: "#4"
-                            },
-                            {
-                                number: "...",
-                                url: "#...",
-                                title: "More pages"
-                            }
-                        ]
-                    };
-
-                    $scope.search = search;
-                })
-                .error(function (data, status, headers, config) {
-                    // TODO:
-                    log("get error", url, data, status, headers, config);
+                search.results.push({
+                    url: HREF_BOOK_ROUTE_URI + book.goodreadsID,
+                    grID: book.goodreadsID,
+                    grEdID: book.goodreadsEditionsID,
+                    imageUrl: book.imageURL,
+                    rating: book.averageRating,
+                    title: title,
+                    series: {
+                        name: series_name,
+                        number: series_number
+                    },
+                    author: {
+                        name: book.authors.author[0].name,
+                        grID: book.authors.author[0].goodreadsID
+                    },
+                    description: ""
                 });
-    }]
+            }
+
+            // how many results per page
+            var resultsPerPage = search.results_end - search.results_start + 1;
+            // how many pages
+            var countPages = ((search.results_total + resultsPerPage - 1) / resultsPerPage);
+            // on which page currently
+            var isOnPage = Math.floor((resultsPerPage + search.results_start) / resultsPerPage);
+            // how many pagination pages
+            var isOnPaginationPage = Math.floor((PAGINATION_MAX_PAGES + isOnPage - 1) / PAGINATION_MAX_PAGES);
+
+            var maxPages = Math.floor((search.results_total - 1) / resultsPerPage) + 1;
+            var maxPaginationPages = Math.floor((maxPages - 1) / PAGINATION_MAX_PAGES) + 1;
+            var pagesToNextPaginationPage = ((Math.floor(isOnPage / PAGINATION_MAX_PAGES) + 1) * PAGINATION_MAX_PAGES) - isOnPage + 1;
+
+            var baseSearchUri = HREF_SEARCH_ROUTE_URI + $routeParams.searchTerm + "/";
+
+            search.pagination = {
+                first: (isOnPaginationPage <= 1) ? null : baseSearchUri + "1",
+                prev: (isOnPaginationPage <= 1) ? null : baseSearchUri + (isOnPage - PAGINATION_MAX_PAGES),
+                next: (isOnPaginationPage == maxPaginationPages) ? null : baseSearchUri + (Math.min(isOnPage + pagesToNextPaginationPage)),
+                last: (isOnPaginationPage >= maxPaginationPages) ? null : baseSearchUri + (maxPages - 1),
+                numbers: []
+            };
+            for (var p = (isOnPaginationPage - 1) * PAGINATION_MAX_PAGES + 1;
+                (p <= isOnPaginationPage * PAGINATION_MAX_PAGES) && (p <= maxPages); p++) {
+                search.pagination.numbers.push({
+                    number: "" + p,
+                    url: baseSearchUri + p,
+                    selected: p === isOnPage
+                });
+            }
+
+            $scope.search = search;
+}]
 );
 
 wcm_buch_controllers.controller(
-    "wcm_buch_book_controller", ["$scope", "$rootScope", "$http", "$routeParams",
-        function ($scope, $rootScope, $http, $routeParams) {
+    "wcm_buch_book_controller", ["$scope", "$rootScope", "$http", "$routeParams", "get_data",
+        function ($scope, $rootScope, $http, $routeParams, get_data) {
             var url = API_URI + "book/" + $routeParams.bookID;
-            $http.get(url)
-                .success(function (data, status, headers, config) {
-                    // TODO:
-                    log("get success", url, data, status, headers, config);
-                })
-                .error(function (data, status, headers, config) {
-                    // TODO:
-                    log("get error", url, data, status, headers, config);
-                });
+
+            log(get_data);
     }]
 );
 
