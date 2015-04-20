@@ -544,7 +544,12 @@ ul.k-reset {
     padding-left: 0px;
 }
 
+ul.k-pager-numbers {
+    margin-left: -3px; /*FIX for angularjs*/
+}
+
 ul.k-pager-numbers > li {
+    margin-left: 3px; /*FIX for angularjs*/
     display: inline-block;
 }
 

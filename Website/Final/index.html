@@ -1,5 +1,6 @@
 <!doctype html>
-<html>
+<html ng-app="wcm_buch">
+
 <head>
     <meta charset="utf-8">
     <title>wcmbuch</title>
@@ -19,22 +20,106 @@
     <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
     <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-route.min.js"></script>
+    <script src="js/angular/app.js"></script>
+    <script src="js/angular/controllers.js"></script>
 </head>
+
 <body>
+    <script type="text/ng-template" id="tpl_search.html">
+        <!-- content area -->
+        <!-- header -->
+        <div id="result-list-header">
+            <div class="search-box" id="results-search-box">
+                <form>
+                    <label for="results-search-input">Search for:&nbsp;</label>
+                    <input class="search-input" id="results-search-input" name="results-search-input" type="search" onfocus="this.select();" ng-model="search.searchTerm" />
+                    <input class="search-input-button" id="results-search-button" type="button" value="GO" ng-click="search(search.searchTerm)" />
+                </form>
+            </div>
+            <div id="results-statistics" ng-include="(search.results_total == 0)?'tpl_search_statistics_noresults.html':'tpl_search_statistics_results.html'" />
+        </div>
+
+        <!-- list -->
+        <div id="result-list">
+            <div class="result-list-item" ng-repeat="book in search.results">
+                <div class="result-list-item-preview">
+                    <a href="{{book.url}}">
+                        <img src="{{book.imageUrl}}" />
+                    </a>
+                </div>
+                <div class="result-list-item-details">
+                    <div class="title">
+                        <a href="{{book.url}}">{{book.title}} <span class="series">({{book.series.name}}, #{{book.series.number}})</span></a>
+                    </div>
+                    <div class="authors">
+                        by <span class="author">{{book.author.name}}</span> (Goodreads Author), ...
+                    </div>
+                    <div class="">
+                        {{book.description}}
+                    </div>
+                </div>
+                <div class="result-list-item-options">
+                    <!-- TODO: modify options -->
+                    <button>Option 1</button>
+                </div>
+            </div>
+            <div class="result-list-no-item" ng-if="search.results.length === 0">
+                <div class="title">Keine Ergebnisse gefunden!</div>
+                Versuchen Sie eine andere Anfrage ...
+            </div>
+            <div class="did-you-mean" ng-if="search.results.length === 0">
+                <!-- TODO: possible similiar search terms? -->
+            </div>
+        </div>
+
+        <div id="result-list-pagination" ng-if="search.results.length > 0">
+            <div class="k-pager-wrap k-grid-pager k-widget">
+                <a tabindex="-1" href="{{search.pagination.first}}" title="Go to the first page" class="k-link k-pager-nav k-pager-first" ng-class="{'k-state-disabled': search.pagination.first === null}">
+                    <span class="k-icon k-i-seek-w">Go to the first page</span>
+                </a>
+                <a tabindex="-1" href="{{search.pagination.prev}}" title="Go to the previous page" class="k-link k-pager-nav" ng-class="{'k-state-disabled': prev === null}">
+                    <span class="k-icon k-i-arrow-w">Go to the previous page</span>
+                </a>
+                <ul class="k-pager-numbers k-reset">
+                    <li ng-repeat="item in search.pagination.numbers">
+                        <span ng-if="item.selected" ng-class="{'k-state-selected': item.selected}">{{item.number}}</span>
+                        <a ng-if="!item.selected" tabindex="-1" href="{{item.url}}" class="k-link" title="{{item.title}}">{{item.number}}</a>
+                    </li>
+                </ul>
+                <a tabindex="-1" href="{{search.pagination.next}}" title="Go to the next page" class="k-link k-pager-nav" ng-class="{'k-state-disabled': search.pagination.next === null}">
+                    <span class="k-icon k-i-arrow-e">Go to the next page</span>
+                </a>
+                <a tabindex="-1" href="{{search.pagination.last}}" title="Go to the last page" class="k-link k-pager-nav k-pager-last" ng-class="{'k-state-disabled': search.pagination.last === null}">
+                    <span class="k-icon k-i-seek-e">Go to the last page</span>
+                </a>
+                <!--<span class="k-pager-info k-label">1 - 10 of 830 items</span>-->
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="tpl_search_statistics_noresults.html">
+        Found <span class="results-total">{{search.results_total}}</span> results for <span class="results-search-term">'{{search.searchTerm}}'</span> (<span class="results-provider">{{search.provider}}</span> search in <span class="results-time">{{search.timeToSearch}}s</span>)
+    </script>
+    <script type="text/ng-template" id="tpl_search_statistics_results.html">
+        Showing <span class="results-start">{{search.results_start}}</span>-<span class="results-end">{{search.results_end}}</span> of <span class="results-total">{{search.results_total}}</span> results for <span class="results-search-term">'{{search.searchTerm}}'</span> (<span class="results-provider">{{search.provider}}</span> search in <span class="results-time">{{search.timeToSearch}}s</span>)
+    </script>
+
     <div id="root">
         <header>
-            <div class="search-box" id="search-box">
+            <div class="search-box" id="search-box" ng-controller="wcm_buch_search_header_controller">
                 <form>
                     <label for="search-input">Search:&nbsp;</label>
-                    <input class="search-input" id="search-input" name="search-input" type="search" />
-                    <input class="search-input-button" id="search-button" type="button" value="GO" />
+                    <input class="search-input" id="search-input" name="search-input" type="search" ng-model="searchTerm" />
+                    <input class="search-input-button" id="search-button" type="button" value="GO" ng-click="search(searchTerm)" />
                 </form>
             </div>
             <h1 class="aeroLogo"><a href="">wcm<span>buch</span></a></h1>
         </header>
         <section id="container">
             <div id="container-wrap">
-                <div id="container-inner-wrap">
+                <div id="container-inner-wrap" ng-view>
                     <!-- content area -->
                 </div>
             </div>
@@ -45,4 +130,5 @@
         </footer>
     </div>
 </body>
+
 </html>
