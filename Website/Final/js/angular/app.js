@@ -8,7 +8,7 @@ wcm_buch_app.config([
     function ($routeProvider) {
         $routeProvider
             .when("/search/:searchTerm", {
-                templateUrl: "",
+                templateUrl: "tpl_search.html",
                 controller: "wcm_buch_search_controller",
                 controllerAs: "controller"
             })

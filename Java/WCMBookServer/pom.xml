@@ -36,7 +36,7 @@
         <config.templates.dir>templates</config.templates.dir>
         <!-- source and destination directories of static webapp resources -->
         <project.build.webapp-static.dir>webapp-static</project.build.webapp-static.dir>
-        <webapp-static.source.dir>../../Website/Design</webapp-static.source.dir>
+        <webapp-static.source.dir>../../Website/Final</webapp-static.source.dir>
     </properties>
 
     <dependencyManagement>

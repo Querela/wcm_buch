@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>wcmbuch</title>
+    <title ng-bind="'wcmbuch - ' + title">wcmbuch</title>
     <meta content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no, width=device-width" name="viewport" />
     <meta content="Wissens- und Content-Management Praktikum 2014/15 - Buch" name="description" />
 
@@ -39,7 +39,12 @@
                     <input class="search-input-button" id="results-search-button" type="button" value="GO" ng-click="search(search.searchTerm)" />
                 </form>
             </div>
-            <div id="results-statistics" ng-include="(search.results_total == 0)?'tpl_search_statistics_noresults.html':'tpl_search_statistics_results.html'" />
+            <div id="results-statistics" ng-if="search.results_total > 0">
+                Showing <span class="results-start">{{search.results_start}}</span>-<span class="results-end">{{search.results_end}}</span> of <span class="results-total">{{search.results_total}}</span> results for <span class="results-search-term">'{{search.searchTerm}}'</span> (<span class="results-provider">{{search.provider}}</span> search in <span class="results-time">{{search.timeToSearch}}s</span>)
+            </div>
+            <div id="results-statistics" ng-if="search.results_total === 0">
+                Found <span class="results-total">{{search.results_total}}</span> results for <span class="results-search-term">'{{search.searchTerm}}'</span> (<span class="results-provider">{{search.provider}}</span> search in <span class="results-time">{{search.timeToSearch}}s</span>)
+            </div>
         </div>
 
         <!-- list -->
@@ -99,17 +104,11 @@
             </div>
         </div>
     </script>
-    <script type="text/ng-template" id="tpl_search_statistics_noresults.html">
-        Found <span class="results-total">{{search.results_total}}</span> results for <span class="results-search-term">'{{search.searchTerm}}'</span> (<span class="results-provider">{{search.provider}}</span> search in <span class="results-time">{{search.timeToSearch}}s</span>)
-    </script>
-    <script type="text/ng-template" id="tpl_search_statistics_results.html">
-        Showing <span class="results-start">{{search.results_start}}</span>-<span class="results-end">{{search.results_end}}</span> of <span class="results-total">{{search.results_total}}</span> results for <span class="results-search-term">'{{search.searchTerm}}'</span> (<span class="results-provider">{{search.provider}}</span> search in <span class="results-time">{{search.timeToSearch}}s</span>)
-    </script>
 
     <div id="root">
         <header>
             <div class="search-box" id="search-box" ng-controller="wcm_buch_search_header_controller">
-                <form>
+                <form ng-submit="search(searchTerm)">
                     <label for="search-input">Search:&nbsp;</label>
                     <input class="search-input" id="search-input" name="search-input" type="search" ng-model="searchTerm" />
                     <input class="search-input-button" id="search-button" type="button" value="GO" ng-click="search(searchTerm)" />

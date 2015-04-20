@@ -1,78 +1,159 @@
 var API_URI = "api/";
+
+var SEARCH_ROUTE_URI = "/search/";
+var BOOK_ROUTE_URI = "#/book/";
+
 var wcm_buch_controllers = angular.module("wcm_buch_controllers", []);
 
+function log() {
+    window.console.log.apply(console, arguments);
+}
+
 wcm_buch_controllers.controller(
-    "wcm_buch_search_header_controller", ["$scope", "$http",
-        function ($scope, $http) {
+    "wcm_buch_search_header_controller", ["$scope", "$rootScope", "$location",
+        function ($scope, $rootScope, $location) {
             $scope.search = function (searchTerm) {
-                var url = API_URI + "search/" + searchTerm;
-
-
-
-                $http.get(url)
-                    .success(function (data, status, headers, config) {
-                        // TODO:
-                        console.log("get success", url, data, status, headers, config);
-                    })
-                    .error(function (data, status, headers, config) {
-                        // TODO:
-                        console.log("get error", url, data, status, headers, config);
-                    });
+                log("Redirect to: \"" + SEARCH_ROUTE_URI + searchTerm + "\"");
+                $location.path(SEARCH_ROUTE_URI + searchTerm);
             };
     }]
 );
 
 wcm_buch_controllers.controller(
-    "wcm_buch_search_controller", ["$scope", "$http", "$routeParams",
-        function ($scope, $http, $routeParams) {
+    "wcm_buch_search_controller", ["$scope", "$rootScope", "$http", "$routeParams",
+        function ($scope, $rootScope, $http, $routeParams) {
             var url = API_URI + "search/" + $routeParams.searchTerm;
+            log("Search using url: \"" + url + "\"");
+            $rootScope.title = "Search \"" + $routeParams.searchTerm + "\"";
+
             $http.get(url)
                 .success(function (data, status, headers, config) {
                     // TODO:
-                    console.log("get success", url, data, status, headers, config);
+                    log("get success", url, data, status, headers, config);
+
+                    var search = {};
+                    search.results_total = data.search.resultsTotal;
+                    search.results_start = data.search.resultsStart;
+                    search.results_end = data.search.resultsEnd;
+                    search.searchTerm = data.search.searchTerm;
+                    search.provider = "Goodreads";
+                    search.timeToSearch = data.search.timeToSearch;
+
+                    search.results = [];
+                    for (var idx = 0; idx < data.search.books.book.length; idx++) {
+                        var book = data.search.books.book[idx];
+
+                        var title = book.title;
+                        var series_name = null;
+                        var series_number = null;
+
+                        if (title.indexOf("#") !== -1 && title.indexOf("(") !== -1) {
+                            var i = title.lastIndexOf("(");
+
+                            series_name = title.substring(i + 1, title.length - 1);
+                            title = title.substring(0, i).trim();
+
+                            i = series_name.lastIndexOf(",");
+                            series_number = +(series_name.substring(i + 3));
+                            series_name = series_name.substring(0, i);
+                        }
+
+                        search.results.push({
+                            url: BOOK_ROUTE_URI + book.goodreadsID,
+                            grID: book.goodreadsID,
+                            grEdID: book.goodreadsEditionsID,
+                            imageUrl: book.imageURL,
+                            rating: book.averageRating,
+                            title: title,
+                            series: {
+                                name: series_name,
+                                number: series_number
+                            },
+                            author: {
+                                name: book.authors.author[0].name,
+                                grID: book.authors.author[0].goodreadsID
+                            },
+                            description: ""
+                        });
+                    }
+
+                    search.pagination = {
+                        first: null,
+                        prev: "#prev",
+                        next: null,
+                        last: "#last",
+                        numbers: [
+                            {
+                                number: "1",
+                                url: "#1",
+                                selected: true
+                            },
+                            {
+                                number: "2",
+                                url: "#2"
+                            },
+                            {
+                                number: "3",
+                                url: "#3"
+                            },
+                            {
+                                number: "4",
+                                url: "#4"
+                            },
+                            {
+                                number: "...",
+                                url: "#...",
+                                title: "More pages"
+                            }
+                        ]
+                    };
+
+                    $scope.search = search;
                 })
                 .error(function (data, status, headers, config) {
                     // TODO:
-                    console.log("get error", url, data, status, headers, config);
+                    log("get error", url, data, status, headers, config);
                 });
     }]
 );
 
 wcm_buch_controllers.controller(
-    "wcm_buch_book_controller", ["$scope", "$http", "$routeParams",
-        function ($scope, $http, $routeParams) {
+    "wcm_buch_book_controller", ["$scope", "$rootScope", "$http", "$routeParams",
+        function ($scope, $rootScope, $http, $routeParams) {
             var url = API_URI + "book/" + $routeParams.bookID;
             $http.get(url)
                 .success(function (data, status, headers, config) {
                     // TODO:
-                    console.log("get success", url, data, status, headers, config);
+                    log("get success", url, data, status, headers, config);
                 })
                 .error(function (data, status, headers, config) {
                     // TODO:
-                    console.log("get error", url, data, status, headers, config);
+                    log("get error", url, data, status, headers, config);
                 });
     }]
 );
 
 wcm_buch_controllers.controller(
-    "wcm_buch_series_controller", ["$scope", "$http", "$routeParams",
-        function ($scope, $http, $routeParams) {
+    "wcm_buch_series_controller", ["$scope", "$rootScope", "$http", "$routeParams",
+        function ($scope, $rootScope, $http, $routeParams) {
             var url = API_URI + "series/" + $routeParams.seriesID;
             $http.get(url)
                 .success(function (data, status, headers, config) {
                     // TODO:
-                    console.log("get success", url, data, status, headers, config);
+                    log("get success", url, data, status, headers, config);
                 })
                 .error(function (data, status, headers, config) {
                     // TODO:
-                    console.log("get error", url, data, status, headers, config);
+                    log("get error", url, data, status, headers, config);
                 });
     }]
 );
 
 wcm_buch_controllers.controller(
-    "wcm_buch_dummy_controller", ["$scope", "$http", "$routeParams",
-        function ($scope, $http, $routeParams) {
+    "wcm_buch_dummy_controller", ["$scope", "$rootScope", "$http", "$routeParams",
+        function ($scope, $rootScope, $http, $routeParams) {
+            log("Dummy controller ...");
+
             var url = API_URI + "series/" + $routeParams.seriesID;
 
             var search = {};
