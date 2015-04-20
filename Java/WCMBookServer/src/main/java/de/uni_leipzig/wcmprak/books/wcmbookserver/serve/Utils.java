@@ -33,8 +33,7 @@ public class Utils {
     public final static String API_URI_SERVLET_MAPPING = API_URI + "*";
     public final static String STATIC_FILES_URI_SERVLET_MAPPING = STATIC_FILES_URI + "*";
 
-    // TODO: use correct file, not testing thingy ...
-    public final static String STATIC_FILE_SPA_INDEX_URI = STATIC_FILES_URI + "readme.txt";
+    public final static String STATIC_FILE_SPA_INDEX_URI = STATIC_FILES_URI + "index.html";
 
     // -------------------------------------------------------------------------
 

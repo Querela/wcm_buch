@@ -150,6 +150,7 @@ public class RequestHandler {
     @Path("/author/{id}")
     @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML, MediaType.APPLICATION_JSON})
     public String getAuthorByGoodreadsID(@PathParam("id") String authorID) {
+        // TODO: use author info api url instead of book listing?
         AuthorInfo authorInfo = DataExtractor.getInstance().getAuthorInfo(authorID);
 
         return marshallObjectByMediaType(authorInfo);
@@ -160,7 +161,8 @@ public class RequestHandler {
     @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML, MediaType.APPLICATION_JSON})
     public String getAuthorBooksByAuthorGoodreadsID(@PathParam("id") String authorID) {
         // TODO: subset of: "/author/{id}"
-        return marshallObjectByMediaType((new Object() {
-        }.getClass().getEnclosingMethod().getName() + ": ") + authorID);
+        AuthorInfo authorInfo = DataExtractor.getInstance().getAuthorInfo(authorID);
+
+        return marshallObjectByMediaType(authorInfo);
     }
 }
