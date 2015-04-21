@@ -6,10 +6,71 @@ var BOOK_ROUTE_URI = "/book/";
 var HREF_SEARCH_ROUTE_URI = "#" + SEARCH_ROUTE_URI;
 var HREF_BOOK_ROUTE_URI = "#" + BOOK_ROUTE_URI;
 
-var PAGINATION_MAX_PAGES = 5;
+var PAGINATION_MAX_PAGES = 6;
+var PAGINATION_IS_LAST_PAGE_ENABLED = false;
 
 function log() {
     window.console.log.apply(console, arguments);
+}
+
+// -----------------------------------------------------------------------------
+
+function computePagination(start, end, total, baseUri) {
+    // how many results per page
+    var resultsPerPage = end - start + 1;
+    // how many pages
+    var countPages = ((total + resultsPerPage - 1) / resultsPerPage);
+    // on which page currently
+    var isOnPage = Math.floor((resultsPerPage + start) / resultsPerPage);
+    // how many pagination pages
+    var isOnPaginationPage = Math.floor((PAGINATION_MAX_PAGES + isOnPage - 1) / PAGINATION_MAX_PAGES);
+
+    var maxPages = Math.floor((total - 1) / resultsPerPage) + 1;
+    var maxPaginationPages = Math.floor((maxPages - 1) / PAGINATION_MAX_PAGES) + 1;
+    var pagesToNextPaginationPage = ((Math.floor(isOnPage / PAGINATION_MAX_PAGES) + 1) * PAGINATION_MAX_PAGES) - isOnPage + 1;
+
+    var pagination = {
+        first: (isOnPaginationPage <= 1) ? null : baseUri + "1",
+        prev: (isOnPaginationPage <= 1) ? null : baseUri + (isOnPage - PAGINATION_MAX_PAGES),
+        next: (isOnPaginationPage == maxPaginationPages) ? null : baseUri + (Math.min(isOnPage + pagesToNextPaginationPage)),
+        last: (!PAGINATION_IS_LAST_PAGE_ENABLED) ? null : ((isOnPaginationPage >= maxPaginationPages) ? null : baseUri + (maxPages - 1)),
+        numbers: []
+    };
+    for (var p = Math.max(isOnPage - Math.floor(PAGINATION_MAX_PAGES / 2), 1);
+        (p <= Math.max(isOnPage, 3) + Math.ceil(PAGINATION_MAX_PAGES / 2)) && (p <= maxPages); p++) {
+        pagination.numbers.push({
+            number: "" + p,
+            url: baseUri + p,
+            selected: p === isOnPage
+        });
+    }
+    return pagination;
+}
+
+function parseTitleSeries(titleSeries) {
+    var parsed = {
+        title: titleSeries,
+        series: {
+            name: null,
+            number: null
+        },
+        hasSeries: false
+    };
+
+    if (titleSeries.indexOf("#") !== -1 && titleSeries.indexOf("(") !== -1) {
+        var i = titleSeries.lastIndexOf("(");
+
+        parsed.title = titleSeries.substring(0, i).trim();
+
+        titleSeries = titleSeries.substring(i + 1, titleSeries.length - 1);
+
+        i = titleSeries.lastIndexOf(",");
+        parsed.series.number = +(titleSeries.substring(i + 3));
+        parsed.series.name = titleSeries.substring(0, i);
+        parsed.hasSeries = true;
+    }
+
+    return parsed;
 }
 
 // -----------------------------------------------------------------------------
@@ -41,19 +102,41 @@ wcm_buch_controllers.resolveBook = {
     }
 };
 
+// -----------------------------------------------------------------------------
+
+wcm_buch_controllers.directive("a", function () {
+    return {
+        restrict: "E",
+        link: function (scope, elem, attrs) {
+            if (attrs.href === "" || attrs.href === "#") {
+                elem.on("click", function (event) {
+                    event.preventDefault();
+
+                    if (attrs.ngClick) {
+                        scope.$eval(attrs.ngClick);
+                    }
+                });
+            }
+        }
+    };
+});
+
+// -----------------------------------------------------------------------------
+
 wcm_buch_controllers.controller(
     "wcm_buch_search_header_controller", ["$scope", "$rootScope", "$location",
         function ($scope, $rootScope, $location) {
-            $scope.search = function (searchTerm) {
+            $scope.doSearch = function (searchTerm) {
                 log("Redirect to: \"" + SEARCH_ROUTE_URI + searchTerm + "\"");
                 $location.path(SEARCH_ROUTE_URI + searchTerm);
+                // $scope.searchTerm = ""; // Uncomment to clear field after search
             };
     }]
 );
 
 wcm_buch_controllers.controller(
-    "wcm_buch_search_controller", ["$scope", "$rootScope", "$http", "$routeParams", "get_data",
-        function ($scope, $rootScope, $http, $routeParams, get_data) {
+    "wcm_buch_search_controller", ["$scope", "$rootScope", "$location", "$http", "$routeParams", "get_data",
+        function ($scope, $rootScope, $location, $http, $routeParams, get_data) {
             $rootScope.title = "Search \"" + $routeParams.searchTerm + "\"";
 
             var data = get_data;
@@ -71,20 +154,7 @@ wcm_buch_controllers.controller(
             for (var idx = 0; idx < data.search.books.book.length; idx++) {
                 var book = data.search.books.book[idx];
 
-                var title = book.title;
-                var series_name = null;
-                var series_number = null;
-
-                if (title.indexOf("#") !== -1 && title.indexOf("(") !== -1) {
-                    var i = title.lastIndexOf("(");
-
-                    series_name = title.substring(i + 1, title.length - 1);
-                    title = title.substring(0, i).trim();
-
-                    i = series_name.lastIndexOf(",");
-                    series_number = +(series_name.substring(i + 3));
-                    series_name = series_name.substring(0, i);
-                }
+                var parsed = parseTitleSeries(book.title);
 
                 search.results.push({
                     url: HREF_BOOK_ROUTE_URI + book.goodreadsID,
@@ -92,11 +162,12 @@ wcm_buch_controllers.controller(
                     grEdID: book.goodreadsEditionsID,
                     imageUrl: book.imageURL,
                     rating: book.averageRating,
-                    title: title,
+                    title: parsed.title,
                     series: {
-                        name: series_name,
-                        number: series_number
+                        name: parsed.series.name,
+                        number: parsed.series.number
                     },
+                    hasSeries: parsed.hasSeries,
                     author: {
                         name: book.authors.author[0].name,
                         grID: book.authors.author[0].goodreadsID
@@ -105,38 +176,15 @@ wcm_buch_controllers.controller(
                 });
             }
 
-            // how many results per page
-            var resultsPerPage = search.results_end - search.results_start + 1;
-            // how many pages
-            var countPages = ((search.results_total + resultsPerPage - 1) / resultsPerPage);
-            // on which page currently
-            var isOnPage = Math.floor((resultsPerPage + search.results_start) / resultsPerPage);
-            // how many pagination pages
-            var isOnPaginationPage = Math.floor((PAGINATION_MAX_PAGES + isOnPage - 1) / PAGINATION_MAX_PAGES);
-
-            var maxPages = Math.floor((search.results_total - 1) / resultsPerPage) + 1;
-            var maxPaginationPages = Math.floor((maxPages - 1) / PAGINATION_MAX_PAGES) + 1;
-            var pagesToNextPaginationPage = ((Math.floor(isOnPage / PAGINATION_MAX_PAGES) + 1) * PAGINATION_MAX_PAGES) - isOnPage + 1;
-
             var baseSearchUri = HREF_SEARCH_ROUTE_URI + $routeParams.searchTerm + "/";
-
-            search.pagination = {
-                first: (isOnPaginationPage <= 1) ? null : baseSearchUri + "1",
-                prev: (isOnPaginationPage <= 1) ? null : baseSearchUri + (isOnPage - PAGINATION_MAX_PAGES),
-                next: (isOnPaginationPage == maxPaginationPages) ? null : baseSearchUri + (Math.min(isOnPage + pagesToNextPaginationPage)),
-                last: (isOnPaginationPage >= maxPaginationPages) ? null : baseSearchUri + (maxPages - 1),
-                numbers: []
-            };
-            for (var p = (isOnPaginationPage - 1) * PAGINATION_MAX_PAGES + 1;
-                (p <= isOnPaginationPage * PAGINATION_MAX_PAGES) && (p <= maxPages); p++) {
-                search.pagination.numbers.push({
-                    number: "" + p,
-                    url: baseSearchUri + p,
-                    selected: p === isOnPage
-                });
-            }
+            search.pagination = computePagination(search.results_start, search.results_end, search.results_total, baseSearchUri);
 
             $scope.search = search;
+
+            $scope.doSearch = function (searchTerm) {
+                log("Redirect to: \"" + SEARCH_ROUTE_URI + searchTerm + "\"");
+                $location.path(SEARCH_ROUTE_URI + searchTerm);
+            };
 }]
 );
 

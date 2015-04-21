@@ -1,5 +1,5 @@
 <!doctype html>
-<html ng-app="wcm_buch">
+<html ng-app="wcm_buch" id="ng-app">
 
 <head>
     <meta charset="utf-8">
@@ -29,21 +29,20 @@
 
 <body>
     <script type="text/ng-template" id="tpl_search.html">
-        <!-- content area -->
         <!-- header -->
         <div id="result-list-header">
             <div class="search-box" id="results-search-box">
-                <form>
+                <form ng-submit="doSearch(search.searchTerm)">
                     <label for="results-search-input">Search for:&nbsp;</label>
                     <input class="search-input" id="results-search-input" name="results-search-input" type="search" onfocus="this.select();" ng-model="search.searchTerm" />
-                    <input class="search-input-button" id="results-search-button" type="button" value="GO" ng-click="search(search.searchTerm)" />
+                    <input class="search-input-button" id="results-search-button" type="button" value="GO" ng-click="doSearch(search.searchTerm)" />
                 </form>
             </div>
             <div id="results-statistics" ng-if="search.results_total > 0">
-                Showing <span class="results-start">{{search.results_start}}</span>-<span class="results-end">{{search.results_end}}</span> of <span class="results-total">{{search.results_total}}</span> results for <span class="results-search-term">'{{search.searchTerm}}'</span> (<span class="results-provider">{{search.provider}}</span> search in <span class="results-time">{{search.timeToSearch}}s</span>)
+                Showing <span class="results-start">{{search.results_start}}</span>-<span class="results-end">{{search.results_end}}</span> of <span class="results-total">{{search.results_total}}</span> results for <span class="results-search-term">'{{::search.searchTerm}}'</span> (<span class="results-provider">{{search.provider}}</span> search in <span class="results-time">{{search.timeToSearch}}s</span>)
             </div>
             <div id="results-statistics" ng-if="search.results_total === 0">
-                Found <span class="results-total">{{search.results_total}}</span> results for <span class="results-search-term">'{{search.searchTerm}}'</span> (<span class="results-provider">{{search.provider}}</span> search in <span class="results-time">{{search.timeToSearch}}s</span>)
+                Found <span class="results-total">{{search.results_total}}</span> results for <span class="results-search-term">'{{::search.searchTerm}}'</span> (<span class="results-provider">{{search.provider}}</span> search in <span class="results-time">{{search.timeToSearch}}s</span>)
             </div>
         </div>
 
@@ -108,10 +107,10 @@
     <div id="root">
         <header>
             <div class="search-box" id="search-box" ng-controller="wcm_buch_search_header_controller">
-                <form ng-submit="search(searchTerm)">
+                <form ng-submit="doSearch(searchTerm)">
                     <label for="search-input">Search:&nbsp;</label>
-                    <input class="search-input" id="search-input" name="search-input" type="search" ng-model="searchTerm" />
-                    <input class="search-input-button" id="search-button" type="button" value="GO" ng-click="search(searchTerm)" />
+                    <input class="search-input" id="search-input" name="search-input" type="search" onfocus="this.select();" ng-model="searchTerm" />
+                    <input class="search-input-button" id="search-button" type="button" value="GO" ng-click="doSearch(searchTerm)" />
                 </form>
             </div>
             <h1 class="aeroLogo"><a href="">wcm<span>buch</span></a></h1>
