@@ -59,7 +59,7 @@
                         <a href="{{book.url}}">{{book.title}} <span class="series" ng-if="book.series !== null && book.series.name !== null && book.series.number !== null">({{book.series.name}}, #{{book.series.number}})</span></a>
                     </div>
                     <div class="authors">
-                        by <span class="author">{{book.author.name}}</span> (Goodreads Author), ...
+                        by <span class="author">{{book.author.name}}</span><!-- (Goodreads Author), ...-->
                     </div>
                     <div class="">
                         {{book.description}}

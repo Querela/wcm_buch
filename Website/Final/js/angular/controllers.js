@@ -1,3 +1,6 @@
+
+// Constants
+
 var API_URI = "api/";
 
 var SEARCH_ROUTE_URI = "/search/";
@@ -14,6 +17,8 @@ function log() {
 }
 
 // -----------------------------------------------------------------------------
+
+// Helper methods
 
 function computePagination(start, end, total, baseUri) {
     // how many results per page
@@ -75,7 +80,30 @@ function parseTitleSeries(titleSeries) {
 
 // -----------------------------------------------------------------------------
 
+// Define everything (controllers etc.)
+
 var wcm_buch_controllers = angular.module("wcm_buch_controllers", []);
+
+// Define resolve methods (return promises for lazy actualization) ...
+
+wcm_buch_controllers.resolveSearchEmpty = {
+    get_data: function ($q, $http, $route) {
+        // Return empty data ...
+        return {
+            search: {
+                books: {
+                    book: []
+                },
+                resultsEnd: 0,
+                resultsPerPage: 0,
+                resultsStart: 0,
+                resultsTotal: 0,
+                searchTerm: "...",
+                timeToSearch: 0.0
+            }
+        };
+    }
+};
 
 wcm_buch_controllers.resolveSearch = {
     get_data: function ($q, $http, $route) {
@@ -104,6 +132,9 @@ wcm_buch_controllers.resolveBook = {
 
 // -----------------------------------------------------------------------------
 
+// HTML directives -> new html tags
+
+// Override a tag to disable hyperlinking if we don't want it
 wcm_buch_controllers.directive("a", function () {
     return {
         restrict: "E",
@@ -122,6 +153,8 @@ wcm_buch_controllers.directive("a", function () {
 });
 
 // -----------------------------------------------------------------------------
+
+// Controllers (Control templates and define functions as reactions to website interactions)
 
 wcm_buch_controllers.controller(
     "wcm_buch_search_header_controller", ["$scope", "$rootScope", "$location",
@@ -142,15 +175,16 @@ wcm_buch_controllers.controller(
             var data = get_data;
             log("search", data);
 
-            var search = {};
-            search.results_total = data.search.resultsTotal;
-            search.results_start = data.search.resultsStart;
-            search.results_end = data.search.resultsEnd;
-            search.searchTerm = data.search.searchTerm;
-            search.provider = "Goodreads";
-            search.timeToSearch = data.search.timeToSearch;
+            var search = {
+                searchTerm: data.search.searchTerm,
+                provider: "Goodreads",
+                results_total: data.search.resultsTotal,
+                results_start: data.search.resultsStart,
+                results_end: data.search.resultsEnd,
+                timeToSearch: data.search.timeToSearch,
+                results: []
+            };
 
-            search.results = [];
             for (var idx = 0; idx < data.search.books.book.length; idx++) {
                 var book = data.search.books.book[idx];
 
