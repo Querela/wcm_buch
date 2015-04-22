@@ -3,12 +3,12 @@ pp = pprint.PrettyPrinter(indent=4)
 
 class Item():
     def __init__(self, fields):
-        self.item_no = fields['ID']
+        # self.item_no = fields['ID']
         self.title = fields['title']
         self.original_title = fields['original_title']
         self.language = fields['language']
-        self.year = fields['year']
-        self.author = fields['author']
+        # self.year = fields['year']
+        # self.author = fields['author']
         # self.fields = fields
 
     def count_fields(self):

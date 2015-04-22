@@ -19,6 +19,7 @@ bBracket = '.*>'
 abBracket = r'<.*>'
 
 item_original_title = re.compile('dcterms:alternative')
+item_lang = re.compile('dcterms:language')
 
 def split_item(text):
     '''
@@ -30,8 +31,9 @@ def split_item(text):
 
 def select_items(items):
     '''
-    select all TRANSLATED items that are written in English or German
+    select all TRANSLATED items that are written in different languages
     remove isPartOf relation
+    only select item with language-field
     '''
     translated_docs = []
     for pre_item in items:
@@ -42,12 +44,14 @@ def select_items(items):
         p = item_part.search(fields[0])
         # translated books
         ot = item_original_title.search(pre_item)
-        if e and ot and not p:
+        # get rid of books without 'language'-field (mostly non Ger/Eng books)
+        lang = item_lang.search(pre_item)
+        if e and ot and lang and not p :
             translated_docs.append(pre_item)
     return translated_docs
 
 
-def parse_item(index,fields):
+def parse_item(fields):
     '''
     parse fields of an item and save into dictionary
     '''
@@ -60,18 +64,18 @@ def parse_item(index,fields):
             title = parse_title(field)
         if 'dcterms:language' in field:
             language = parse_language(field)
-        if 'dcterms:issued' in field:
-            year = parse_year(field)
-        for author_tag in author_tags:
-            if author_tag in field:
-                author = parse_author(field)
+        # if 'dcterms:issued' in field:
+        #     year = parse_year(field)
+        # for author_tag in author_tags:
+        #     if author_tag in field:
+        #         author = parse_author(field)
     parsed_item = model.Item({
-        'ID':index,
+        # 'ID':index,
         'title':title,
         'original_title':original_title,
-        'language':language,
-        'year':year,
-        'author':author})
+        'language':language})
+        # 'year':year,
+        # 'author':author
     return parsed_item
 
 def parse_original_title(field):
@@ -80,12 +84,14 @@ def parse_original_title(field):
     DNB-header: 'dcterms:alternative'
     '''
     m = re.search(dQuotes, field)
-    alternativeWithLang = m.group()[1:-1]
-    s = re.search(aBracket,alternativeWithLang)
-    if '<' in alternativeWithLang:
-        original_title = s.group()[0:-2]
-    else:
-         original_title = alternativeWithLang
+    if m:
+        alternativeWithLang = m.group()[1:-1]
+        s = re.search(aBracket,alternativeWithLang)
+        if '<' in alternativeWithLang:
+            original_title = s.group()[0:-2]
+        else:
+             original_title = alternativeWithLang
+    else: original_title = 'no original title found'
     return original_title
 
 def parse_title(field):
@@ -94,7 +100,9 @@ def parse_title(field):
     DNB-header: 'dc:title'
     '''
     m = re.search(dQuotes,field)
-    title = m.group()[1:-1]
+    if m:
+        title = m.group()[1:-1]
+    else: title = 'no title is found'
     return title
 
 def parse_author(field):
@@ -124,6 +132,7 @@ def parse_language(field):
     m = re.search(bBracket,field)
     language = m.group()[-4:-1]
     return language
+
 
 def dic_to_json(item):
     '''

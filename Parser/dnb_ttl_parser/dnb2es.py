@@ -1,54 +1,83 @@
 import elasticsearch
 import os.path
-import sys
+import sys, getopt
 import file_io as io
 import dnb_ttl_parser as parser
 import model
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
 ### parse all files in input folder
 
+def main(argv):
+    try:
+        opts, args = getopt.getopt(argv,"hi:ep",["infolder_type="])
+    except getopt.GetoptError:
+        print("Error: dnb2es.py -i <data or test> -e <es indexing> -p <print>")
+        sys.exit(2)
+    esIn = False
+    printout = False
+    for opt, arg in opts:
+        if opt == '-h':
+            print('dnb2es.py -i <data or test> -e <es indexing> -p <print>')
+            sys.exit()
+        elif opt in ("-i", "--infolder_type"):
+            if arg == "data":
+                infolder = "./DNB_Data"
+            elif arg == "test":
+                infolder = "./Test_Data"
+        elif opt == '-e':
+            esIn = True
+        elif opt =='-p':
+            printout = True
+    return infolder,esIn, printout
+
+
 ES_URL = "localhost:9200"
-
-infolder = "./DNB_Data"
-infiles = io.get_infiles(infolder)
-
 es = elasticsearch.Elasticsearch()  # use default of localhost, port 9200
 
-def es_indexing_ger(file_index,json_items):
-    es.index(index='dnb_ger', doc_type='item', id=file_index, body=json_item)
+def es_indexing_ger(json_item):
+    es.index(index='dnb_ger', doc_type='item', body=json_item)
 
-def es_indexing_eng(file_index,json_items):
-    es.index(index='dnb_eng', doc_type='item', id=file_index, body=json_item)
+def es_indexing_eng(json_items):
+    es.index(index='dnb_eng', doc_type='item', body=json_item)
 
-# def parse_folder(folder):
-outfolder_counter = 0
-for infile in infiles:
-    outfolder_counter += 1
-    text = io.read_text(infile)
-    filename = os.path.basename(infile)
-    outfile_name = filename+'_output.txt'
-    translated_docs = []
-    # json_items = model.Itemlist([])
-    json_items = []
-    outfile = os.path.join(outfolder, outfile_name)
-    # if output file already exists, delete
-    try:
-        os.remove(outfile)
-    except OSError:
-        pass
-    items = parser.split_item(text)
-    translated_docs = parser.select_items(items)
-    for index, translated_doc in enumerate(translated_docs):
-        file_index = index
-        fields = translated_doc.split('\n')
-        parsed_item = parser.parse_item(index,fields)
-        # translate Item object to dictionary
-        item_to_dict = parsed_item.dict()
-        # save items into two indexes in ES by language
-        if item_to_dict['language'] == 'ger':
-            json_item = parser.dic_to_json(item_to_dict)
-            es_indexing_ger(file_index,json_item)
-        if item_to_dict['language'] == 'eng':
-            json_item = parser.dic_to_json(item_to_dict)
-            es_indexing_eng(file_index,json_item)
-        json_items.append(json_item)
-        print(json_items)
+def parse(infolder, esIn, printout):
+    infiles = io.get_infiles(infolder)
+    infile_counter = 0
+    for infile in infiles:
+        infile_counter += 1
+        text = io.read_text(infile)
+        filename = os.path.basename(infile)
+        outfile_name = filename+'_output.txt'
+        translated_docs = []
+        items = parser.split_item(text)
+        translated_docs = parser.select_items(items)
+        for index, translated_doc in enumerate(translated_docs):
+            fields = translated_doc.split('\n')
+            parsed_item = parser.parse_item(fields)
+            # translate Item object to dictionary
+            item_to_dict = parsed_item.dict()
+            # save items into two indexes in ES by language
+            # ONLY save german and english books to Elasticsearch
+
+            if item_to_dict['language'] == 'ger':
+                json_item = parser.dic_to_json(item_to_dict)
+                if esIn == True:
+                    es_indexing_ger(json_item)
+                if printout == True:
+                    pp.pprint(json_item)
+            if item_to_dict['language'] == 'eng':
+                json_item = parser.dic_to_json(item_to_dict)
+                if es == True:
+                    es_indexing_eng(json_item)
+                if printout == True:
+                    pp.pprint(json_item)
+        if esIn ==True:
+            print('............ File: ',infile,'\t is indexed. Total_indexed: ',infile_counter, ' files ..............')
+
+if __name__ == "__main__":
+   infolder,esIn,printout = main(sys.argv[1:])
+   print("infolder =", infolder, "| indexing = ",esIn, "| print = ",printout)
+parse(infolder,esIn,printout)
+
+
