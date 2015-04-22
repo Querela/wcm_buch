@@ -38,51 +38,107 @@ public class DataExtractor {
     }
 
     public SearchResultList getSearchResults(String searchTerm, int page) {
+        String key = "search:/" + searchTerm + ":/" + page;
+        SearchResultList searchResultList = (SearchResultList) DataCache.getInstance().get(key);
+        if (searchResultList != null) {
+            return searchResultList;
+        }
+
         String searchResultPage = grAPI.getDataForSearchTerm(searchTerm, page);
-        SearchResultList searchResultList = grAPIPars.parseSearchResultData(searchResultPage, GOODREADS_BASE_URL);
+        searchResultList = grAPIPars.parseSearchResultData(searchResultPage, GOODREADS_BASE_URL);
+        DataCache.getInstance().store(key, searchResultList);
+
         return searchResultList;
     }
 
     public SearchResultList getAllSearchResults(String searchTerm) {
+        String key = "search:/" + searchTerm + ":/1";
+        SearchResultList searchResultList = (SearchResultList) DataCache.getInstance().get(key);
+        if (searchResultList != null) {
+            return searchResultList;
+        }
+
         String[] searchPages = grAPI.getAllPagesDataForSearchTerm(searchTerm);
 
         String[] urls = new String[searchPages.length];
         for (int i = 0; i < searchPages.length; i++) urls[i] = GOODREADS_BASE_URL;
 
-        SearchResultList searchResultList = grAPIPars.parseSearchResultData(searchPages, urls);
+        searchResultList = grAPIPars.parseSearchResultData(searchPages, urls);
+        DataCache.getInstance().store(key, searchResultList);
+
         return searchResultList;
     }
 
     public Book getBook(String bookID) {
+        String key = "book:/" + bookID;
+        Book book = (Book) DataCache.getInstance().get(key);
+        if (book != null) {
+            return book;
+        }
+
         String bookContent = grAPI.getDataForBookID(bookID);
-        Book book = grAPIPars.parseBookData(bookContent, GOODREADS_BASE_URL);
+        book = grAPIPars.parseBookData(bookContent, GOODREADS_BASE_URL);
+        DataCache.getInstance().store(key, book);
+
         return book;
     }
 
     public BookEditionsList getEditions(String editionsID) {
-        return grSS.parseEditionsPage(String2Int(editionsID));
+        String key = "editions:/" + editionsID;
+        BookEditionsList bookEditionsList = (BookEditionsList) DataCache.getInstance().get(key);
+        if (bookEditionsList != null) {
+            return bookEditionsList;
+        }
+
+        bookEditionsList = grSS.parseEditionsPage(String2Int(editionsID));
+        DataCache.getInstance().store(key, bookEditionsList);
+
+        return bookEditionsList;
     }
 
     public MapLanguageBookInfo getLanguages(String editionsID) {
+        String key = "languages:/" + editionsID;
+        MapLanguageBookInfo mlbi = (MapLanguageBookInfo) DataCache.getInstance().get(key);
+        if (mlbi != null) {
+            return mlbi;
+        }
+
         BookEditionsList bel = getEditions(editionsID);
-        MapLanguageBookInfo mlbi = new MapLanguageBookInfo(bel);
+        mlbi = new MapLanguageBookInfo(bel);
+        DataCache.getInstance().store(key, mlbi);
 
         return mlbi;
     }
 
     public SeriesInfo getSeries(String seriesID) {
+        String key = "series:/" + seriesID;
+        SeriesInfo seriesInfo = (SeriesInfo) DataCache.getInstance().get(key);
+        if (seriesInfo != null) {
+            return seriesInfo;
+        }
+
         String seriesContent = grAPI.getDataForSeriesID(seriesID);
-        SeriesInfo series = grAPIPars.parseSeriesData(seriesContent, GOODREADS_BASE_URL);
-        return series;
+        seriesInfo = grAPIPars.parseSeriesData(seriesContent, GOODREADS_BASE_URL);
+        DataCache.getInstance().store(key, seriesInfo);
+
+        return seriesInfo;
     }
 
     public AuthorInfo getAuthorInfo(String authorID) {
+        String key = "author:/" + authorID;
+        AuthorInfo authorInfo = (AuthorInfo) DataCache.getInstance().get(key);
+        if (authorInfo != null) {
+            return authorInfo;
+        }
+
         String[] authorsBooks = grAPI.getAllPagesDataForAuthorID(authorID);
 
         String[] urls = new String[authorsBooks.length];
         for (int i = 0; i < authorsBooks.length; i++) urls[i] = GOODREADS_BASE_URL;
 
-        AuthorInfo authorInfo = grAPIPars.parseAuthorsBookData(authorsBooks, urls);
+        authorInfo = grAPIPars.parseAuthorsBookData(authorsBooks, urls);
+        DataCache.getInstance().store(key, authorInfo);
+
         return authorInfo;
     }
 
