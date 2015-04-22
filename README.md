@@ -20,6 +20,11 @@ Nach dem Importieren sollte das Projekt über den Maven-Lifecycle **package** ge
 -   target/**dependency-jars/*.jar**
   -   Dies sind die Projekt-Abhängigkeiten. Sie müssen sich als ganzes im selben Verzeichnis relativ zur **WCMBookServer.jar** befinden.
 
+DNB-Daten (Parser, ElasticSearch)
+---------------------------------
+
+Um zu Büchern den Original-Titel zu finden, werden zusätzlich DNB-Daten genutzt. Diese können von der **[DNB-Website][2]** unter diesem **[Link][3]** heruntergeladen werden, mit dem Python-Script im [Parser-Ordner](https://github.com/Querela/wcm_buch/tree/master/Parser) zu JSON konvertiert und nach **[ElasticSearch][4]** importiert werden.
+
 Editor-Setup für HTML/CSS/JavaScript
 ------------------------------------
 
@@ -68,3 +73,6 @@ Zusätzlich werden die folgenden Einstellungen empfohlen (anzupassen unter _"Deb
 Der Entwurf der Website ist unter [Github Design Ordner](https://github.com/Querela/wcm_buch/tree/website-design/Website/Design) zu finden.
 
 [1]: http://brackets.io/    "brackets.io"
+[2]: http://www.dnb.de/     "DNB"
+[3]: http://datendienst.dnb.de/cgi-bin/mabit.pl?cmd=fetch&userID=opendata&pass=opendata&mabheft=DNBTitel.ttl.gz  "DNB-Daten-Export"
+[4]: https://www.elastic.co/    "ElasticSearch"
