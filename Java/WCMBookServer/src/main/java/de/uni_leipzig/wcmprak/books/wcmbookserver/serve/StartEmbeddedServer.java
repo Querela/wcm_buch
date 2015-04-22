@@ -106,9 +106,11 @@ public class StartEmbeddedServer {
         // Build & configure server
         final Server server = createServer();
 
-        // Configure and initialize an instance of DataExtractor
+        // Configure and initialize an instance of DataExtractor & DataCache
         Props props = new Props();
         props.setStringProp("goodreads.api.key", "RwUzZwkv94PCodD1lMF5g");
+        DataCache.configureWith(props);
+        DataCache.initialize();
         DataExtractor.configureWith(props);
         DataExtractor.initialize();
 
