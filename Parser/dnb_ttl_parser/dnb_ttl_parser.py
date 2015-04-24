@@ -57,6 +57,10 @@ def parse_item(fields):
     '''
     author_tags = ['marcRole:cre', 'dcterms:creator']
     author = []
+    original_title = 'NULL'
+    title = 'NULL'
+    language = 'NULL'
+
     for field in fields:
         if 'dcterms:alternative' in field:
             original_title = parse_original_title(field)
