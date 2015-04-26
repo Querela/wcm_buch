@@ -120,7 +120,7 @@
         <!-- list -->
         <div id="result-list">
             <div class="result-list-item" ng-repeat="book in series.books">
-                <div class="result-list-item-number" ng-if="book.series.number <= 0">
+                <div class="result-list-item-number" ng-if="book.series.number <= 0 || book.series.number === null">
                     -
                 </div>
                 <div class="result-list-item-number" ng-if="book.series.number > 0">
@@ -135,7 +135,7 @@
                 -->
                 <div class="result-list-item-details">
                     <div class="title">
-                        <a href="{{book.url}}">{{book.title}} <span class="series">({{book.series.name}}, #{{book.series.number}})</span></a>
+                        <a href="{{book.url}}">{{book.title}} <span class="series" ng-if="book.series !== null && book.series.name !== null && book.series.number !== null">({{book.series.name}}, #{{book.series.number}})</span></a>
                     </div>
                     <div class="authors">
                         by <span class="author">{{book.author.name}}</span>
@@ -172,12 +172,15 @@
             <div id="book-additional">
                 <!-- TODO: Sprache:&nbsp; -->
                 <span class="k-widget k-dropdown k-header" ng-model="book.grID" ng-controller="wcm_buch_book_sub_languages_controller">
-                    <span class="k-dropdown-wrap k-state-default">
+                    <span class="k-dropdown-wrap k-state-default" ng-click="langs.dropdownVisible = !langs.dropdownVisible">
                         <span class="k-input">{{book.language}}</span>
                         <span class="k-select">
                             <span class="k-icon k-i-arrow-s">select</span>
                         </span>
                     </span>
+                    <ul class="k-dropdown-items" ng-show="langs.dropdownVisible">
+                        <li class="k-dropdown-item" ng-repeat="lang in langs.map" ng-class="{'k-dropdown-item-selected': lang.isSelected, 'k-dropdown-item-hightlighted': lang.isMain}" ng-click="switchLanguage(lang)" title="{{lang.sTitel}}">{{lang.language}}</li>
+                    </ul>
                 </span>
                 <!-- TODO: tag/genre cloud, ... -->
                 <a class="goodreads-link" href="{{book.grUrl}}" target="_blank">

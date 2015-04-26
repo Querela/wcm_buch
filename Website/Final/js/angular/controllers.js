@@ -72,8 +72,9 @@ function parseTitleSeries(titleSeries) {
 
         i = titleSeries.lastIndexOf(",");
         parsed.series.number = +(titleSeries.substring(i + 3));
+        parsed.series.number = (isNaN(parsed.series.number)) ? null : parsed.series.number;
         parsed.series.name = titleSeries.substring(0, i);
-        parsed.hasSeries = true;
+        parsed.hasSeries = !isNaN(parsed.series.number);
     }
 
     return parsed;
@@ -133,7 +134,7 @@ wcm_buch_controllers.resolveBook = {
 
 wcm_buch_controllers.resolveSeries = {
     get_data: function ($http, $route) {
-        log("resolveBook", $route);
+        log("resolveSeries", $route);
         return $http.get(API_URI + "series/" + $route.current.params.seriesID).then(function (response) {
             return response.data;
         });
@@ -287,42 +288,45 @@ wcm_buch_controllers.controller(
 );
 
 wcm_buch_controllers.controller(
-    "wcm_buch_book_sub_languages_controller", ["$scope", "$rootScope", "$http", "$routeParams",
-        function ($scope, $rootScope, $http, $routeParams) {
+    "wcm_buch_book_sub_languages_controller", ["$scope", "$rootScope", "$http", "$routeParams", "$location",
+        function ($scope, $rootScope, $http, $routeParams, $location) {
             log("Book_sub_lang", $scope, $scope.$parent.book.grId);
-            
+
             var bookID = $routeParams.bookID;
             log("bookID", bookID);
 
             $http.get(API_URI + "book/languages/" + $scope.$parent.book.grEdID)
                 .success(function (data, status, headers, config) {
                     log("Book_sub_lang http", data, status, headers, config);
-                
+
                     var langs = {
                         language: "?",
                         grID: null,
-                        map: []
+                        map: [],
+                        dropdownVisible: false
                     };
-                
+
                     for (var idx = 0; idx < data.mapLangBook.books.book.length; idx++) {
                         var book = data.mapLangBook.books.book[idx];
-                        
+
                         if (book.book.goodreadsID == bookID) {
                             langs.language = book.language;
                             langs.grID = book.book.goodreadsID;
-                            
+
                             book.isSelected = true;
                         }
-                        
+
                         if (book.book.goodreadsID == data.mapLangBook.mainBookGoodreadsID) {
                             book.isMain = true;
                         }
-                        
+
+                        book.sTitel = (book.book.title !== undefined) ? (parseTitleSeries(book.book.title)).title : null;
+
                         langs.map.push(book);
                     }
-                
+
                     log("Scope langs", langs);
-                
+
                     $scope.langs = langs;
                     $scope.$parent.book.language = langs.language;
                 })
@@ -330,7 +334,12 @@ wcm_buch_controllers.controller(
                     log("Book_sub_lang failed!", data, status, headers, config);
                 });
 
-            // -> https://github.com/Querela/wcm_buch/commit/816f50874cc30dfa8cca7548d868bc6ff2d807a1#diff-e4c5ba9eb397068b0df08219d7f4e953L12
+            $scope.switchLanguage = function (lang) {
+                log("switchLanguage", lang);
+
+                log("Redirect to: \"" + BOOK_ROUTE_URI + lang.book.goodreadsID + "\"");
+                $location.path(BOOK_ROUTE_URI + lang.book.goodreadsID);
+            };
     }]
 );
 
@@ -372,6 +381,8 @@ wcm_buch_controllers.controller(
                     description: ""
                 });
             }
+
+            log("Series", series);
 
             $scope.series = series;
     }]
