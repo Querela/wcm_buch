@@ -1,13 +1,14 @@
-
 // Constants
 
 var API_URI = "api/";
 
 var SEARCH_ROUTE_URI = "/search/";
 var BOOK_ROUTE_URI = "/book/";
+var SERIES_ROUTE_URI = "/series/";
 
 var HREF_SEARCH_ROUTE_URI = "#" + SEARCH_ROUTE_URI;
 var HREF_BOOK_ROUTE_URI = "#" + BOOK_ROUTE_URI;
+var HREF_SERIES_ROUTE_URI = "#" + SERIES_ROUTE_URI;
 
 var PAGINATION_MAX_PAGES = 6;
 var PAGINATION_IS_LAST_PAGE_ENABLED = false;
@@ -234,9 +235,43 @@ wcm_buch_controllers.controller(
 wcm_buch_controllers.controller(
     "wcm_buch_book_controller", ["$scope", "$rootScope", "$http", "$routeParams", "get_data",
         function ($scope, $rootScope, $http, $routeParams, get_data) {
-            var url = API_URI + "book/" + $routeParams.bookID;
+            var data = get_data;
+            log("Book", data);
 
-            log(get_data);
+            $rootScope.title = "\"" + data.book.title + "\" (" + $routeParams.bookID + ")";
+
+            var parsed = parseTitleSeries(data.book.title);
+            var book = {
+                title: parsed.title,
+                series: {
+                    name: parsed.series.name,
+                    number: parsed.series.number,
+                    grID: data.book.series.goodreadsID,
+                    description: data.book.series.description,
+                    url: HREF_SERIES_ROUTE_URI + data.book.series.goodreadsID
+                },
+                hasSeries: parsed.hasSeries,
+                description: data.book.description,
+                grUrl: data.book.url,
+                imageUrl: data.book.imageURL,
+                grID: data.book.goodreadsID,
+                grEdID: data.book.goodreadsEditionsID,
+                language: data.book.language,
+                authors: [],
+                shelves: data.book.shelves.shelf
+            };
+            for (var idx = 0; idx < data.book.authors.author.length; idx++) {
+                var author = data.book.authors.author[idx];
+                book.authors.push({
+                    url: "",
+                    grID: author.goodreadsID,
+                    name: author.name
+                });
+            }
+            $scope.book = book;
+
+            // TODO: get languages?
+            // -> https://github.com/Querela/wcm_buch/commit/816f50874cc30dfa8cca7548d868bc6ff2d807a1#diff-e4c5ba9eb397068b0df08219d7f4e953L12
     }]
 );
 

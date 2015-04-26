@@ -150,6 +150,46 @@
             </div>
         </div>
     </script>
+    
+    <script type="text/ng-template" id="tpl_book.html">
+        <div id="book-main">
+            <div id="book-meta-main">
+                <div id="book-cover">
+                    <img src="{{book.imageUrl}}" />
+                </div>
+                <!-- TODO: title, author, ... -->
+                <div id="book-main-description">
+                    <div class="heading">
+                        <span class="title">{{book.title}}</span>
+                        <span class="series" ng-if="book.hasSeries">(<a href="{{book.series.url}}">{{book.series.name}}</a>, #{{book.series.number}})</span>
+                        <span class="authors">by <a href="#">{{book.authors[0].name}}</a><span ng-if="book.authors.length > 1">, <a href="#">Mary GrandPr??</a></span></span>
+                    </div>
+                    <div class="description">
+                        {{book.description}}
+                    </div>
+                </div>
+                <!-- TODO: additional meta data -->
+            </div>
+            <div id="book-additional">
+                <!-- TODO: Sprache:&nbsp; -->
+                <span class="k-widget k-dropdown k-header" ng-model="book.grID">
+                    <span class="k-dropdown-wrap k-state-default">
+                        <span class="k-input">{{book.language}}</span>
+                        <span class="k-select">
+                            <span class="k-icon k-i-arrow-s">select</span>
+                        </span>
+                    </span>
+                </span>
+                <!-- TODO: tag/genre cloud, ... -->
+                <a class="goodreads-link" href="{{book.grUrl}}">
+                    <img src="images/goodreads_logo_324.png" />
+                </a>
+                <ul class="shelves">
+                    <li ng-repeat="shelf in book.shelves"><span class="name">{{shelf.name}}</span><span class="counter">{{shelf.count}}</span></li>
+                </ul>
+            </div>
+        </div>
+    </script>
 
     <div id="root">
         <header>
