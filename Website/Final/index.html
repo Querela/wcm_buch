@@ -23,6 +23,7 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-sanitize.min.js"></script>
     <script src="js/angular/app.js"></script>
     <script src="js/angular/controllers.js"></script>
 </head>
@@ -162,11 +163,9 @@
                     <div class="heading">
                         <span class="title">{{book.title}}</span>
                         <span class="series" ng-if="book.hasSeries">(<a href="{{book.series.url}}">{{book.series.name}}</a>, #{{book.series.number}})</span>
-                        <span class="authors">by <a href="#">{{book.authors[0].name}}</a><span ng-if="book.authors.length > 1">, <a href="#">Mary GrandPr??</a></span></span>
+                        <span class="authors">by <a href="#">{{book.authors[0].name}}</a><span ng-if="book.moreAuthors.length > 0" ng-repeat="author in book.moreAuthors">, <a href="#">{{author.name}}</a></span></span>
                     </div>
-                    <div class="description">
-                        {{book.description}}
-                    </div>
+                    <div class="description" ng-bind-html="book.description" />
                 </div>
                 <!-- TODO: additional meta data -->
             </div>

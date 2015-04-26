@@ -1,5 +1,6 @@
 var wcm_buch_app = angular.module("wcm_buch", [
     "ngRoute",
+    "ngSanitize",
     "wcm_buch_controllers"
 ]);
 

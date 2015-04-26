@@ -255,6 +255,7 @@ wcm_buch_controllers.controller(
                 grEdID: data.book.goodreadsEditionsID,
                 language: (data.book.language) ? data.book.language : "?",
                 authors: [],
+                moreAuthors: [],
                 shelves: data.book.shelves.shelf
             };
             if (book.hasSeries) {
@@ -264,11 +265,19 @@ wcm_buch_controllers.controller(
             }
             for (var idx = 0; idx < data.book.authors.author.length; idx++) {
                 var author = data.book.authors.author[idx];
-                book.authors.push({
-                    url: "",
-                    grID: author.goodreadsID,
-                    name: author.name
-                });
+                if (idx == 0) {
+                    book.authors.push({
+                        url: "",
+                        grID: author.goodreadsID,
+                        name: author.name
+                    });
+                } else {
+                    book.moreAuthors.push({
+                        url: "",
+                        grID: author.goodreadsID,
+                        name: author.name
+                    });
+                }
             }
             $scope.book = book;
 
