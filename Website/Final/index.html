@@ -59,7 +59,8 @@
                         <a href="{{book.url}}">{{book.title}} <span class="series" ng-if="book.series !== null && book.series.name !== null && book.series.number !== null">({{book.series.name}}, #{{book.series.number}})</span></a>
                     </div>
                     <div class="authors">
-                        by <span class="author">{{book.author.name}}</span><!-- (Goodreads Author), ...-->
+                        by <span class="author">{{book.author.name}}</span>
+                        <!-- (Goodreads Author), ...-->
                     </div>
                     <div class="">
                         {{book.description}}
@@ -100,6 +101,52 @@
                     <span class="k-icon k-i-seek-e">Go to the last page</span>
                 </a>
                 <!--<span class="k-pager-info k-label">1 - 10 of 830 items</span>-->
+            </div>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="tpl_series.html">
+        <!-- header -->
+        <div id="result-list-header">
+            <div class="heading">{{series.title}}</div>
+            <div class="info">
+                {{series.numberOfAllBooks}} Bücher, {{series.numberOfBooks}} davon Hauptwerke
+            </div>
+            <div class="description">
+                {{series.description}}
+            </div>
+        </div>
+        <!-- list -->
+        <div id="result-list">
+            <div class="result-list-item" ng-repeat="book in series.books">
+                <div class="result-list-item-number" ng-if="book.series.number <= 0">
+                    -
+                </div>
+                <div class="result-list-item-number" ng-if="book.series.number > 0">
+                    {{book.series.number}}
+                </div>
+                <!--
+                <div class="result-list-item-preview">
+                    <a href="{{book.url}}">
+                        <img src="{{book.imageUrl}}" />
+                    </a>
+                </div>
+                -->
+                <div class="result-list-item-details">
+                    <div class="title">
+                        <a href="{{book.url}}">{{book.title}} <span class="series">({{book.series.name}}, #{{book.series.number}})</span></a>
+                    </div>
+                    <div class="authors">
+                        by <span class="author">{{book.author.name}}</span>
+                    </div>
+                    <div class="">
+                        {{book.description}}
+                    </div>
+                </div>
+                <div class="result-list-item-options">
+                    <!-- TODO: modify options -->
+                    <button>Option 1</button>
+                </div>
             </div>
         </div>
     </script>

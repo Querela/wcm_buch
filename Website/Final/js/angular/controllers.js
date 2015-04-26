@@ -130,6 +130,15 @@ wcm_buch_controllers.resolveBook = {
     }
 };
 
+wcm_buch_controllers.resolveSeries = {
+    get_data: function ($http, $route) {
+        log("resolveBook", $route);
+        return $http.get(API_URI + "series/" + $route.current.params.seriesID).then(function (response) {
+            return response.data;
+        });
+    }
+};
+
 // -----------------------------------------------------------------------------
 
 // HTML directives -> new html tags
@@ -232,18 +241,45 @@ wcm_buch_controllers.controller(
 );
 
 wcm_buch_controllers.controller(
-    "wcm_buch_series_controller", ["$scope", "$rootScope", "$http", "$routeParams",
-        function ($scope, $rootScope, $http, $routeParams) {
-            var url = API_URI + "series/" + $routeParams.seriesID;
-            $http.get(url)
-                .success(function (data, status, headers, config) {
-                    // TODO:
-                    log("get success", url, data, status, headers, config);
-                })
-                .error(function (data, status, headers, config) {
-                    // TODO:
-                    log("get error", url, data, status, headers, config);
+    "wcm_buch_series_controller", ["$scope", "$rootScope", "$http", "$routeParams", "get_data",
+        function ($scope, $rootScope, $http, $routeParams, get_data) {
+            var data = get_data;
+            log("Series", data);
+
+            $rootScope.title = "Series \"" + data.series.title + "\" (" + $routeParams.seriesID + ")";
+
+            var series = {
+                title: data.series.name,
+                description: data.series.description,
+                numberOfBooks: data.series.numberOfBooks,
+                numberOfAllBooks: data.series.books.book.length,
+                books: []
+            };
+
+            for (var idx = 0; idx < data.series.books.book.length; idx++) {
+                var book = data.series.books.book[idx];
+
+                var parsed = parseTitleSeries(book.title);
+
+                series.books.push({
+                    url: HREF_BOOK_ROUTE_URI + book.goodreadsID,
+                    grID: book.goodreadsID,
+                    grEdID: book.goodreadsEditionsID,
+                    title: parsed.title,
+                    series: {
+                        name: parsed.series.name,
+                        number: parsed.series.number
+                    },
+                    hasSeries: parsed.hasSeries,
+                    author: {
+                        name: book.authors.author[0].name,
+                        grID: book.authors.author[0].goodreadsID
+                    },
+                    description: ""
                 });
+            }
+
+            $scope.series = series;
     }]
 );
 
