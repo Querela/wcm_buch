@@ -134,6 +134,7 @@ public class GoodreadsScreenScraper implements Configurable, Initializable {
 
         // Append books
         for (Book book : parseEditionsPageBooks(doc)) {
+            book.setGoodreadsEditionsID(list.getEditionsID());
             list.addBook(book);
         } // for
         // Append books from following pages
