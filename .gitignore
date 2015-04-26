@@ -21,6 +21,25 @@
 *.iml
 target/
 
+#########
+# eclipse
+#########
+
+.classpath
+.project
+.settings/
+
+############
+# DNB Parser
+############
+
+DNB_Data/
+Test_Data/
+__pycache__/
+*.pyc
+*.sublime-*
+
+
 ######
 # Rest
 ######
