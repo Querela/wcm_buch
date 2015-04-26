@@ -672,6 +672,11 @@ ul.k-pager-numbers > li {
     word-break: normal;
     word-wrap: break-word;
     /*outline: 1px dotted white; /* DEBUG */
+    cursor: default;
+    -ms-user-select: text;
+    user-select: text;
+    -moz-user-select: text;
+    -webkit-user-select: text;
 }
 
 #book-main-description > .heading {

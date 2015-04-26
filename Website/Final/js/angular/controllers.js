@@ -245,10 +245,7 @@ wcm_buch_controllers.controller(
                 title: parsed.title,
                 series: {
                     name: parsed.series.name,
-                    number: parsed.series.number,
-                    grID: data.book.series.goodreadsID,
-                    description: data.book.series.description,
-                    url: HREF_SERIES_ROUTE_URI + data.book.series.goodreadsID
+                    number: parsed.series.number
                 },
                 hasSeries: parsed.hasSeries,
                 description: data.book.description,
@@ -256,10 +253,15 @@ wcm_buch_controllers.controller(
                 imageUrl: data.book.imageURL,
                 grID: data.book.goodreadsID,
                 grEdID: data.book.goodreadsEditionsID,
-                language: data.book.language,
+                language: (data.book.language) ? data.book.language : "?",
                 authors: [],
                 shelves: data.book.shelves.shelf
             };
+            if (book.hasSeries) {
+                book.series.grID = data.book.series.goodreadsID;
+                book.series.description = data.book.series.description;
+                book.series.url = HREF_SERIES_ROUTE_URI + data.book.series.goodreadsID;
+            }
             for (var idx = 0; idx < data.book.authors.author.length; idx++) {
                 var author = data.book.authors.author[idx];
                 book.authors.push({
