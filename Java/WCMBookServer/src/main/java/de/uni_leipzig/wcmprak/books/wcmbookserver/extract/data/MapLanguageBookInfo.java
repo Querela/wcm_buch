@@ -74,6 +74,7 @@ public class MapLanguageBookInfo {
         this.mainBookGoodreadsID = mainBookGoodreadsID;
     }
 
+    @XmlElement(name = "book")
     @XmlElementWrapper(name = "books")
     public List<MyHashMapEntryType> getBooks() {
         List<MyHashMapEntryType> books = new ArrayList<>();
@@ -102,6 +103,8 @@ public class MapLanguageBookInfo {
             }
 
             if (!this.mapLanguageBook.containsKey(language)) {
+                this.mapLanguageBook.put(language, book);
+            } else if (book.getGoodreadsID() == this.getMainBookGoodreadsID()) {
                 this.mapLanguageBook.put(language, book);
             }
         } // if

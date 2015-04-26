@@ -287,6 +287,54 @@ wcm_buch_controllers.controller(
 );
 
 wcm_buch_controllers.controller(
+    "wcm_buch_book_sub_languages_controller", ["$scope", "$rootScope", "$http", "$routeParams",
+        function ($scope, $rootScope, $http, $routeParams) {
+            log("Book_sub_lang", $scope, $scope.$parent.book.grId);
+            
+            var bookID = $routeParams.bookID;
+            log("bookID", bookID);
+
+            $http.get(API_URI + "book/languages/" + $scope.$parent.book.grEdID)
+                .success(function (data, status, headers, config) {
+                    log("Book_sub_lang http", data, status, headers, config);
+                
+                    var langs = {
+                        language: "?",
+                        grID: null,
+                        map: []
+                    };
+                
+                    for (var idx = 0; idx < data.mapLangBook.books.book.length; idx++) {
+                        var book = data.mapLangBook.books.book[idx];
+                        
+                        if (book.book.goodreadsID == bookID) {
+                            langs.language = book.language;
+                            langs.grID = book.book.goodreadsID;
+                            
+                            book.isSelected = true;
+                        }
+                        
+                        if (book.book.goodreadsID == data.mapLangBook.mainBookGoodreadsID) {
+                            book.isMain = true;
+                        }
+                        
+                        langs.map.push(book);
+                    }
+                
+                    log("Scope langs", langs);
+                
+                    $scope.langs = langs;
+                    $scope.$parent.book.language = langs.language;
+                })
+                .error(function (data, status, headers, config) {
+                    log("Book_sub_lang failed!", data, status, headers, config);
+                });
+
+            // -> https://github.com/Querela/wcm_buch/commit/816f50874cc30dfa8cca7548d868bc6ff2d807a1#diff-e4c5ba9eb397068b0df08219d7f4e953L12
+    }]
+);
+
+wcm_buch_controllers.controller(
     "wcm_buch_series_controller", ["$scope", "$rootScope", "$http", "$routeParams", "get_data",
         function ($scope, $rootScope, $http, $routeParams, get_data) {
             var data = get_data;
