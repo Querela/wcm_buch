@@ -8,11 +8,12 @@ import pprint
 pp = pprint.PrettyPrinter(indent=4)
 ### parse all files in input folder
 
+
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv,"hi:epf:",["infolder_type=","inpath="])
+        opts, args = getopt.getopt(argv,"hi:epf:",["--index_name=","inpath="])
     except getopt.GetoptError:
-        print("Error: dnb2es.py -f <path to parse> -i <data or test> -e <es indexing> -p <print>")
+        print("Error: dnb2es.py -f <path to parse> -i <ES index name> -e <es indexing> -p <print>")
         sys.exit(2)
     esIn = False
     printout = False
@@ -22,13 +23,9 @@ def main(argv):
             sys.exit()
         elif opt in ("-f", "--inpath"):
             infolder = arg
-        elif opt in ("-i", "--infolder_type"):
-            if 'infolder' in locals():
-                pass
-            elif arg == "data":
-                infolder = "./DNB_Data"
-            elif arg == "test":
-                infolder = "./Test_Data"
+        elif opt in ("-i", "--index_name"):
+            es_index = arg
+            print('es_index', arg)
         elif opt == '-e':
             esIn = True
         elif opt =='-p':
@@ -39,8 +36,9 @@ def main(argv):
 ES_URL = "localhost:9200"
 es = elasticsearch.Elasticsearch()  # use default of localhost, port 9200
 
+
 def es_indexing(json_item):
-    es.index(index='dnb_db', doc_type='item', body=json_item)
+    es.index(index=es_index, doc_type='item', body=json_item)
 
 def parse(infolder, esIn, printout):
     infiles = io.get_infiles(infolder)
@@ -70,8 +68,10 @@ def parse(infolder, esIn, printout):
             print('............ File: ',infile,'\t is indexed. Total_indexed: ',infile_counter, ' files ..............')
 
 if __name__ == "__main__":
-   infolder,esIn,printout = main(sys.argv[1:])
-   print("infolder =", infolder, "| indexing = ",esIn, "| print = ",printout)
+    infolder,esIn,printout = main(sys.argv[1:])
+    print("infolder =", infolder, "| indexing = ",esIn, "| print = ",printout)
+    print('es_index', es_index)
 parse(infolder,esIn,printout)
+
 
 

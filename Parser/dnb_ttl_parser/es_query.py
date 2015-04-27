@@ -1,7 +1,7 @@
 import urllib.request as urlre
 import re,json,sys
 
-endpoint = 'http://localhost:9200/dnb_ger'
+endpoint = 'http://localhost:9200/dnb_db'
 
 book_title = str(sys.argv[1])
 
@@ -19,7 +19,7 @@ def extract_original_title(field):
     original_title = m.group()[1:-1]
     return original_title
 
-query = '_search?q=title:'+build_q_string(book_title)+'&size=5'
+query = '_search?q=title:'+build_q_string(book_title)+'&size=5&pretty=true'
 
 url_list = [endpoint, query]
 
