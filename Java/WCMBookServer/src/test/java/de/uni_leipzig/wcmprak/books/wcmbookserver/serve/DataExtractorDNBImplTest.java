@@ -7,6 +7,11 @@ import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Props;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
+
 /**
  * Created by Erik on 22.04.2015.
  */
@@ -29,7 +34,7 @@ public class DataExtractorDNBImplTest {
         MapLanguageBookInfo mlbi = getLanguages(editionsID);
 
         // Convert java object to JSON ...
-        String result = Utils.marshallObject(mlbi, true, true);
+        String result = Utils.marshallObject(mlbi, false, true);
         // Output ...
         log.info("result:\n{}", result);
     }
@@ -40,24 +45,46 @@ public class DataExtractorDNBImplTest {
         MapLanguageBookInfo mlbi = new MapLanguageBookInfo(bel); // copy constructor
 
         String bookID = "" + mlbi.getMainBookGoodreadsID();
-        String author = DataExtractor.getInstance().getBook(bookID).getAuthors().get(0).getName();
-        String title = mlbi.getMainBookTitle();
-        log.info("bookID: \"{}\", autor: \"{}\", title: \"{}\"", bookID, author, title);
+        Book book = DataExtractor.getInstance().getBook(bookID);
+        String author = book.getAuthors().get(0).getName();
 
-        // TODO: lets do our magic here ...
-        // TODO: add dnb query etc.
+        String title = mlbi.getMainBookTitle();
+        log.info("bookID: \"{}\", author: \"{}\", title: \"{}\"", bookID, author, title);
+
+        // Parameters for search
+        String bookLanguage = book.getLanguage();
+        String searchTitle = title
+                .replace(" ", "+")
+                .replace("'", "");
+        log.info("bookLanguage: \"{}\", searchTitle: \"{}\"", bookLanguage, searchTitle);
+
+        // Build and execute search
+        Client client = ClientBuilder.newClient();
+        WebTarget webTarget = client
+                .target("http://ERIK-UBUNTU:9200/dnb_ger/_search?q=title:" + searchTitle + "&size=5&pretty=true");
+                /*.path("dnb_ger") // .path("dnb_" + bookLanguage)
+                .path("_search")
+                .queryParam("q", "title:" + searchTitle)
+                .queryParam("size", String.valueOf(5))
+                .queryParam("pretty", true);*/
+        log.info("webTarget: {}", webTarget.getUri().toASCIIString());
+        Response response = webTarget.request().buildGet().invoke();
+        String result = response.readEntity(String.class);
+        log.info("result:\n{}", result);
 
         return mlbi;
     }
 
 
     public static void main(String[] args) throws Exception {
-        System.setProperty("org.slf4j.simpleLogger.log.de.uni_leipzig.wcmprak.books.wcmbookserver", "debug"); // TODO: remove in final version
+        System.setProperty("org.slf4j.simpleLogger.log.de.uni_leipzig.wcmprak.books.wcmbookserver", "info"); // TODO: remove in final version
         System.setProperty("org.slf4j.simpleLogger.log.de.uni_leipzig.wcmprak.books.wcmbookserver.serve.DataExtractorDNBImplTest", "debug"); // show everything
 
         // Configure and initialize DataExtractor
         Props props = new Props();
         props.setStringProp("goodreads.api.key", "RwUzZwkv94PCodD1lMF5g");
+        DataCache.configureWith(props);
+        DataCache.initialize();
         DataExtractor.configureWith(props);
         DataExtractor.initialize();
 
