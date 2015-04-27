@@ -10,18 +10,22 @@ pp = pprint.PrettyPrinter(indent=4)
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv,"hi:ep",["infolder_type="])
+        opts, args = getopt.getopt(argv,"hi:epf:",["infolder_type=","inpath="])
     except getopt.GetoptError:
-        print("Error: dnb2es.py -i <data or test> -e <es indexing> -p <print>")
+        print("Error: dnb2es.py -f <path to parse> -i <data or test> -e <es indexing> -p <print>")
         sys.exit(2)
     esIn = False
     printout = False
     for opt, arg in opts:
         if opt == '-h':
-            print('dnb2es.py -i <data or test> -e <es indexing> -p <print>')
+            print('dnb2es.py -f <path to parse> -i <data or test> -e <es indexing> -p <print>')
             sys.exit()
+        elif opt in ("-f", "--inpath"):
+            infolder = arg
         elif opt in ("-i", "--infolder_type"):
-            if arg == "data":
+            if 'infolder' in locals():
+                pass
+            elif arg == "data":
                 infolder = "./DNB_Data"
             elif arg == "test":
                 infolder = "./Test_Data"
@@ -35,11 +39,8 @@ def main(argv):
 ES_URL = "localhost:9200"
 es = elasticsearch.Elasticsearch()  # use default of localhost, port 9200
 
-def es_indexing_ger(json_item):
-    es.index(index='dnb_ger', doc_type='item', body=json_item)
-
-def es_indexing_eng(json_item):
-    es.index(index='dnb_eng', doc_type='item', body=json_item)
+def es_indexing(json_item):
+    es.index(index='dnb_db', doc_type='item', body=json_item)
 
 def parse(infolder, esIn, printout):
     infiles = io.get_infiles(infolder)
@@ -57,18 +58,12 @@ def parse(infolder, esIn, printout):
             parsed_item = parser.parse_item(fields)
             # translate Item object to dictionary
             item_to_dict = parsed_item.dict()
-            # save items into two indexes in ES by language
+
             # ONLY save german and english books to Elasticsearch
-            if item_to_dict['language'] == 'ger':
+            if item_to_dict['language'] == 'eng' or item_to_dict['language'] =='ger':
                 json_item = parser.dic_to_json(item_to_dict)
                 if esIn == True:
-                    es_indexing_ger(json_item)
-                if printout == True:
-                    pp.pprint(json_item)
-            if item_to_dict['language'] == 'eng':
-                json_item = parser.dic_to_json(item_to_dict)
-                if esIn == True:
-                    es_indexing_eng(json_item)
+                    es_indexing(json_item)
                 if printout == True:
                     pp.pprint(json_item)
         if esIn ==True:
