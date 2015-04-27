@@ -1,9 +1,11 @@
 import urllib.request as urlre
-import re,json
+import re,json,sys
 
 endpoint = 'http://localhost:9200/dnb_ger'
 
-book_title = 'Harry Potter und der Feuerkelch'
+book_title = str(sys.argv[1])
+
+# book_title = 'Harry Potter und der Feuerkelch'
 dQuotes = '\".*\"'
 header = re.compile(r'original_titel')
 
@@ -17,7 +19,7 @@ def extract_original_title(field):
     original_title = m.group()[1:-1]
     return original_title
 
-query = '_search?q=title:'+build_q_string(book_title)+'&size=1&fields:original_title'
+query = '_search?q=title:'+build_q_string(book_title)+'&size=5'
 
 url_list = [endpoint, query]
 
