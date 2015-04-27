@@ -266,18 +266,17 @@ wcm_buch_controllers.controller(
             }
             for (var idx = 0; idx < data.book.authors.author.length; idx++) {
                 var author = data.book.authors.author[idx];
+                var wrappedAuthor = {
+                    url: "",
+                    grID: author.goodreadsID,
+                    name: author.name,
+                    url: HREF_SEARCH_ROUTE_URI + author.name
+                };
+                
                 if (idx == 0) {
-                    book.authors.push({
-                        url: "",
-                        grID: author.goodreadsID,
-                        name: author.name
-                    });
+                    book.authors.push(wrappedAuthor);
                 } else {
-                    book.moreAuthors.push({
-                        url: "",
-                        grID: author.goodreadsID,
-                        name: author.name
-                    });
+                    book.moreAuthors.push(wrappedAuthor);
                 }
             }
             $scope.book = book;
