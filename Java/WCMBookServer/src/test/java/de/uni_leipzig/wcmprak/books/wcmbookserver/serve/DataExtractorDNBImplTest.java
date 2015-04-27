@@ -67,7 +67,7 @@ public class DataExtractorDNBImplTest {
         log.info("bookLanguage: \"{}\", searchTitle: \"{}\"", bookLanguage, searchTitle);
 
         // Test language
-        boolean isEnglish = bookLanguage != null && bookLanguage.indexOf("eng") != -1 && bookLanguage.indexOf("en-US") != -1;
+        boolean isEnglish = bookLanguage != null && bookLanguage.indexOf("eng") != -1 || bookLanguage.indexOf("en-US") != -1;
         boolean isGerman = bookLanguage != null && bookLanguage.indexOf("ger") != -1;
         log.info("isEnglish:{}, isGerman:{}", isEnglish, isGerman);
 
@@ -102,9 +102,28 @@ public class DataExtractorDNBImplTest {
                 String originalTitle = (String) hitData.get("original_title");
                 String otherTitle = (String) hitData.get("title");
                 log.info("Hit [{}]: lang:{}, orig:\"{}\", title:\"{}\"", nr, language, originalTitle, otherTitle);
-
+                
+                String dnbTitle = otherTitle;
+                // if search in Goodreads is english
+                if (isEnglish == true){
+                	// get german title from dnb
+                	if (language != null && language.indexOf("ger") != -1){
+                		dnbTitle = otherTitle;
+                	}else{
+                		log.info("No German edition in dnbDB found ...");
+                	}                	
+                }else if(isGerman == true){
+                	// get english title from dnb
+                	if (language != null && language.indexOf("eng") != -1){
+                		dnbTitle = otherTitle;
+                	}else{
+                		log.info("No English edition in dnbDB found ...");
+                	}
+                }           
+                log.info("translated {} version is called: \"{}\"", language, dnbTitle);
+                
                 // TODO: search using goodreads
-                SearchResultList srl = DataExtractor.getInstance().getSearchResults("TODO: searchTerm", 1);
+                SearchResultList srl = DataExtractor.getInstance().getSearchResults(dnbTitle, 1);
                 for (Book bk : srl.getBooks()) {
                     log.info("Found book: {}, id:{}, lang:{}", bk.getTitle(), bk.getGoodreadsID(), bk.getLanguage());
                     // TODO: check goodreads title etc.
