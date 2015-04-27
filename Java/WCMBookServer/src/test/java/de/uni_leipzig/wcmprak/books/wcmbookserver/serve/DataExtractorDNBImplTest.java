@@ -67,8 +67,8 @@ public class DataExtractorDNBImplTest {
         log.info("bookLanguage: \"{}\", searchTitle: \"{}\"", bookLanguage, searchTitle);
 
         // Test language
-        boolean isEnglish = bookLanguage != null && bookLanguage.indexOf("eng") != -1 || bookLanguage.indexOf("en-US") != -1;
-        boolean isGerman = bookLanguage != null && bookLanguage.indexOf("ger") != -1;
+        boolean isEnglish = bookLanguage != null && (bookLanguage.contains("eng") || bookLanguage.contains("en-US"));
+        boolean isGerman = bookLanguage != null && bookLanguage.contains("ger");
         log.info("isEnglish:{}, isGerman:{}", isEnglish, isGerman);
 
         // Build and execute search
@@ -102,32 +102,42 @@ public class DataExtractorDNBImplTest {
                 String originalTitle = (String) hitData.get("original_title");
                 String otherTitle = (String) hitData.get("title");
                 log.info("Hit [{}]: lang:{}, orig:\"{}\", title:\"{}\"", nr, language, originalTitle, otherTitle);
-                
+
                 String dnbTitle = otherTitle;
                 // if search in Goodreads is english
-                if (isEnglish == true){
-                	// get german title from dnb
-                	if (language != null && language.indexOf("ger") != -1){
-                		dnbTitle = otherTitle;
-                	}else{
-                		log.info("No German edition in dnbDB found ...");
-                	}                	
-                }else if(isGerman == true){
-                	// get english title from dnb
-                	if (language != null && language.indexOf("eng") != -1){
-                		dnbTitle = otherTitle;
-                	}else{
-                		log.info("No English edition in dnbDB found ...");
-                	}
-                }           
-                log.info("translated {} version is called: \"{}\"", language, dnbTitle);
-                
-                // TODO: search using goodreads
-                SearchResultList srl = DataExtractor.getInstance().getSearchResults(dnbTitle, 1);
+                if (isEnglish) {
+                    // get german title from dnb
+                    if (language != null && language.contains("ger")) {
+                        dnbTitle = otherTitle;
+                    } else {
+                        log.info("No German edition in dnbDB found ...");
+                    } // if-else
+                } else if (isGerman) {
+                    // get english title from dnb
+                    if (language != null && language.contains("eng")) {
+                        dnbTitle = otherTitle;
+                    } else {
+                        log.info("No English edition in dnbDB found ...");
+                    } // if-else
+                }
+                log.info("translated \"{}\" version is called: \"{}\"", language, dnbTitle);
+
+                // Search goodreads
+                SearchResultList srl = DataExtractor.getInstance().getSearchResults(author + " " + dnbTitle, 1);
+                if (srl.getBooks().isEmpty()) {
+                    // if with author is empty try only the title
+                    srl = DataExtractor.getInstance().getSearchResults(dnbTitle, 1);
+                } // if
+
                 for (Book bk : srl.getBooks()) {
-                    log.info("Found book: {}, id:{}, lang:{}", bk.getTitle(), bk.getGoodreadsID(), bk.getLanguage());
+                    log.info("Found book: {}, id:{}", bk.getTitle(), bk.getGoodreadsID());
                     // TODO: check goodreads title etc.
                     // TODO: ...
+
+                    // Add book after check to result list
+                    Book bookInfo = DataExtractor.getInstance().getBook("" + bk.getGoodreadsID());
+                    mlbi.addBook(bookInfo);
+                    break; // stop after first book // TODO: stop for all hits?
                 } // for
                 if (srl.getBooks() == null || srl.getBooks().isEmpty()) {
                     log.info("No books found ...");
@@ -144,6 +154,8 @@ public class DataExtractorDNBImplTest {
 
 
     public static void main(String[] args) throws Exception {
+        System.setProperty("org.slf4j.simpleLogger.showShortLogName", "true");
+        System.setProperty("org.slf4j.simpleLogger.levelInBrackets", "true");
         System.setProperty("org.slf4j.simpleLogger.log.de.uni_leipzig.wcmprak.books.wcmbookserver", "info"); // TODO: remove in final version
         System.setProperty("org.slf4j.simpleLogger.log.de.uni_leipzig.wcmprak.books.wcmbookserver.serve.DataExtractorDNBImplTest", "debug"); // show everything
 
