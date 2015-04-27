@@ -91,5 +91,7 @@ public class DataExtractorDNBImplTest {
         // Do our test impl method
         DataExtractorDNBImplTest dednbit = new DataExtractorDNBImplTest();
         dednbit.doTest();
+
+        DataCache.stop();
     }
 }
