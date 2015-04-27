@@ -23,7 +23,7 @@ def main(argv):
         elif opt in ("-f", "--inpath"):
             infolder = arg
         elif opt in ("-i", "--infolder_type"):
-            if infolder:
+            if 'infolder' in locals():
                 pass
             elif arg == "data":
                 infolder = "./DNB_Data"
