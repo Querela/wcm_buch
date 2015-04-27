@@ -20,6 +20,7 @@ abBracket = r'<.*>'
 
 item_original_title = re.compile('dcterms:alternative')
 item_lang = re.compile('dcterms:language')
+item_title = re.compile('dc:title')
 
 def split_item(text):
     '''
@@ -46,7 +47,9 @@ def select_items(items):
         ot = item_original_title.search(pre_item)
         # get rid of books without 'language'-field (mostly non Ger/Eng books)
         lang = item_lang.search(pre_item)
-        if e and ot and lang and not p :
+        # get rid of books w/o title
+        t = item_title.search(pre_item)
+        if e and ot and lang and t and not p :
             translated_docs.append(pre_item)
     return translated_docs
 
@@ -91,7 +94,7 @@ def parse_original_title(field):
             original_title = s.group()[0:-2]
         else:
              original_title = alternativeWithLang
-    else: original_title = 'no original title found'
+    else: original_title = 'no original title content is found'
     return original_title
 
 def parse_title(field):
@@ -102,7 +105,7 @@ def parse_title(field):
     m = re.search(dQuotes,field)
     if m:
         title = m.group()[1:-1]
-    else: title = 'no title is found'
+    else: title = 'no title content is found'
     return title
 
 def parse_author(field):

@@ -38,7 +38,7 @@ es = elasticsearch.Elasticsearch()  # use default of localhost, port 9200
 def es_indexing_ger(json_item):
     es.index(index='dnb_ger', doc_type='item', body=json_item)
 
-def es_indexing_eng(json_items):
+def es_indexing_eng(json_item):
     es.index(index='dnb_eng', doc_type='item', body=json_item)
 
 def parse(infolder, esIn, printout):
@@ -59,7 +59,6 @@ def parse(infolder, esIn, printout):
             item_to_dict = parsed_item.dict()
             # save items into two indexes in ES by language
             # ONLY save german and english books to Elasticsearch
-
             if item_to_dict['language'] == 'ger':
                 json_item = parser.dic_to_json(item_to_dict)
                 if esIn == True:
@@ -68,7 +67,7 @@ def parse(infolder, esIn, printout):
                     pp.pprint(json_item)
             if item_to_dict['language'] == 'eng':
                 json_item = parser.dic_to_json(item_to_dict)
-                if es == True:
+                if esIn == True:
                     es_indexing_eng(json_item)
                 if printout == True:
                     pp.pprint(json_item)
