@@ -38,6 +38,10 @@ public class SPAFilter implements Filter {
                 path.startsWith(Utils.STATIC_IMAGES_URI)) {
             // Redirect static file requests to static file servlet
             request.getRequestDispatcher(Utils.STATIC_FILES_URI + path.substring(1)).forward(request, response);
+        } else if (path.startsWith("/%7B%7") && path.endsWith("%7D%7D")) {
+            log.debug("SPAFilter: redirect path=\"{}\" to \"{}\"", path, Utils.STATIC_FILE_SPA_INDEX_URI);
+            // Redirect angular brackets ...
+            request.getRequestDispatcher(Utils.STATIC_FILE_SPA_INDEX_URI).forward(request, response);
         } else {
             log.debug("SPAFilter: redirect path=\"{}\" to \"{}\"", path, Utils.STATIC_FILE_SPA_INDEX_URI);
             // Redirect everything else to SPA index file

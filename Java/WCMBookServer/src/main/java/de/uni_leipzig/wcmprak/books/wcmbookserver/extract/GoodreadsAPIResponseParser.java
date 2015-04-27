@@ -70,13 +70,17 @@ public class GoodreadsAPIResponseParser implements Configurable, Initializable {
 
         SeriesInfo series = new SeriesInfo();
         Element ele = getSingleElement(doc.select("GoodreadsResponse > book > series_works > series_work"));
-        book.setNumberInSeries(Integer.parseInt(getElementValue(ele.select("user_position"))));
-        ele = ele.select("series").first();
-        series.setGoodreadsID(Integer.parseInt(getElementValue(ele.select("id"))));
-        series.setName(getElementValue(ele.select("title")));
-        series.setDescription(getElementValue(ele.select("description")));
-        series.setNumberOfBooks(Integer.parseInt(getElementValue(ele.select("primary_work_count"))));
-        book.setSeries(series);
+        if (ele != null) {
+            book.setNumberInSeries(Integer.parseInt(getElementValue(ele.select("user_position"))));
+            ele = ele.select("series").first();
+            series.setGoodreadsID(Integer.parseInt(getElementValue(ele.select("id"))));
+            series.setName(getElementValue(ele.select("title")));
+            series.setDescription(getElementValue(ele.select("description")));
+            series.setNumberOfBooks(Integer.parseInt(getElementValue(ele.select("primary_work_count"))));
+            book.setSeries(series);
+        } else {
+            book.setNumberInSeries(-1.0f);
+        } // if-else
 
         return book;
     }

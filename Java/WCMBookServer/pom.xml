@@ -37,6 +37,7 @@
         <!-- source and destination directories of static webapp resources -->
         <project.build.webapp-static.dir>webapp-static</project.build.webapp-static.dir>
         <webapp-static.source.dir>../../Website/Final</webapp-static.source.dir>
+        <webapp-static.jar.classifier>webapp</webapp-static.jar.classifier>
     </properties>
 
     <dependencyManagement>
@@ -118,6 +119,13 @@
             <version>${jsoup.version}</version>
         </dependency>
 
+        <dependency>
+            <!-- parsing of elastic search -->
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple </artifactId>
+            <version>1.1</version>
+        </dependency>
+
         <!-- Persistence -->
         <dependency>
             <groupId>org.mongodb</groupId>
@@ -152,109 +160,6 @@
         </dependency>
         -->
     </dependencies>
-
-    <!--
-    <profiles>
-        <profile>
-            <! - - Dependencies only used in IDE/editor, not for build - - >
-            <! - - TODO: better way? - - >
-            <id>editor-only</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>junit</groupId>
-                    <artifactId>junit</artifactId>
-                    <version>${junit.version}</version>
-                    <scope>test</scope>
-                    <type>javadoc</type>
-                </dependency>
-                <dependency>
-                    <groupId>junit</groupId>
-                    <artifactId>junit</artifactId>
-                    <version>${junit.version}</version>
-                    <scope>test</scope>
-                    <type>sources</type>
-                </dependency>
-                <dependency>
-                    <groupId>com.beust.</groupId>
-                    <artifactId>jcommander</artifactId>
-                    <version>1.4</version>
-                    <type>javadoc</type>
-                </dependency>
-                <dependency>
-                    <groupId>com.beust.</groupId>
-                    <artifactId>jcommander</artifactId>
-                    <version>1.4</version>
-                    <type>sources</type>
-                </dependency>
-                <dependency>
-                    <groupId>org.glassfish.jersey.core</groupId>
-                    <artifactId>jersey-client</artifactId>
-                    <version>${jersey.version}</version>
-                    <type>javadoc</type>
-                </dependency>
-                <dependency>
-                    <groupId>org.glassfish.jersey.core</groupId>
-                    <artifactId>jersey-client</artifactId>
-                    <version>${jersey.version}</version>
-                    <type>sources</type>
-                </dependency>
-                <dependency>
-                    <groupId>javax.ws.rs</groupId>
-                    <artifactId>javax.ws.rs-api</artifactId>
-                    <version>2.0.1</version>
-                    <type>javadoc</type>
-                </dependency>
-                <dependency>
-                    <groupId>javax.ws.rs</groupId>
-                    <artifactId>javax.ws.rs-api</artifactId>
-                    <version>2.0.1</version>
-                    <type>sources</type>
-                </dependency>
-                <dependency>
-                    <groupId>org.jsoup</groupId>
-                    <artifactId>jsoup</artifactId>
-                    <version>${jsoup.version}</version>
-                    <type>javadoc</type>
-                </dependency>
-                <dependency>
-                    <groupId>org.jsoup</groupId>
-                    <artifactId>jsoup</artifactId>
-                    <version>${jsoup.version}</version>
-                    <type>sources</type>
-                </dependency>
-                <dependency>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                    <version>${slf4j.version}</version>
-                    <type>javadoc</type>
-                </dependency>
-                <dependency>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                    <version>${slf4j.version}</version>
-                    <type>sources</type>
-                </dependency>
-                <dependency>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-simple</artifactId>
-                    <version>${slf4j.version}</version>
-                    <scope>runtime</scope>
-                    <type>javadoc</type>
-                </dependency>
-                <dependency>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-simple</artifactId>
-                    <version>${slf4j.version}</version>
-                    <scope>runtime</scope>
-                    <type>sources</type>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
-    -->
 
     <build>
         <finalName>${project.name}</finalName>
@@ -317,7 +222,8 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.outputDirectory}/${project.build.webapp-static.dir}/
+                            <outputDirectory>
+                                ${project.build.outputDirectory}/${project.build.webapp-static.dir}/
                             </outputDirectory>
                             <resources>
                                 <resource>
@@ -385,18 +291,45 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.5</version>
-                <configuration>
-                    <excludes>
-                        <exclude>simplelogger.properties</exclude>
-                    </excludes>
-                    <archive>
-                        <manifest>
-                            <mainClass>de.uni_leipzig.wcmprak.books.wcmbookserver.Main</mainClass>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>${libs.dir}</classpathPrefix>
-                        </manifest>
-                    </archive>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>jar-webapp-static</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>${webapp-static.jar.classifier}</classifier>
+                            <includes>
+                                <include>${project.build.webapp-static.dir}/**</include>
+                                <include>${webapp-static.source.dir}/**</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>default-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <mainClass>de.uni_leipzig.wcmprak.books.wcmbookserver.Main</mainClass>
+                                    <addClasspath>true</addClasspath>
+                                    <classpathPrefix>${libs.dir}</classpathPrefix>
+                                </manifest>
+                                <manifestEntries>
+                                    <Class-Path>${project.name}-${webapp-static.jar.classifier}.jar</Class-Path>
+                                </manifestEntries>
+                            </archive>
+                            <excludes>
+                                <exclude>simplelogger.properties</exclude>
+                                <exclude>webapp-static/</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <!-- Copy project dependency -->
             <plugin>

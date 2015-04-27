@@ -1,5 +1,6 @@
 var wcm_buch_app = angular.module("wcm_buch", [
     "ngRoute",
+    "ngSanitize",
     "wcm_buch_controllers"
 ]);
 
@@ -41,7 +42,8 @@ wcm_buch_app.config([
             .when("/series/:seriesID", {
                 templateUrl: "tpl_series.html",
                 controller: "wcm_buch_series_controller",
-                controllerAs: "controller"
+                controllerAs: "controller",
+                resolve: wcm_buch_controllers.resolveSeries
             })
             // otherwise redirect to ...
             .otherwise({

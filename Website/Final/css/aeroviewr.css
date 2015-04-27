@@ -7,7 +7,10 @@
     box-sizing: border-box;
 }
 
-body, html, #root, #root > div {
+body,
+html,
+#root,
+#root > div {
     margin: 0;
     padding: 0;
     background: #000;
@@ -15,27 +18,24 @@ body, html, #root, #root > div {
     width: 100%;
 }
 
-header, footer
-{
+header,
+footer {
     transition: transform 100ms;
     -moz-transition: -moz-transform 100ms;
     -webkit-transition: -webkit-transform 100ms;
 }
 
-.focused header
-{
+.focused header {
     transform: translatey(-100px);
     -moz-transform: translatey(-100px);
     -webkit-transform: translatey(-100px);
 }
 
-.focused footer
-{
+.focused footer {
     transform: translatey(100px);
     -moz-transform: translatey(100px);
     -webkit-transform: translatey(100px);
 }
-
 /***************************
  * Search inputs
  **************************/
@@ -53,7 +53,7 @@ header, footer
     background: #222;
     background: rgba(0, 0, 0, 0.4);
     border: 1px solid #555;
-    border: 1px solid rgba(255,255,255,.2);
+    border: 1px solid rgba(255, 255, 255, .2);
     border-top-left-radius: 16px;
     border-bottom-left-radius: 16px;
     padding: 3px 15px;
@@ -67,7 +67,7 @@ header, footer
     -moz-appearance: none;
     -webkit-appearance: none;
     color: white;
-    background: rgba(90,90,90,.4);
+    background: rgba(90, 90, 90, .4);
     border: 1px solid #555;
     border-top-right-radius: 16px;
     border-bottom-right-radius: 16px;
@@ -75,7 +75,6 @@ header, footer
     padding: 3px 8px;
     line-height: 23px;
 }
-
 /***************************
  * Header
 ***************************/
@@ -85,7 +84,7 @@ header {
     z-index: 100;
     top: 0;
     width: 100%;
-    border-bottom: 1px solid rgba(255,255,255,.2);
+    border-bottom: 1px solid rgba(255, 255, 255, .2);
     box-shadow: 0 0 20px #000;
     -moz-box-shadow: 0 0 20px #000;
     -webkit-box-shadow: 0 0 20px #000;
@@ -103,12 +102,9 @@ header label {
     font-weight: normal;
 }
 
-header #search-input {
-}
+header #search-input {}
 
-header #search-button {
-}
-
+header #search-button {}
 /***************************
  * Main
 ***************************/
@@ -128,35 +124,29 @@ header #search-button {
     overflow: hidden;
 }
 
-#details.visible
-{
+#details.visible {
     width: 430px;
 }
 
-#details > div
-{
+#details > div {
     width: 400px;
     margin-left: 30px;
 }
 
-#details a
-{
+#details a {
     color: white;
 }
 
-#details p
-{
+#details p {
     white-space: normal;
 }
 
 #details p,
-#details ul
-{
+#details ul {
     font-size: 13px;
 }
 
-#details h2
-{
+#details h2 {
     font-weight: normal;
     font-size: 30px;
     line-height: 38px;
@@ -164,8 +154,7 @@ header #search-button {
     overflow: hidden;
 }
 
-#details ul span
-{
+#details ul span {
     display: inline-block;
     font-size: 12px;
     width: 100px;
@@ -173,23 +162,20 @@ header #search-button {
     vertical-align: top;
 }
 
-#details ul div
-{
+#details ul div {
     color: #ffd200;
     display: inline-block;
     vertical-align: top;
 }
 
-#details ul
-{
+#details ul {
     overflow: hidden;
     list-style: none;
     margin: 0;
     padding: 0;
 }
 
-#details img
-{
+#details img {
     width: 100px;
     float: left;
 }
@@ -218,8 +204,7 @@ header #search-button {
     padding-right: 25px;
 }
 
-#container-inner-wrap .loading
-{
+#container-inner-wrap .loading {
     background: url("../images/loading.gif") no-repeat 50% 50%;
     display: inline-block;
     margin: 0 auto;
@@ -243,16 +228,16 @@ header #search-button {
     min-width: 800px;
     white-space: normal;
     border: 1px solid #555;
-    border: 1px solid rgba(255,255,255,.2);
+    border: 1px solid rgba(255, 255, 255, .2);
     display: inline-block;
     /* font-size: 0px; /* DEBUG / FIXME */
+    
     padding: 20px 30px;
     background: url("../images/texture-darker.png");
-    box-shadow: inset 0 0 100px rgba(255,255,255,.1), 0 0 10px rgba(0,0,0,.6);
-    -webkit-box-shadow: inset 0 0 100px rgba(255,255,255,.1), 0 0 10px rgba(0,0,0,.6);
-    -moz-box-shadow: inset 0 0 100px rgba(255,255,255,.1), 0 0 10px rgba(0,0,0,.6);
+    box-shadow: inset 0 0 100px rgba(255, 255, 255, .1), 0 0 10px rgba(0, 0, 0, .6);
+    -webkit-box-shadow: inset 0 0 100px rgba(255, 255, 255, .1), 0 0 10px rgba(0, 0, 0, .6);
+    -moz-box-shadow: inset 0 0 100px rgba(255, 255, 255, .1), 0 0 10px rgba(0, 0, 0, .6);
 }
-
 /***************************
  * Footer
 ***************************/
@@ -262,7 +247,7 @@ footer {
     z-index: 100;
     bottom: 0;
     width: 100%;
-    border-top: 1px solid rgba(255,255,255,.2);
+    border-top: 1px solid rgba(255, 255, 255, .2);
     box-shadow: 0 0 20px #000;
     -moz-box-shadow: 0 0 20px #000;
     -webkit-box-shadow: 0 0 20px #000;
@@ -338,15 +323,13 @@ footer:hover .scroll-arrow {
     left: auto;
     right: 0;
 }
-
 /***************************
  * AeroViewr Logo
  **************************/
 
 .aeroLogo,
 .aeroLogo a,
-#details.visible
-{
+#details.visible {
     font-weight: normal;
     margin: 0;
     display: inline-block;
@@ -354,70 +337,74 @@ footer:hover .scroll-arrow {
 }
 
 .aeroLogo,
-.aeroLogo a
-{
+.aeroLogo a {
     font-weight: normal;
     font-size: 30px;
     color: #ffd200;
 }
 
-.aeroLogo span
-{
+.aeroLogo span {
     font-weight: bold;
     font-size: 1.1em;
 }
-
-
 /***************************
  * Small screen fallback
  **************************/
 
 @media only screen and (max-device-width: 1024px) {
-
     html,
     body,
     #container-wrap,
-    #container-inner-wrap
-    {
-        -webkit-tap-highlight-color: rgba(0,0,0,0);
+    #container-inner-wrap {
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
         -webkit-transform: translatez(0);
     }
-
     #container-inner-wrap .loading,
     #container-inner-wrap .image,
-    #details
-    {
+    #details {
         height: 400px;
     }
-
-    #container-inner-wrap
-    {
+    #container-inner-wrap {
         height: 402px;
     }
-
-    #details.visible
-    {
+    #details.visible {
         width: 330px;
     }
-
-    #details > div
-    {
+    #details > div {
         width: 300px;
     }
-
 }
-
 /***************************
  * Search result list
  **************************/
 
 #result-list-header {
     /* border: 1px solid white; /* DEBUG */
+    
     cursor: default;
     -ms-user-select: text;
     user-select: text;
     -moz-user-select: text;
     -webkit-user-select: text;
+}
+
+#result-list-header .heading {
+    color: #ffd200;
+    font-size: 200%;
+}
+
+#result-list-header .info {
+    color: #ffd200;
+    font-size: 75%;
+    text-align: left;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+#result-list-header .description {
+    color: #ffd200;
+    font-size: 90%;
+    text-align: left;
 }
 
 #results-search-box {
@@ -426,7 +413,7 @@ footer:hover .scroll-arrow {
 
 #results-search-box input.search-input {
     min-width: 300px;
-    width: 80%;
+    width: 75%;
 }
 
 #results-statistics {
@@ -437,6 +424,7 @@ footer:hover .scroll-arrow {
 
 #result-list {
     /* outline: orange 1px dotted; /* DEBUG */
+    
     cursor: default;
     -ms-user-select: text;
     user-select: text;
@@ -450,7 +438,7 @@ footer:hover .scroll-arrow {
     text-align: left;
     color: #ffd200;
     margin-bottom: 5px;
-    border: 1px solid rgba(255,255,255,.2);
+    border: 1px solid rgba(255, 255, 255, .2);
     position: relative;
 }
 
@@ -463,6 +451,15 @@ footer:hover .scroll-arrow {
     display: inline-block;
     padding: 5px;
     vertical-align: middle;
+}
+
+#result-list .result-list-item-number {
+    width: 30px;
+    text-align: center;
+    padding-left: 5px;
+    padding-right: 5px;
+    font-size: 120%;
+    font-weight: bold;
 }
 
 #result-list .result-list-item-details > .title {
@@ -478,9 +475,9 @@ footer:hover .scroll-arrow {
 }
 
 #result-list > .result-list-item > .result-list-item-options {
-    display: none; /* TODO: what to use for ... */
+    display: none;
+    /* TODO: what to use for ... */
 }
-
 /***************************
  * Empty search result list
  **************************/
@@ -490,7 +487,6 @@ footer:hover .scroll-arrow {
     color: #ffd200;
     font-size: 150%;
 }
-
 /******************************
  * Pager (for search results)
  *****************************/
@@ -545,47 +541,60 @@ ul.k-reset {
 }
 
 ul.k-pager-numbers {
-    margin-left: -3px; /*FIX for angularjs*/
+    margin-left: -3px;
+    /*FIX for angularjs*/
 }
 
 ul.k-pager-numbers > li {
-    margin-left: 3px; /*FIX for angularjs*/
+    margin-left: 3px;
+    /*FIX for angularjs*/
+    
     display: inline-block;
 }
 
-.k-pager-wrap > .k-link, .k-pager-numbers .k-link, .k-pager-numbers .k-state-selected {
+.k-pager-wrap > .k-link,
+.k-pager-numbers .k-link,
+.k-pager-numbers .k-state-selected {
     min-width: 2em;
     display: inline-block;
-    border: 1px solid rgba(255,255,255,.2);
-    margin-left: 0px; /* -4px */
+    border: 1px solid rgba(255, 255, 255, .2);
+    margin-left: 0px;
+    /* -4px */
+    
     text-align: center;
 }
 
 .k-state-selected {
     color: #fff;
-    background: #ffd200; /*background-color: #428BCA;*/
+    background: #ffd200;
+    /*background-color: #428BCA;*/
 }
 
 .k-state-disabled {
     opacity: 0.5;
 }
+/***************************
+ * Dropdown
+ **************************/
 
 .k-dropdown {
     width: 185px;
     display: inline-block;
     vertical-align: middle;
+    position: relative;
 }
 
 .k-dropdown-wrap {
     background-image: none;
     background-position: 50% 50%;
     display: block;
-    border: 1px solid rgba(255,255,255,.2);
+    border: 1px solid rgba(255, 255, 255, .2);
     position: relative;
     text-align: left;
 }
 
-.k-dropdown-wrap > .k-input, .k-dropdown-wrap > .k-select {
+.k-dropdown-wrap > .k-input,
+.k-dropdown-wrap > .k-select {
     box-sizing: border-box;
     cursor: pointer;
     color: cornflowerblue;
@@ -608,9 +617,57 @@ ul.k-pager-numbers > li {
     position: absolute;
     top: 0px;
     right: 0px;
-    border-left: 1px solid rgba(255,255,255,.2);
+    border-left: 1px solid rgba(255, 255, 255, .2);
 }
 
+.k-dropdown-items {
+    position: absolute;
+    list-style-type: none;
+    list-style-position: outside;
+    text-align: left;
+    margin-top: 5px;
+    padding: 1px 1px 0px 1px;
+    width: 185px;
+    max-height: 400px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, .2);
+    background: url("../images/texture.png");
+    background-repeat: repeat;
+    z-index: 100;
+}
+
+.k-dropdown-items > .k-dropdown-item {
+    padding: 5px 15px;
+    margin: -1px;
+    border: 1px solid rgba(255, 255, 255, .2);
+    cursor: pointer;
+    background-color: #222;
+    background-color: rgba(0, 0, 0, 0.4);
+    margin-bottom: 2px;
+}
+
+.k-dropdown-items > .k-dropdown-item:last-child {
+    margin-bottom: 0px;
+}
+
+.k-dropdown-items > .k-dropdown-item:hover {
+    background-color: inherit;
+}
+
+.k-dropdown-items > .k-dropdown-item-selected {
+    border: 1px solid #ffd200;
+    color: #ffd200;
+}
+
+.k-dropdown-items > .k-dropdown-item-hightlighted {
+    color: #ffd200;
+    font-style: italic;
+}
+
+.k-dropdown-items > .k-dropdown-item-hightlighted:after {
+    content: "*";
+}
 /***************************
  *
  **************************/
@@ -649,6 +706,44 @@ ul.k-pager-numbers > li {
     word-break: normal;
     word-wrap: break-word;
     /*outline: 1px dotted white; /* DEBUG */
+    
+    cursor: default;
+    -ms-user-select: text;
+    user-select: text;
+    -moz-user-select: text;
+    -webkit-user-select: text;
+}
+
+#book-main-description > .heading {
+    color: #ffd200;
+    display: inline-block;
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
+#book-main-description > .heading > .title {
+    display: inline-block;
+    font-size: 125%;
+}
+
+#book-main-description > .heading > .series {
+    display: inline-block;
+    font-size: 90%;
+}
+
+#book-main-description > .heading > .series > a {
+    color: #ffd200;
+    display: inline-block;
+}
+
+#book-main-description > .heading > .authors {
+    display: block;
+    font-size: 10px;
+}
+
+#book-main-description > .heading > .authors a {
+    font-size: 13px;
+    padding-left: 5px;
 }
 
 #book-additional {
@@ -659,4 +754,39 @@ ul.k-pager-numbers > li {
     width: 200px;
     /*text-align: right; /* TODO */
     /*outline: 1px dotted yellow; /* DEBUG */
+}
+
+#book-additional > .goodreads-link {
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+#book-additional > ul.shelves {
+    list-style-type: none;
+    list-style-position: inside;
+    padding: 0px;
+    text-align: center;
+    font-size: 13px;
+}
+
+#book-additional > ul.shelves .name {
+    font-size: 100%;
+    font-weight: bold;
+}
+
+#book-additional > ul.shelves .counter {
+    font-weight: normal;
+    padding-left: 7px;
+    font-size: 80%;
+}
+
+.goodreads-link {
+    display: inline-block;
+    background-color: grey;
+    border: 1px solid rgba(255, 255, 255, .2);
+    padding: 7px;
+}
+
+.goodreads-link > img {
+    height: 30px;
 }

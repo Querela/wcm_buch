@@ -1,13 +1,14 @@
-
 // Constants
 
 var API_URI = "api/";
 
 var SEARCH_ROUTE_URI = "/search/";
 var BOOK_ROUTE_URI = "/book/";
+var SERIES_ROUTE_URI = "/series/";
 
 var HREF_SEARCH_ROUTE_URI = "#" + SEARCH_ROUTE_URI;
 var HREF_BOOK_ROUTE_URI = "#" + BOOK_ROUTE_URI;
+var HREF_SERIES_ROUTE_URI = "#" + SERIES_ROUTE_URI;
 
 var PAGINATION_MAX_PAGES = 6;
 var PAGINATION_IS_LAST_PAGE_ENABLED = false;
@@ -71,8 +72,9 @@ function parseTitleSeries(titleSeries) {
 
         i = titleSeries.lastIndexOf(",");
         parsed.series.number = +(titleSeries.substring(i + 3));
+        parsed.series.number = (isNaN(parsed.series.number)) ? null : parsed.series.number;
         parsed.series.name = titleSeries.substring(0, i);
-        parsed.hasSeries = true;
+        parsed.hasSeries = !isNaN(parsed.series.number);
     }
 
     return parsed;
@@ -125,6 +127,15 @@ wcm_buch_controllers.resolveBook = {
     get_data: function ($http, $route) {
         log("resolveBook", $route);
         return $http.get(API_URI + "book/" + $route.current.params.bookID).then(function (response) {
+            return response.data;
+        });
+    }
+};
+
+wcm_buch_controllers.resolveSeries = {
+    get_data: function ($http, $route) {
+        log("resolveSeries", $route);
+        return $http.get(API_URI + "series/" + $route.current.params.seriesID).then(function (response) {
             return response.data;
         });
     }
@@ -225,25 +236,154 @@ wcm_buch_controllers.controller(
 wcm_buch_controllers.controller(
     "wcm_buch_book_controller", ["$scope", "$rootScope", "$http", "$routeParams", "get_data",
         function ($scope, $rootScope, $http, $routeParams, get_data) {
-            var url = API_URI + "book/" + $routeParams.bookID;
+            var data = get_data;
+            log("Book", data);
 
-            log(get_data);
+            $rootScope.title = "\"" + data.book.title + "\" (" + $routeParams.bookID + ")";
+
+            var parsed = parseTitleSeries(data.book.title);
+            var book = {
+                title: parsed.title,
+                series: {
+                    name: parsed.series.name,
+                    number: parsed.series.number
+                },
+                hasSeries: parsed.hasSeries,
+                description: data.book.description,
+                grUrl: data.book.url,
+                imageUrl: data.book.imageURL,
+                grID: data.book.goodreadsID,
+                grEdID: data.book.goodreadsEditionsID,
+                language: (data.book.language) ? data.book.language : "?",
+                authors: [],
+                moreAuthors: [],
+                shelves: data.book.shelves.shelf
+            };
+            if (book.hasSeries) {
+                book.series.grID = data.book.series.goodreadsID;
+                book.series.description = data.book.series.description;
+                book.series.url = HREF_SERIES_ROUTE_URI + data.book.series.goodreadsID;
+            }
+            for (var idx = 0; idx < data.book.authors.author.length; idx++) {
+                var author = data.book.authors.author[idx];
+                var wrappedAuthor = {
+                    url: "",
+                    grID: author.goodreadsID,
+                    name: author.name,
+                    url: HREF_SEARCH_ROUTE_URI + author.name
+                };
+                
+                if (idx == 0) {
+                    book.authors.push(wrappedAuthor);
+                } else {
+                    book.moreAuthors.push(wrappedAuthor);
+                }
+            }
+            $scope.book = book;
+
+            // TODO: get languages?
+            // -> https://github.com/Querela/wcm_buch/commit/816f50874cc30dfa8cca7548d868bc6ff2d807a1#diff-e4c5ba9eb397068b0df08219d7f4e953L12
     }]
 );
 
 wcm_buch_controllers.controller(
-    "wcm_buch_series_controller", ["$scope", "$rootScope", "$http", "$routeParams",
-        function ($scope, $rootScope, $http, $routeParams) {
-            var url = API_URI + "series/" + $routeParams.seriesID;
-            $http.get(url)
+    "wcm_buch_book_sub_languages_controller", ["$scope", "$rootScope", "$http", "$routeParams", "$location",
+        function ($scope, $rootScope, $http, $routeParams, $location) {
+            log("Book_sub_lang", $scope, $scope.$parent.book.grId);
+
+            var bookID = $routeParams.bookID;
+            log("bookID", bookID);
+
+            $http.get(API_URI + "book/languages/" + $scope.$parent.book.grEdID)
                 .success(function (data, status, headers, config) {
-                    // TODO:
-                    log("get success", url, data, status, headers, config);
+                    log("Book_sub_lang http", data, status, headers, config);
+
+                    var langs = {
+                        language: "?",
+                        grID: null,
+                        map: [],
+                        dropdownVisible: false
+                    };
+
+                    for (var idx = 0; idx < data.mapLangBook.books.book.length; idx++) {
+                        var book = data.mapLangBook.books.book[idx];
+
+                        if (book.book.goodreadsID == bookID) {
+                            langs.language = book.language;
+                            langs.grID = book.book.goodreadsID;
+
+                            book.isSelected = true;
+                        }
+
+                        if (book.book.goodreadsID == data.mapLangBook.mainBookGoodreadsID) {
+                            book.isMain = true;
+                        }
+
+                        book.sTitel = (book.book.title !== undefined) ? (parseTitleSeries(book.book.title)).title : null;
+
+                        langs.map.push(book);
+                    }
+
+                    log("Scope langs", langs);
+
+                    $scope.langs = langs;
+                    $scope.$parent.book.language = langs.language;
                 })
                 .error(function (data, status, headers, config) {
-                    // TODO:
-                    log("get error", url, data, status, headers, config);
+                    log("Book_sub_lang failed!", data, status, headers, config);
                 });
+
+            $scope.switchLanguage = function (lang) {
+                log("switchLanguage", lang);
+
+                log("Redirect to: \"" + BOOK_ROUTE_URI + lang.book.goodreadsID + "\"");
+                $location.path(BOOK_ROUTE_URI + lang.book.goodreadsID);
+            };
+    }]
+);
+
+wcm_buch_controllers.controller(
+    "wcm_buch_series_controller", ["$scope", "$rootScope", "$http", "$routeParams", "get_data",
+        function ($scope, $rootScope, $http, $routeParams, get_data) {
+            var data = get_data;
+            log("Series", data);
+
+            $rootScope.title = "Series \"" + data.series.title + "\" (" + $routeParams.seriesID + ")";
+
+            var series = {
+                title: data.series.name,
+                description: data.series.description,
+                numberOfBooks: data.series.numberOfBooks,
+                numberOfAllBooks: data.series.books.book.length,
+                books: []
+            };
+
+            for (var idx = 0; idx < data.series.books.book.length; idx++) {
+                var book = data.series.books.book[idx];
+
+                var parsed = parseTitleSeries(book.title);
+
+                series.books.push({
+                    url: HREF_BOOK_ROUTE_URI + book.goodreadsID,
+                    grID: book.goodreadsID,
+                    grEdID: book.goodreadsEditionsID,
+                    title: parsed.title,
+                    series: {
+                        name: parsed.series.name,
+                        number: parsed.series.number
+                    },
+                    hasSeries: parsed.hasSeries,
+                    author: {
+                        name: book.authors.author[0].name,
+                        grID: book.authors.author[0].goodreadsID
+                    },
+                    description: ""
+                });
+            }
+
+            log("Series", series);
+
+            $scope.series = series;
     }]
 );
 

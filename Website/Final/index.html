@@ -23,6 +23,7 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-sanitize.min.js"></script>
     <script src="js/angular/app.js"></script>
     <script src="js/angular/controllers.js"></script>
 </head>
@@ -59,7 +60,8 @@
                         <a href="{{book.url}}">{{book.title}} <span class="series" ng-if="book.series !== null && book.series.name !== null && book.series.number !== null">({{book.series.name}}, #{{book.series.number}})</span></a>
                     </div>
                     <div class="authors">
-                        by <span class="author">{{book.author.name}}</span><!-- (Goodreads Author), ...-->
+                        by <span class="author">{{book.author.name}}</span>
+                        <!-- (Goodreads Author), ...-->
                     </div>
                     <div class="">
                         {{book.description}}
@@ -100,6 +102,96 @@
                     <span class="k-icon k-i-seek-e">Go to the last page</span>
                 </a>
                 <!--<span class="k-pager-info k-label">1 - 10 of 830 items</span>-->
+            </div>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="tpl_series.html">
+        <!-- header -->
+        <div id="result-list-header">
+            <div class="heading">{{series.title}}</div>
+            <div class="info">
+                {{series.numberOfAllBooks}} Bücher, {{series.numberOfBooks}} davon Hauptwerke
+            </div>
+            <div class="description">
+                {{series.description}}
+            </div>
+        </div>
+        <!-- list -->
+        <div id="result-list">
+            <div class="result-list-item" ng-repeat="book in series.books">
+                <div class="result-list-item-number" ng-if="book.series.number <= 0 || book.series.number === null">
+                    -
+                </div>
+                <div class="result-list-item-number" ng-if="book.series.number > 0">
+                    {{book.series.number}}
+                </div>
+                <!--
+                <div class="result-list-item-preview">
+                    <a href="{{book.url}}">
+                        <img src="{{book.imageUrl}}" />
+                    </a>
+                </div>
+                -->
+                <div class="result-list-item-details">
+                    <div class="title">
+                        <a href="{{book.url}}">{{book.title}} <span class="series" ng-if="book.series !== null && book.series.name !== null && book.series.number !== null">({{book.series.name}}, #{{book.series.number}})</span></a>
+                    </div>
+                    <div class="authors">
+                        by <span class="author">{{book.author.name}}</span>
+                    </div>
+                    <div class="">
+                        {{book.description}}
+                    </div>
+                </div>
+                <div class="result-list-item-options">
+                    <!-- TODO: modify options -->
+                    <button>Option 1</button>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="tpl_book.html">
+        <div id="book-main">
+            <div id="book-meta-main">
+                <div id="book-cover">
+                    <img src="{{book.imageUrl}}" />
+                </div>
+                <!-- TODO: title, author, ... -->
+                <div id="book-main-description">
+                    <div class="heading">
+                        <span class="title">{{book.title}}</span>
+                        <span class="series" ng-if="book.hasSeries">(<a href="{{book.series.url}}">{{book.series.name}}</a>, #{{book.series.number}})</span>
+                        <span class="authors">by <a href="{{book.authors[0].url}}">{{book.authors[0].name}}</a><span ng-if="book.moreAuthors.length > 0" ng-repeat="author in book.moreAuthors">, <a href="{{author.url}}">{{author.name}}</a></span></span>
+                    </div>
+                    <div class="description" ng-bind-html="book.description" />
+                </div>
+                <!-- TODO: additional meta data -->
+            </div>
+            <div id="book-additional">
+                <!-- TODO: Sprache:&nbsp; -->
+                <span class="k-widget k-dropdown k-header" ng-model="book.grID" ng-controller="wcm_buch_book_sub_languages_controller">
+                    <span class="k-dropdown-wrap k-state-default" ng-click="langs.dropdownVisible = !langs.dropdownVisible">
+                        <span class="k-input">{{book.language}}</span>
+                        <span class="k-select">
+                        <span class="k-icon k-i-arrow-s">select</span>
+                    </span>
+                </span>
+                <ul class="k-dropdown-items" ng-show="langs.dropdownVisible">
+                    <li class="k-dropdown-item" ng-repeat="lang in langs.map" ng-class="{'k-dropdown-item-selected': lang.isSelected, 'k-dropdown-item-hightlighted': lang.isMain}" ng-click="switchLanguage(lang)" title="{{lang.sTitel}}">{{lang.language}}</li>
+                </ul>
+                </span>
+                <!-- TODO: tag/genre cloud, ... -->
+                <a class="goodreads-link" href="{{book.grUrl}}" target="_blank">
+                    <img src="images/goodreads_logo_324.png" />
+                </a>
+                <ul class="shelves">
+                    <li ng-repeat="shelf in book.shelves">
+                        <span class="name">{{shelf.name}}</span>
+                        <span class="counter">{{shelf.count}}</span>
+                    </li>
+                </ul>
             </div>
         </div>
     </script>

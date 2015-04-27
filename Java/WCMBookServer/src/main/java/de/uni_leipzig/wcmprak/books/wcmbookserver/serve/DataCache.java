@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Erik on 22.04.2015.
@@ -20,8 +23,31 @@ public class DataCache {
     private Hashtable<String, Object> data = new Hashtable<>();
     private final static long TTL = 24 * 60 * 60 * 1000;
     private Hashtable<String, Long> dataTTL = new Hashtable<>();
+    private ScheduledExecutorService cleanScheduler = null;
 
     private DataCache() {
+        cleanScheduler = Executors.newScheduledThreadPool(1);
+
+        cleanScheduler.scheduleAtFixedRate(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                log.debug("scheduled cleanup ...");
+
+                instance.cleanUp();
+            }
+        }, "DataCache-CleanUp-Thread"), 0, 3, TimeUnit.HOURS);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    cleanScheduler.shutdownNow();
+                    cleanScheduler.awaitTermination(5, TimeUnit.SECONDS);
+                } catch (Exception e) {
+                    log.error("stop scheduler", e);
+                } // try-catch
+            }
+        }, "shutdownHook-DataCache-Scheduler"));
     }
 
     public void store(String key, Object value) {
@@ -133,5 +159,10 @@ public class DataCache {
     public static void initialize() throws Exception {
         // Create new instance object
         instance = new DataCache();
+    }
+
+    public static void stop() throws Exception {
+        instance.cleanScheduler.shutdownNow();
+        instance = null;
     }
 }
