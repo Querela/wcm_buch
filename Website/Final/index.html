@@ -151,7 +151,7 @@
             </div>
         </div>
     </script>
-    
+
     <script type="text/ng-template" id="tpl_book.html">
         <div id="book-main">
             <div id="book-meta-main">
@@ -163,7 +163,7 @@
                     <div class="heading">
                         <span class="title">{{book.title}}</span>
                         <span class="series" ng-if="book.hasSeries">(<a href="{{book.series.url}}">{{book.series.name}}</a>, #{{book.series.number}})</span>
-                        <span class="authors">by <a href="#">{{book.authors[0].name}}</a><span ng-if="book.moreAuthors.length > 0" ng-repeat="author in book.moreAuthors">, <a href="#">{{author.name}}</a></span></span>
+                        <span class="authors">by <a href="{{book.authors[0].url}}">{{book.authors[0].name}}</a><span ng-if="book.moreAuthors.length > 0" ng-repeat="author in book.moreAuthors">, <a href="{{author.url}}">{{author.name}}</a></span></span>
                     </div>
                     <div class="description" ng-bind-html="book.description" />
                 </div>
@@ -175,19 +175,22 @@
                     <span class="k-dropdown-wrap k-state-default" ng-click="langs.dropdownVisible = !langs.dropdownVisible">
                         <span class="k-input">{{book.language}}</span>
                         <span class="k-select">
-                            <span class="k-icon k-i-arrow-s">select</span>
-                        </span>
+                        <span class="k-icon k-i-arrow-s">select</span>
                     </span>
-                    <ul class="k-dropdown-items" ng-show="langs.dropdownVisible">
-                        <li class="k-dropdown-item" ng-repeat="lang in langs.map" ng-class="{'k-dropdown-item-selected': lang.isSelected, 'k-dropdown-item-hightlighted': lang.isMain}" ng-click="switchLanguage(lang)" title="{{lang.sTitel}}">{{lang.language}}</li>
-                    </ul>
+                </span>
+                <ul class="k-dropdown-items" ng-show="langs.dropdownVisible">
+                    <li class="k-dropdown-item" ng-repeat="lang in langs.map" ng-class="{'k-dropdown-item-selected': lang.isSelected, 'k-dropdown-item-hightlighted': lang.isMain}" ng-click="switchLanguage(lang)" title="{{lang.sTitel}}">{{lang.language}}</li>
+                </ul>
                 </span>
                 <!-- TODO: tag/genre cloud, ... -->
                 <a class="goodreads-link" href="{{book.grUrl}}" target="_blank">
                     <img src="images/goodreads_logo_324.png" />
                 </a>
                 <ul class="shelves">
-                    <li ng-repeat="shelf in book.shelves"><span class="name">{{shelf.name}}</span><span class="counter">{{shelf.count}}</span></li>
+                    <li ng-repeat="shelf in book.shelves">
+                        <span class="name">{{shelf.name}}</span>
+                        <span class="counter">{{shelf.count}}</span>
+                    </li>
                 </ul>
             </div>
         </div>
