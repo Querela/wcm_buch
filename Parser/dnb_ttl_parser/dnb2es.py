@@ -10,18 +10,22 @@ pp = pprint.PrettyPrinter(indent=4)
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv,"hi:ep",["infolder_type="])
+        opts, args = getopt.getopt(argv,"hi:epf:",["infolder_type=","inpath="])
     except getopt.GetoptError:
-        print("Error: dnb2es.py -i <data or test> -e <es indexing> -p <print>")
+        print("Error: dnb2es.py -f <path to parse> -i <data or test> -e <es indexing> -p <print>")
         sys.exit(2)
     esIn = False
     printout = False
     for opt, arg in opts:
         if opt == '-h':
-            print('dnb2es.py -i <data or test> -e <es indexing> -p <print>')
+            print('dnb2es.py -f <path to parse> -i <data or test> -e <es indexing> -p <print>')
             sys.exit()
+        elif opt in ("-f", "--inpath"):
+            infolder = arg
         elif opt in ("-i", "--infolder_type"):
-            if arg == "data":
+            if infolder:
+                pass
+            elif arg == "data":
                 infolder = "./DNB_Data"
             elif arg == "test":
                 infolder = "./Test_Data"
@@ -62,12 +66,6 @@ def parse(infolder, esIn, printout):
                     es_indexing(json_item)
                 if printout == True:
                     pp.pprint(json_item)
-            # if item_to_dict['language'] == 'eng':
-            #     json_item = parser.dic_to_json(item_to_dict)
-            #     if esIn == True:
-            #         es_indexing_eng(json_item)
-            #     if printout == True:
-            #         pp.pprint(json_item)
         if esIn ==True:
             print('............ File: ',infile,'\t is indexed. Total_indexed: ',infile_counter, ' files ..............')
 
