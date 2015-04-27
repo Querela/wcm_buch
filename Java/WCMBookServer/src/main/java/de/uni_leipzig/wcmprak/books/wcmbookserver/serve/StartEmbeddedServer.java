@@ -25,7 +25,7 @@ public class StartEmbeddedServer {
     protected static ServletContextHandler createContext() {
         String webDir = ".";
         try {
-            webDir = StartEmbeddedServer.class.getClassLoader().getResource("webapp-static").toExternalForm();
+            webDir = Thread.currentThread().getContextClassLoader().getResource("webapp-static").toExternalForm();
         } catch (Exception ex) {
             log.error("get webDir failed ...", ex);
         }
@@ -140,6 +140,8 @@ public class StartEmbeddedServer {
             // server.dumpStdErr();
             server.stop();
             server.join();
+
+            DataCache.stop();
         } catch (IOException ioex) {
             log.error("IO Exception while configuring and starting the server ...", ioex);
         }

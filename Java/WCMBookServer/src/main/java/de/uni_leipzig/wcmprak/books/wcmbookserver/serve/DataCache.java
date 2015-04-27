@@ -42,6 +42,7 @@ public class DataCache {
             public void run() {
                 try {
                     cleanScheduler.shutdownNow();
+                    cleanScheduler.awaitTermination(5, TimeUnit.SECONDS);
                 } catch (Exception e) {
                     log.error("stop scheduler", e);
                 } // try-catch

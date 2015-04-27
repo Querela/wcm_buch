@@ -3,7 +3,12 @@ package de.uni_leipzig.wcmprak.books.wcmbookserver.serve;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.Book;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.BookEditionsList;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.MapLanguageBookInfo;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.SearchResultList;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Props;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +22,9 @@ import javax.ws.rs.core.Response;
  */
 public class DataExtractorDNBImplTest {
     private final static Logger log = LoggerFactory.getLogger(DataExtractorDNBImplTest.class);
+
+    // private final static String HOST = "ERIK-UBUNTU:9200";
+    private final static String HOST = "localhost:9200";
 
     public DataExtractorDNBImplTest() {
 
@@ -58,10 +66,15 @@ public class DataExtractorDNBImplTest {
                 .replace("'", "");
         log.info("bookLanguage: \"{}\", searchTitle: \"{}\"", bookLanguage, searchTitle);
 
+        // Test language
+        boolean isEnglish = bookLanguage != null && bookLanguage.indexOf("eng") != -1 && bookLanguage.indexOf("en-US") != -1;
+        boolean isGerman = bookLanguage != null && bookLanguage.indexOf("ger") != -1;
+        log.info("isEnglish:{}, isGerman:{}", isEnglish, isGerman);
+
         // Build and execute search
         Client client = ClientBuilder.newClient();
         WebTarget webTarget = client
-                .target("http://ERIK-UBUNTU:9200/dnb_ger/_search?q=title:" + searchTitle + "&size=5&pretty=true");
+                .target("http://" + HOST + "/dnb_db/_search?q=title:" + searchTitle + "&size=5&pretty=true");
                 /*.path("dnb_ger") // .path("dnb_" + bookLanguage)
                 .path("_search")
                 .queryParam("q", "title:" + searchTitle)
@@ -71,6 +84,41 @@ public class DataExtractorDNBImplTest {
         Response response = webTarget.request().buildGet().invoke();
         String result = response.readEntity(String.class);
         log.info("result:\n{}", result);
+
+        // parse elastic search results
+        JSONParser jsonParser = new JSONParser();
+        try {
+            JSONObject jsonObject = (JSONObject) jsonParser.parse(result);
+            JSONObject hitsWrapper = (JSONObject) jsonObject.get("hits");
+            JSONArray hits = (JSONArray) hitsWrapper.get("hits");
+
+            // TODO: iterate all or only the first
+            for (int nr = 0; nr < hits.size(); nr++) {
+                JSONObject hit = (JSONObject) hits.get(nr);
+                JSONObject hitData = (JSONObject) hit.get("_source");
+
+                // get data from search result
+                String language = (String) hitData.get("language");
+                String originalTitle = (String) hitData.get("original_title");
+                String otherTitle = (String) hitData.get("title");
+                log.info("Hit [{}]: lang:{}, orig:\"{}\", title:\"{}\"", nr, language, originalTitle, otherTitle);
+
+                // TODO: search using goodreads
+                SearchResultList srl = DataExtractor.getInstance().getSearchResults("TODO: searchTerm", 1);
+                for (Book bk : srl.getBooks()) {
+                    log.info("Found book: {}, id:{}, lang:{}", bk.getTitle(), bk.getGoodreadsID(), bk.getLanguage());
+                    // TODO: check goodreads title etc.
+                    // TODO: ...
+                } // for
+                if (srl.getBooks() == null || srl.getBooks().isEmpty()) {
+                    log.info("No books found ...");
+                } // if
+            } // for
+        } catch (ParseException e) {
+            log.error("json parsing error", e);
+        } catch (Exception e) {
+            log.error("json parsing", e);
+        } // try-catch
 
         return mlbi;
     }
