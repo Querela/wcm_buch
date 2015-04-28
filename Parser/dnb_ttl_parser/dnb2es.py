@@ -11,26 +11,27 @@ pp = pprint.PrettyPrinter(indent=4)
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv,"hi:epf:",["--index_name=","inpath="])
+        opts, args = getopt.getopt(argv,"hi:o:ep",["inpath=","--index_name="])
     except getopt.GetoptError:
-        print("Error: dnb2es.py -f <path to parse> -i <ES index name> -e <es indexing> -p <print>")
+        print("Error: dnb2es.py -i <path to parse> -o <ES index name> -e <ES indexing> -p <print>")
         sys.exit(2)
     esIn = False
     printout = False
+    es_index = 'dnb_db'
     for opt, arg in opts:
         if opt == '-h':
-            print('dnb2es.py -f <path to parse> -i <data or test> -e <es indexing> -p <print>')
+            print('dnb2es.py -i <path to parse> -o <ES index name>  -e <ES indexing> -p <print>')
             sys.exit()
-        elif opt in ("-f", "--inpath"):
+        elif opt in ("-i", "--inpath"):
             infolder = arg
-        elif opt in ("-i", "--index_name"):
+        elif opt in ("-o", "--index_name"):
             es_index = arg
             print('es_index', arg)
         elif opt == '-e':
             esIn = True
         elif opt =='-p':
             printout = True
-    return infolder,esIn, printout
+    return infolder,es_index,esIn, printout
 
 
 ES_URL = "localhost:9200"
@@ -68,7 +69,7 @@ def parse(infolder, esIn, printout):
             print('............ File: ',infile,'\t is indexed. Total_indexed: ',infile_counter, ' files ..............')
 
 if __name__ == "__main__":
-    infolder,esIn,printout = main(sys.argv[1:])
+    infolder,es_index,esIn,printout = main(sys.argv[1:])
     print("infolder =", infolder, "| indexing = ",esIn, "| print = ",printout)
     print('es_index', es_index)
 parse(infolder,esIn,printout)
