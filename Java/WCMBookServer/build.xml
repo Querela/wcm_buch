@@ -1,0 +1,45 @@
+<project name="WCMBookServer webapp-static" basedir="." default="jar">
+
+    <property name="name" value="WCMBookServer" />
+    <property name="name.part" value="webapp" />
+    <property name="artifact.name" value="${name}-${name.part}" />
+
+    <property name="build.dir" location="target" />
+    <property name="build.classes.dir" location="${build.dir}/classes" />
+
+    <property name="artifact.file" location="${build.dir}/${artifact.name}.jar" />
+    <property name="resources.rel.dir" value="${name.part}-static" />
+
+    <property name="webapp-static.dir.src" location="../../Website/Final" />
+    <property name="webapp-static.dir.dst" location="${build.classes.dir}/${resources.rel.dir}" />
+
+    <target name="copy.resources">
+        <copy todir="${webapp-static.dir.dst}">
+            <fileset dir="${webapp-static.dir.src}">
+                <exclude name="**/.*rc" />
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="jar" depends="clean, copy.resources">
+        <jar jarfile="${artifact.file}"
+             basedir="${build.classes.dir}"
+             includes="${resources.rel.dir}/**"
+        />
+    </target>
+
+    <target name="clean.artifact">
+        <delete file="${artifact.file}" />
+    </target>
+
+    <target name="clean.resources">
+        <delete dir="${webapp-static.dir.dst}" />
+    </target>
+
+    <target name="clean" depends="clean.resources, clean.artifact" />
+
+    <target name="run">
+        <java jar="${build.dir}/${name}.jar" fork="true" />
+    </target>
+
+</project>
