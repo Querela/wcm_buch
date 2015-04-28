@@ -1,10 +1,12 @@
 package de.uni_leipzig.wcmprak.books.wcmbookserver.serve;
 
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.AuthorInfo;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.Book;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.BookEditionsList;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.MapLanguageBookInfo;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.SearchResultList;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Props;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -16,8 +18,10 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.List;
 
 /**
  * Created by Erik on 22.04.2015.
@@ -40,6 +44,9 @@ public class DataExtractorDNBImplTest {
         // Get editions ID somehow
         String editionsID = "" + book.getGoodreadsEditionsID(); // use harry potter editions id
 
+        // Get author of the book
+        String bookAuthor = book.getAuthors().get(0).getName();
+        
         // Test out algorithm
         MapLanguageBookInfo mlbi = getLanguages(editionsID);
 
@@ -109,22 +116,29 @@ public class DataExtractorDNBImplTest {
             // if search in Goodreads is english
             if (!isGerman) {
                 // get german title from dnb
-                if (language != null && language.contains("ger")) {
+                if (language != null && language.contains("ger")) { //title in dnb is german
                     dnbTitle = otherTitle;
-                } else {
-                    log.info("\tNo German edition in dnbDB found ...");
+                // otherwise get german title from dnb eng
+                } else if (language != null && language.contains("eng")) {
+                    dnbTitle = originalTitle;
                 } // if-else
+                log.info("German version of the book is called: \"{}\"", dnbTitle);
             } else if (isGerman) {
                 // get english title from dnb
-                if (language != null && language.contains("eng")) {
-                    dnbTitle = otherTitle;
+                if (language != null && language.contains("ger")) { // title in dnb is german
+                    dnbTitle = originalTitle;
                 } else {
-                    log.info("\tNo English edition in dnbDB found ...");
+                    dnbTitle = otherTitle;
                 } // if-else
+                log.info("English version of the book is called: \"{}\"", dnbTitle);
             }
-            log.info("\ttranslated \"{}\" version is called: \"{}\"", language, dnbTitle);
-
-            // Search goodreads
+            
+//            StringBuilder dnbTitleAuthor;
+//            dnbTitleAuthor.append(dnbTitle);
+//            dnbTitleAuthor.append(" ");
+//            dnbTitleAuthor.append(firstBookAuthor);
+            
+            // Search goodreads // ADD author e.g. "J.K. Rowling Harry Potter and the Goblet of Fire"
             SearchResultList srl = DataExtractor.getInstance().getSearchResults(dnbTitle, 1);
 
             boolean isFirst = true;
@@ -182,6 +196,7 @@ public class DataExtractorDNBImplTest {
         Client client = ClientBuilder.newClient();
         WebTarget webTarget = client
                 .target("http://" + HOST + "/dnb_db/_search?q=title:" + searchTitle + "&size=5&pretty=true");
+
                 /*.path("dnb_ger") // .path("dnb_" + bookLanguage)
                 .path("_search")
                 .queryParam("q", "title:" + searchTitle)
@@ -212,22 +227,24 @@ public class DataExtractorDNBImplTest {
 
                 String dnbTitle = otherTitle;
                 // if search in Goodreads is english
-                if (isEnglish) {
+                if (!isGerman) {
                     // get german title from dnb
-                    if (language != null && language.contains("ger")) {
+                    if (language != null && language.contains("ger")) { //title in dnb is german
                         dnbTitle = otherTitle;
-                    } else {
-                        log.info("No German edition in dnbDB found ...");
+                    // otherwise get german title from dnb eng
+                    } else if (language != null && language.contains("eng")) {
+                        dnbTitle = originalTitle;
                     } // if-else
+                    log.info("German version of the book is called: \"{}\"", dnbTitle);
                 } else if (isGerman) {
                     // get english title from dnb
-                    if (language != null && language.contains("eng")) {
-                        dnbTitle = otherTitle;
+                    if (language != null && language.contains("ger")) { // title in dnb is german
+                        dnbTitle = originalTitle;
                     } else {
-                        log.info("No English edition in dnbDB found ...");
+                        dnbTitle = otherTitle;
                     } // if-else
+                    log.info("English version of the book is called: \"{}\"", dnbTitle);
                 }
-                log.info("translated \"{}\" version is called: \"{}\"", language, dnbTitle);
 
                 // Search goodreads
                 SearchResultList srl = DataExtractor.getInstance().getSearchResults(author + " " + dnbTitle, 1);
@@ -276,7 +293,7 @@ public class DataExtractorDNBImplTest {
 
         // Do our test impl method
         DataExtractorDNBImplTest dednbit = new DataExtractorDNBImplTest();
-        // dednbit.doTest();
+//         dednbit.doTest();
 
         try {
             // Do interactive ...
