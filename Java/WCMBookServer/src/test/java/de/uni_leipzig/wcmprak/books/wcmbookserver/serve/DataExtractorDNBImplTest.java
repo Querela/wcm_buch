@@ -16,6 +16,8 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 /**
  * Created by Erik on 22.04.2015.
@@ -47,6 +49,111 @@ public class DataExtractorDNBImplTest {
         log.info("result:\n{}", result);
     }
 
+    public void doAnotherTest() throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        // Get user input
+        System.out.print("Titel: ");
+        String titelToSearch = br.readLine();
+        System.out.print("isGerman (-> type: yes) else English: ");
+        String resp = br.readLine();
+        boolean isGerman = "yes".equalsIgnoreCase(resp) || "y".equalsIgnoreCase(resp);
+        log.info("isGerman:{}, title:\"{}\"", isGerman, titelToSearch);
+
+        System.out.print("use only first result of hit (-> type: yes) else show all: ");
+        resp = br.readLine();
+        boolean useOnlyFirstResultOfHit = "yes".equalsIgnoreCase(resp) || "y".equalsIgnoreCase(resp);
+        System.out.print("use all hits (-> type: yes) else first result overall (from first hit) : ");
+        resp = br.readLine();
+        boolean useOnlyTheFirstResultOverall = !("yes".equalsIgnoreCase(resp) || "y".equalsIgnoreCase(resp));
+
+        System.out.print("show ES result (-> type: yes) else nothing: ");
+        resp = br.readLine();
+        boolean showESResult = "yes".equalsIgnoreCase(resp) || "y".equalsIgnoreCase(resp);
+
+        System.out.println();
+        System.out.println();
+        System.out.println("Search for \"" + titelToSearch + "\" (in language: \"" + ((isGerman) ? "ger" : "eng") + "\")");
+        System.out.println("Show " + ((useOnlyFirstResultOfHit) ? "only the first" : "each")
+                + " result of " + ((useOnlyTheFirstResultOverall) ? "the first" : "each") + " hit.");
+        System.out.println();
+        System.out.println();
+
+        // do ES search
+        String searchTitle = titelToSearch.replace(" ", "+");
+        WebTarget webTarget = ClientBuilder.newClient().target("http://" + HOST + "/dnb_db/_search?q=title:" + searchTitle + "&size=5&pretty=true");
+        log.info("webTarget: {}", webTarget.getUri().toASCIIString());
+        String result = webTarget.request().buildGet().invoke().readEntity(String.class);
+        if (showESResult) {
+            log.info("result:\n{}", result);
+        } // if
+
+        // Parse ES response
+        JSONParser jsonParser = new JSONParser();
+        JSONObject jsonObject = (JSONObject) jsonParser.parse(result);
+        JSONObject hitsWrapper = (JSONObject) jsonObject.get("hits");
+        JSONArray hits = (JSONArray) hitsWrapper.get("hits");
+
+        boolean isFinished = false;
+        for (int nr = 0; nr < hits.size() && !isFinished; nr++) {
+            JSONObject hit = (JSONObject) hits.get(nr);
+            JSONObject hitData = (JSONObject) hit.get("_source");
+
+            // get data from search result
+            String language = (String) hitData.get("language");
+            String originalTitle = (String) hitData.get("original_title");
+            String otherTitle = (String) hitData.get("title");
+            log.info("ES Hit [{}]: lang:{}, orig:\"{}\", title:\"{}\"", nr, language, originalTitle, otherTitle);
+
+            String dnbTitle = otherTitle;
+            // if search in Goodreads is english
+            if (!isGerman) {
+                // get german title from dnb
+                if (language != null && language.contains("ger")) {
+                    dnbTitle = otherTitle;
+                } else {
+                    log.info("\tNo German edition in dnbDB found ...");
+                } // if-else
+            } else if (isGerman) {
+                // get english title from dnb
+                if (language != null && language.contains("eng")) {
+                    dnbTitle = otherTitle;
+                } else {
+                    log.info("\tNo English edition in dnbDB found ...");
+                } // if-else
+            }
+            log.info("\ttranslated \"{}\" version is called: \"{}\"", language, dnbTitle);
+
+            // Search goodreads
+            SearchResultList srl = DataExtractor.getInstance().getSearchResults(dnbTitle, 1);
+
+            boolean isFirst = true;
+            for (Book bk : srl.getBooks()) {
+                log.info("\t{}Found book: {}, id:{}", ((isFirst) ? "***" : ""), bk.getTitle(), bk.getGoodreadsID());
+                if (useOnlyFirstResultOfHit) {
+                    break;
+                } else {
+                    isFirst = false;
+                } // if-else
+
+                // TODO: check goodreads title etc.
+                // TODO: ...
+
+                // Add book after check to result list
+                // // // Book bookInfo = DataExtractor.getInstance().getBook("" + bk.getGoodreadsID());
+                if (useOnlyTheFirstResultOverall) {
+                    isFinished = true;
+                    if (useOnlyFirstResultOfHit) {
+                        break;
+                    } // if
+                } // if
+            } // for
+            if (srl.getBooks() == null || srl.getBooks().isEmpty()) {
+                log.info("\tNo books found ...");
+            } // if
+        } // for
+    }
+
     public MapLanguageBookInfo getLanguages(String editionsID) {
         BookEditionsList bel = DataExtractor.getInstance().getEditions(editionsID);
         bel.getBooks().clear(); // clear existing books ...?
@@ -67,8 +174,8 @@ public class DataExtractorDNBImplTest {
         log.info("bookLanguage: \"{}\", searchTitle: \"{}\"", bookLanguage, searchTitle);
 
         // Test language
-        boolean isEnglish = bookLanguage != null && bookLanguage.indexOf("eng") != -1 || bookLanguage.indexOf("en-US") != -1;
-        boolean isGerman = bookLanguage != null && bookLanguage.indexOf("ger") != -1;
+        boolean isEnglish = bookLanguage != null && (bookLanguage.contains("eng") || bookLanguage.contains("en-US"));
+        boolean isGerman = bookLanguage != null && bookLanguage.contains("ger");
         log.info("isEnglish:{}, isGerman:{}", isEnglish, isGerman);
 
         // Build and execute search
@@ -102,32 +209,42 @@ public class DataExtractorDNBImplTest {
                 String originalTitle = (String) hitData.get("original_title");
                 String otherTitle = (String) hitData.get("title");
                 log.info("Hit [{}]: lang:{}, orig:\"{}\", title:\"{}\"", nr, language, originalTitle, otherTitle);
-                
+
                 String dnbTitle = otherTitle;
                 // if search in Goodreads is english
-                if (isEnglish == true){
-                	// get german title from dnb
-                	if (language != null && language.indexOf("ger") != -1){
-                		dnbTitle = otherTitle;
-                	}else{
-                		log.info("No German edition in dnbDB found ...");
-                	}                	
-                }else if(isGerman == true){
-                	// get english title from dnb
-                	if (language != null && language.indexOf("eng") != -1){
-                		dnbTitle = otherTitle;
-                	}else{
-                		log.info("No English edition in dnbDB found ...");
-                	}
-                }           
-                log.info("translated {} version is called: \"{}\"", language, dnbTitle);
-                
-                // TODO: search using goodreads
-                SearchResultList srl = DataExtractor.getInstance().getSearchResults(dnbTitle, 1);
+                if (isEnglish) {
+                    // get german title from dnb
+                    if (language != null && language.contains("ger")) {
+                        dnbTitle = otherTitle;
+                    } else {
+                        log.info("No German edition in dnbDB found ...");
+                    } // if-else
+                } else if (isGerman) {
+                    // get english title from dnb
+                    if (language != null && language.contains("eng")) {
+                        dnbTitle = otherTitle;
+                    } else {
+                        log.info("No English edition in dnbDB found ...");
+                    } // if-else
+                }
+                log.info("translated \"{}\" version is called: \"{}\"", language, dnbTitle);
+
+                // Search goodreads
+                SearchResultList srl = DataExtractor.getInstance().getSearchResults(author + " " + dnbTitle, 1);
+                if (srl.getBooks().isEmpty()) {
+                    // if with author is empty try only the title
+                    srl = DataExtractor.getInstance().getSearchResults(dnbTitle, 1);
+                } // if
+
                 for (Book bk : srl.getBooks()) {
-                    log.info("Found book: {}, id:{}, lang:{}", bk.getTitle(), bk.getGoodreadsID(), bk.getLanguage());
+                    log.info("Found book: {}, id:{}", bk.getTitle(), bk.getGoodreadsID());
                     // TODO: check goodreads title etc.
                     // TODO: ...
+
+                    // Add book after check to result list
+                    Book bookInfo = DataExtractor.getInstance().getBook("" + bk.getGoodreadsID());
+                    mlbi.addBook(bookInfo);
+                    break; // stop after first book // TODO: stop for all hits?
                 } // for
                 if (srl.getBooks() == null || srl.getBooks().isEmpty()) {
                     log.info("No books found ...");
@@ -144,6 +261,8 @@ public class DataExtractorDNBImplTest {
 
 
     public static void main(String[] args) throws Exception {
+        System.setProperty("org.slf4j.simpleLogger.showShortLogName", "true");
+        System.setProperty("org.slf4j.simpleLogger.levelInBrackets", "true");
         System.setProperty("org.slf4j.simpleLogger.log.de.uni_leipzig.wcmprak.books.wcmbookserver", "info"); // TODO: remove in final version
         System.setProperty("org.slf4j.simpleLogger.log.de.uni_leipzig.wcmprak.books.wcmbookserver.serve.DataExtractorDNBImplTest", "debug"); // show everything
 
@@ -157,7 +276,13 @@ public class DataExtractorDNBImplTest {
 
         // Do our test impl method
         DataExtractorDNBImplTest dednbit = new DataExtractorDNBImplTest();
-        dednbit.doTest();
+        // dednbit.doTest();
+
+        try {
+            // Do interactive ...
+            dednbit.doAnotherTest();
+        } catch (Exception e) {
+        } // try-catch
 
         DataCache.stop();
     }
