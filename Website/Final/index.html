@@ -179,7 +179,10 @@
                 <!-- TODO: Sprache:&nbsp; -->
                 <span class="k-widget k-dropdown k-header" ng-model="book.grID" ng-controller="wcm_buch_book_sub_languages_controller">
                     <span class="k-dropdown-wrap k-state-default" ng-click="langs.dropdownVisible = !langs.dropdownVisible">
-                        <span class="k-input">{{book.language}}</span>
+                        <span class="k-input">
+                            <img class="animated-loading" src="images/loading.gif" ng-if="!langs" />
+                            {{book.language}}
+                        </span>
                         <span class="k-select">
                         <span class="k-icon k-i-arrow-s">select</span>
                     </span>
@@ -187,7 +190,7 @@
                 <ul class="k-dropdown-items" ng-show="langs.dropdownVisible">
                     <li class="k-dropdown-item" ng-repeat="lang in langs.map" ng-class="{'k-dropdown-item-selected': lang.isSelected, 'k-dropdown-item-hightlighted': lang.isMain}" ng-click="switchLanguage(lang)" title="{{lang.sTitel}}">{{lang.language}}</li>
                     <li class="k-dropdown-item-separator" ng-if="dnb_title" />
-                    <li class="k-dropdown-item" ng-if="dnb_title" ng-click="searchDNB(dnb_title)" title="Suche mit Titel der Deutschen Nationalbibliothek: \"{{dnb_title}}\"">DNB Titelsuche</li>
+                    <li class="k-dropdown-item" ng-if="dnb_title" ng-click="searchDNB(dnb_title)" title="Suche mit Titel der Deutschen Nationalbibliothek: &apos;{{dnb_title}}&apos;">DNB Titelsuche</li>
                 </ul>
                 </span>
                 <!-- TODO: tag/genre cloud, ... -->

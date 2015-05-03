@@ -677,6 +677,15 @@ ul.k-pager-numbers > li {
 .k-dropdown-items > .k-dropdown-item-hightlighted:after {
     content: "*";
 }
+
+.k-dropdown-wrap > .k-input > .animated-loading {
+    height: 20px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+    margin-right: 8px;
+}
+
 /***************************
  *
  **************************/
