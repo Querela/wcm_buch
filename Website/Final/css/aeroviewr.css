@@ -647,6 +647,15 @@ ul.k-pager-numbers > li {
     margin-bottom: 2px;
 }
 
+.k-dropdown-items > .k-dropdown-item-separator {
+    padding: 1px 0px;
+    margin: 4px 10px 5px 10px;
+    border: 1px solid rgba(255,255,255,.2);
+    cursor: default;
+    background-color: #222;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
 .k-dropdown-items > .k-dropdown-item:last-child {
     margin-bottom: 0px;
 }
@@ -789,4 +798,17 @@ ul.k-pager-numbers > li {
 
 .goodreads-link > img {
     height: 30px;
+}
+
+.goodreads-link-small-right {
+    float: right;
+    display: inline-block;
+    background-color: grey;
+    border: 1px solid rgba(255,255,255,.2);
+    padding: 2px;
+    margin-top: 4px;
+}
+
+.goodreads-link-small-right > img {
+    height: 20px;
 }

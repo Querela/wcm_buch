@@ -189,6 +189,7 @@ wcm_buch_controllers.controller(
             var search = {
                 searchTerm: data.search.searchTerm,
                 provider: "Goodreads",
+                grUrl: "https://www.goodreads.com/search?utf8=%E2%9C%93&query=" + data.search.searchTerm,
                 results_total: data.search.resultsTotal,
                 results_start: data.search.resultsStart,
                 results_end: data.search.resultsEnd,
@@ -333,11 +334,31 @@ wcm_buch_controllers.controller(
                     log("Book_sub_lang failed!", data, status, headers, config);
                 });
 
+            $http.get(API_URI + "book/dnb_title/" + $scope.$parent.book.grEdID)
+                .success(function (data, status, headers, config) {
+                    log("Book_sub_lang dnb_title http", data, status, headers, config);
+
+                    var dnb_title = data.DNBTitle.value;
+
+                    log("Scope dnb_title", dnb_title);
+                    $scope.dnb_title = dnb_title;
+                })
+                .error(function (data, status, headers, config) {
+                    log("Book_sub_lang dnb_title failed!", data, status, headers, config);
+                });
+
             $scope.switchLanguage = function (lang) {
                 log("switchLanguage", lang);
 
                 log("Redirect to: \"" + BOOK_ROUTE_URI + lang.book.goodreadsID + "\"");
                 $location.path(BOOK_ROUTE_URI + lang.book.goodreadsID);
+            };
+            
+            $scope.searchDNB = function (dnb_title) {
+                log("dnb title search", dnb_title);
+
+                log("Redirect to: \"" + SEARCH_ROUTE_URI + dnb_title + "\"");
+                $location.path(SEARCH_ROUTE_URI + dnb_title);
             };
     }]
 );
@@ -352,6 +373,7 @@ wcm_buch_controllers.controller(
 
             var series = {
                 title: data.series.name,
+                grUrl: "https://www.goodreads.com/series/" + $routeParams.seriesID,
                 description: data.series.description,
                 numberOfBooks: data.series.numberOfBooks,
                 numberOfAllBooks: data.series.books.book.length,

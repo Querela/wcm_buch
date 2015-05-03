@@ -39,6 +39,9 @@
                     <input class="search-input-button" id="results-search-button" type="button" value="GO" ng-click="doSearch(search.searchTerm)" />
                 </form>
             </div>
+            <a class="goodreads-link-small-right" href="{{search.grUrl}}" title="Suche auf Goodreads nach: &apos;{{search.searchTerm}}&apos;" target="_blank">
+                <img src="images/goodreads_logo_324.png" />
+            </a>
             <div id="results-statistics" ng-if="search.results_total > 0">
                 Showing <span class="results-start">{{search.results_start}}</span>-<span class="results-end">{{search.results_end}}</span> of <span class="results-total">{{search.results_total}}</span> results for <span class="results-search-term">'{{::search.searchTerm}}'</span> (<span class="results-provider">{{search.provider}}</span> search in <span class="results-time">{{search.timeToSearch}}s</span>)
             </div>
@@ -57,7 +60,7 @@
                 </div>
                 <div class="result-list-item-details">
                     <div class="title">
-                        <a href="{{book.url}}">{{book.title}} <span class="series" ng-if="book.series !== null && book.series.name !== null && book.series.number !== null">({{book.series.name}}, #{{book.series.number}})</span></a>
+                        <a href="{{book.url}}">{{book.title}} <span class="series" ng-if="book.hasSeries && book.series !== null && book.series.name !== null && book.series.number !== null">({{book.series.name}}, #{{book.series.number}})</span></a>
                     </div>
                     <div class="authors">
                         by <span class="author">{{book.author.name}}</span>
@@ -110,6 +113,9 @@
         <!-- header -->
         <div id="result-list-header">
             <div class="heading">{{series.title}}</div>
+            <a class="goodreads-link-small-right" href="{{series.grUrl}}" title="Serie auf Goodreads: &apos;{{series.title}}&apos;" target="_blank">
+                <img src="images/goodreads_logo_324.png" />
+            </a>
             <div class="info">
                 {{series.numberOfAllBooks}} Bücher, {{series.numberOfBooks}} davon Hauptwerke
             </div>
@@ -135,7 +141,7 @@
                 -->
                 <div class="result-list-item-details">
                     <div class="title">
-                        <a href="{{book.url}}">{{book.title}} <span class="series" ng-if="book.series !== null && book.series.name !== null && book.series.number !== null">({{book.series.name}}, #{{book.series.number}})</span></a>
+                        <a href="{{book.url}}">{{book.title}} <span class="series" ng-if="book.hasSeries && book.series !== null && book.series.name !== null && book.series.number !== null">({{book.series.name}}, #{{book.series.number}})</span></a>
                     </div>
                     <div class="authors">
                         by <span class="author">{{book.author.name}}</span>
@@ -180,10 +186,12 @@
                 </span>
                 <ul class="k-dropdown-items" ng-show="langs.dropdownVisible">
                     <li class="k-dropdown-item" ng-repeat="lang in langs.map" ng-class="{'k-dropdown-item-selected': lang.isSelected, 'k-dropdown-item-hightlighted': lang.isMain}" ng-click="switchLanguage(lang)" title="{{lang.sTitel}}">{{lang.language}}</li>
+                    <li class="k-dropdown-item-separator" ng-if="dnb_title" />
+                    <li class="k-dropdown-item" ng-if="dnb_title" ng-click="searchDNB(dnb_title)" title="Suche mit Titel der Deutschen Nationalbibliothek: \"{{dnb_title}}\"">DNB Titelsuche</li>
                 </ul>
                 </span>
                 <!-- TODO: tag/genre cloud, ... -->
-                <a class="goodreads-link" href="{{book.grUrl}}" target="_blank">
+                <a class="goodreads-link" href="{{book.grUrl}}" title="Buch auf Goodreads" target="_blank">
                     <img src="images/goodreads_logo_324.png" />
                 </a>
                 <ul class="shelves">
