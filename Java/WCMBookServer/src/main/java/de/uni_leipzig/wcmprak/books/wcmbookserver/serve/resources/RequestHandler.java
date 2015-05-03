@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Created by Erik on 14.04.2015.
@@ -123,7 +125,42 @@ public class RequestHandler {
     public String getBookLanguagesByEditionsGoodreadsID(@PathParam("id") String editionsID) {
         MapLanguageBookInfo mapLanguageBookInfo = DataExtractor.getInstance().getLanguages(editionsID);
 
+        // TODO: get dnb title here?
+
         return marshallObjectByMediaType(mapLanguageBookInfo);
+    }
+
+    @XmlRootElement(name = "DNBTitle")
+    private static class DNBTitleWrapper {
+        private String value = null;
+
+        public DNBTitleWrapper() {
+        }
+
+        public DNBTitleWrapper(String value) {
+            this.value = value;
+        }
+
+        @XmlElement(name = "value")
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+    }
+
+    @GET
+    @Path("/book/dnb_title/{id}")
+    @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML, MediaType.APPLICATION_JSON})
+    public String getBookDNBTitleByEditionsGoodreadsID(@PathParam("id") String editionsID) {
+        MapLanguageBookInfo mapLanguageBookInfo = DataExtractor.getInstance().getLanguages(editionsID);
+
+        Book book = DataExtractor.getInstance().getBook("" + mapLanguageBookInfo.getMainBookGoodreadsID());
+        String newTitle = DataExtractor.getInstance().getDNBTitle(mapLanguageBookInfo.getMainBookTitle(), book.getLanguage(), book.getAuthors().get(0).getName());
+
+        return marshallObjectByMediaType(new DNBTitleWrapper(newTitle));
     }
 
     @GET

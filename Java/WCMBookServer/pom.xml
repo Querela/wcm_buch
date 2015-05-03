@@ -325,7 +325,7 @@
                             </archive>
                             <excludes>
                                 <exclude>simplelogger.properties</exclude>
-                                <exclude>webapp-static/</exclude>
+                                <exclude>${project.build.webapp-static.dir}/</exclude>
                             </excludes>
                         </configuration>
                     </execution>

@@ -5,9 +5,14 @@ import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.GoodreadsAPIResponsePa
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.GoodreadsScreenScraper;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.*;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Props;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import java.util.Properties;
 
 /**
@@ -24,6 +29,7 @@ public class DataExtractor {
     private GoodreadsScreenScraper grSS;
 
     private final static String GOODREADS_BASE_URL = "https://www.goodreads.com/";
+    private static String ELASTICSEARCH_HOST = "localhost:9200";
 
     private DataExtractor() {
     }
@@ -143,6 +149,72 @@ public class DataExtractor {
     }
 
     /**
+     * Query ElasticSearch for translated title.
+     *
+     * @param otherTitle title of book - we search for translated title
+     * @param language   original language of book
+     * @param author     original author of book - currently ignored?
+     * @return String with translated title or null (if not found or on error)
+     */
+    public String getDNBTitle(String otherTitle, String language, String author) {
+        log.debug("Search for \"{}\" (in language: \"{}\") (with author: \"{}\")", otherTitle, language, author);
+        boolean isGerman = language.contains("ger");
+
+        // do ES DNB search
+        String searchTitle = otherTitle.replace(" ", "+");
+        WebTarget webTarget = ClientBuilder.newClient().target("http://" + ELASTICSEARCH_HOST + "/dnb_db/_search?q=title:" + searchTitle + "&size=5&pretty=true");
+        log.debug("webTarget: {}", webTarget.getUri().toASCIIString());
+        String result = webTarget.request().buildGet().invoke().readEntity(String.class);
+
+        // Parse ES DNB response
+        try {
+            JSONParser jsonParser = new JSONParser();
+            JSONObject jsonObject = (JSONObject) jsonParser.parse(result);
+            JSONObject hitsWrapper = (JSONObject) jsonObject.get("hits");
+            JSONArray hits = (JSONArray) hitsWrapper.get("hits");
+
+            boolean isFinished = false;
+            for (int nr = 0; nr < hits.size() && !isFinished; nr++) {
+                JSONObject hit = (JSONObject) hits.get(nr);
+                JSONObject hitData = (JSONObject) hit.get("_source");
+
+                // get data from search result
+                String hit_language = (String) hitData.get("language");
+                String hit_originalTitle = (String) hitData.get("original_title");
+                String hit_otherTitle = (String) hitData.get("title");
+                log.info("ES Hit [{}]: lang:{}, orig:\"{}\", title:\"{}\"", nr, hit_language, hit_originalTitle, hit_otherTitle);
+
+                String dnbTitle = hit_otherTitle;
+                // if search in Goodreads is english
+                if (!isGerman) {
+                    // get german title from dnb
+                    if (hit_language != null && hit_language.contains("ger")) { //title in dnb is german
+                        dnbTitle = hit_otherTitle;
+                        // otherwise get german title from dnb eng
+                    } else if (hit_language != null && hit_language.contains("eng")) {
+                        dnbTitle = hit_originalTitle;
+                    } // if-else
+                    log.info("German version of the book is called: \"{}\"", dnbTitle);
+                } else if (isGerman) {
+                    // get english title from dnb
+                    if (hit_language != null && hit_language.contains("ger")) { // title in dnb is german
+                        dnbTitle = hit_originalTitle;
+                    } else {
+                        dnbTitle = hit_otherTitle;
+                    } // if-else
+                    log.info("English version of the book is called: \"{}\"", dnbTitle);
+                } // if-else
+
+                return dnbTitle;
+            } // for
+        } catch (Exception e) {
+            return null;
+        } // try-catch
+
+        return null;
+    }
+
+    /**
      * Convert String to int.
      *
      * @param value String to convert
@@ -173,6 +245,8 @@ public class DataExtractor {
                 DataExtractor.props = new Props(props);
             } // if-else
         } // if-else
+
+        ELASTICSEARCH_HOST = DataExtractor.props.getStringProp("es.host", ELASTICSEARCH_HOST);
     }
 
     /**

@@ -109,6 +109,7 @@ public class StartEmbeddedServer {
         // Configure and initialize an instance of DataExtractor & DataCache
         Props props = new Props();
         props.setStringProp("goodreads.api.key", "RwUzZwkv94PCodD1lMF5g");
+        props.setStringProp("es.host", "ERIK-UBUNTU:9200");
         DataCache.configureWith(props);
         DataCache.initialize();
         DataExtractor.configureWith(props);
