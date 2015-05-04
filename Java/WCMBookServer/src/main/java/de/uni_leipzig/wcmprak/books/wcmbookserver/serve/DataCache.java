@@ -1,5 +1,7 @@
 package de.uni_leipzig.wcmprak.books.wcmbookserver.serve;
 
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Configurable;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Initializable;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Props;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,16 +16,20 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by Erik on 22.04.2015.
  */
-public class DataCache {
+public class DataCache implements Configurable, Initializable {
     private final static Logger log = LoggerFactory.getLogger(DataCache.class);
 
     private static DataCache instance;
-    private static Props props = null;
+    private Props props = null;
+    private boolean hasBeenInitialized = false;
 
     private Hashtable<String, Object> data = new Hashtable<>();
-    private final static long TTL = 24 * 60 * 60 * 1000;
     private Hashtable<String, Long> dataTTL = new Hashtable<>();
     private ScheduledExecutorService cleanScheduler = null;
+    private long ttl = TTL;
+
+    public final static String PROP_KEY_TTL = "cache.ttl";
+    public final static long TTL = 24 * 60 * 60 * 1000;
 
     private DataCache() {
         cleanScheduler = Executors.newScheduledThreadPool(1);
@@ -139,16 +145,24 @@ public class DataCache {
      *
      * @param props standard java properties
      */
-    public static void configureWith(Properties props) {
+    @Override
+    public void configureWith(Properties props) {
         if (props == null) {
-            DataCache.props = new Props();
+            this.props = new Props();
         } else {
             if (props instanceof Props) {
-                DataCache.props = (Props) props;
+                this.props = (Props) props;
             } else {
-                DataCache.props = new Props(props);
+                this.props = new Props(props);
             } // if-else
         } // if-else
+
+        ttl = this.props.getLongProp(PROP_KEY_TTL, ttl);
+    }
+
+    @Override
+    public boolean hasBeenInitialized() {
+        return hasBeenInitialized;
     }
 
     /**
@@ -156,13 +170,12 @@ public class DataCache {
      *
      * @throws Exception
      */
-    public static void initialize() throws Exception {
-        // Create new instance object
-        instance = new DataCache();
+    @Override
+    public void initialize() throws Exception {
+        this.hasBeenInitialized = true;
     }
 
-    public static void stop() throws Exception {
-        instance.cleanScheduler.shutdownNow();
-        instance = null;
+    public void stop() throws Exception {
+        cleanScheduler.shutdownNow();
     }
 }

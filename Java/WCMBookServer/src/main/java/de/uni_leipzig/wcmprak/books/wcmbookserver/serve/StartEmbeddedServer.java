@@ -109,11 +109,11 @@ public class StartEmbeddedServer {
         // Configure and initialize an instance of DataExtractor & DataCache
         Props props = new Props();
         props.setStringProp("goodreads.api.key", "RwUzZwkv94PCodD1lMF5g");
-        props.setStringProp("es.host", "ERIK-UBUNTU:9200");
-        DataCache.configureWith(props);
-        DataCache.initialize();
-        DataExtractor.configureWith(props);
-        DataExtractor.initialize();
+        props.setStringProp(DataExtractor.PROP_KEY_ES_HOST, "ERIK-UBUNTU:9200");
+        DataCache.getInstance().configureWith(props);
+        DataCache.getInstance().initialize();
+        DataExtractor.getInstance().configureWith(props);
+        DataExtractor.getInstance().initialize();
 
         try {
             // Start server
@@ -142,7 +142,7 @@ public class StartEmbeddedServer {
             server.stop();
             server.join();
 
-            DataCache.stop();
+            DataCache.getInstance().stop();
         } catch (IOException ioex) {
             log.error("IO Exception while configuring and starting the server ...", ioex);
         }

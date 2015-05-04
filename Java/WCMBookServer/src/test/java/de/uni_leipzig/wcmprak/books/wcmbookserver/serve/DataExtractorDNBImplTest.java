@@ -1,12 +1,10 @@
 package de.uni_leipzig.wcmprak.books.wcmbookserver.serve;
 
-import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.AuthorInfo;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.Book;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.BookEditionsList;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.MapLanguageBookInfo;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.SearchResultList;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Props;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -18,10 +16,8 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.List;
 
 /**
  * Created by Erik on 22.04.2015.
@@ -46,7 +42,7 @@ public class DataExtractorDNBImplTest {
 
         // Get author of the book
         String bookAuthor = book.getAuthors().get(0).getName();
-        
+
         // Test out algorithm
         MapLanguageBookInfo mlbi = getLanguages(editionsID);
 
@@ -118,7 +114,7 @@ public class DataExtractorDNBImplTest {
                 // get german title from dnb
                 if (language != null && language.contains("ger")) { //title in dnb is german
                     dnbTitle = otherTitle;
-                // otherwise get german title from dnb eng
+                    // otherwise get german title from dnb eng
                 } else if (language != null && language.contains("eng")) {
                     dnbTitle = originalTitle;
                 } // if-else
@@ -132,12 +128,12 @@ public class DataExtractorDNBImplTest {
                 } // if-else
                 log.info("English version of the book is called: \"{}\"", dnbTitle);
             }
-            
+
 //            StringBuilder dnbTitleAuthor;
 //            dnbTitleAuthor.append(dnbTitle);
 //            dnbTitleAuthor.append(" ");
 //            dnbTitleAuthor.append(firstBookAuthor);
-            
+
             // Search goodreads // ADD author e.g. "J.K. Rowling Harry Potter and the Goblet of Fire"
             SearchResultList srl = DataExtractor.getInstance().getSearchResults(dnbTitle, 1);
 
@@ -231,7 +227,7 @@ public class DataExtractorDNBImplTest {
                     // get german title from dnb
                     if (language != null && language.contains("ger")) { //title in dnb is german
                         dnbTitle = otherTitle;
-                    // otherwise get german title from dnb eng
+                        // otherwise get german title from dnb eng
                     } else if (language != null && language.contains("eng")) {
                         dnbTitle = originalTitle;
                     } // if-else
@@ -286,10 +282,11 @@ public class DataExtractorDNBImplTest {
         // Configure and initialize DataExtractor
         Props props = new Props();
         props.setStringProp("goodreads.api.key", "RwUzZwkv94PCodD1lMF5g");
-        DataCache.configureWith(props);
-        DataCache.initialize();
-        DataExtractor.configureWith(props);
-        DataExtractor.initialize();
+        props.setStringProp(DataExtractor.PROP_KEY_ES_HOST, HOST);
+        DataCache.getInstance().configureWith(props);
+        DataCache.getInstance().initialize();
+        DataExtractor.getInstance().configureWith(props);
+        DataExtractor.getInstance().initialize();
 
         // Do our test impl method
         DataExtractorDNBImplTest dednbit = new DataExtractorDNBImplTest();
@@ -301,6 +298,6 @@ public class DataExtractorDNBImplTest {
         } catch (Exception e) {
         } // try-catch
 
-        DataCache.stop();
+        DataCache.getInstance().stop();
     }
 }

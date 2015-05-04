@@ -4,6 +4,8 @@ import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.GoodreadsAPIAdapter;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.GoodreadsAPIResponseParser;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.GoodreadsScreenScraper;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.data.*;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Configurable;
+import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Initializable;
 import de.uni_leipzig.wcmprak.books.wcmbookserver.extract.utils.Props;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -18,18 +20,22 @@ import java.util.Properties;
 /**
  * Created by Erik on 19.04.2015.
  */
-public class DataExtractor {
+public class DataExtractor implements Configurable, Initializable {
     private final static Logger log = LoggerFactory.getLogger(DataExtractor.class);
 
-    private static DataExtractor instance;
-    private static Props props = null;
+    private static DataExtractor instance = null;
+    private Props props = null;
+
+    private boolean hasBeenInitialized = false;
+    private String elasticSearchHost = ELASTICSEARCH_HOST;
 
     private GoodreadsAPIAdapter grAPI;
     private GoodreadsAPIResponseParser grAPIPars;
     private GoodreadsScreenScraper grSS;
 
+    public final static String PROP_KEY_ES_HOST = "es.host";
     private final static String GOODREADS_BASE_URL = "https://www.goodreads.com/";
-    private static String ELASTICSEARCH_HOST = "localhost:9200";
+    private final static String ELASTICSEARCH_HOST = "localhost:9200";
 
     private DataExtractor() {
     }
@@ -39,7 +45,11 @@ public class DataExtractor {
      *
      * @return {@link DataExtractor}
      */
-    public static DataExtractor getInstance() {
+    public synchronized static DataExtractor getInstance() {
+        if (instance == null) {
+            instance = new DataExtractor();
+        } // if
+
         return instance;
     }
 
@@ -235,18 +245,24 @@ public class DataExtractor {
      *
      * @param props standard java properties
      */
-    public static void configureWith(Properties props) {
+    @Override
+    public void configureWith(Properties props) {
         if (props == null) {
-            DataExtractor.props = new Props();
+            this.props = new Props();
         } else {
             if (props instanceof Props) {
-                DataExtractor.props = (Props) props;
+                this.props = (Props) props;
             } else {
-                DataExtractor.props = new Props(props);
+                this.props = new Props(props);
             } // if-else
         } // if-else
 
-        ELASTICSEARCH_HOST = DataExtractor.props.getStringProp("es.host", ELASTICSEARCH_HOST);
+        elasticSearchHost = this.props.getStringProp(PROP_KEY_ES_HOST, elasticSearchHost);
+    }
+
+    @Override
+    public boolean hasBeenInitialized() {
+        return hasBeenInitialized;
     }
 
     /**
@@ -254,23 +270,23 @@ public class DataExtractor {
      *
      * @throws Exception
      */
-    public static void initialize() throws Exception {
-        // Create new instance object
-        instance = new DataExtractor();
-
+    @Override
+    public void initialize() throws Exception {
         // initialize modules of the instance
-        instance.grAPI = new GoodreadsAPIAdapter();
-        instance.grAPIPars = new GoodreadsAPIResponseParser();
-        instance.grSS = new GoodreadsScreenScraper();
+        grAPI = new GoodreadsAPIAdapter();
+        grAPIPars = new GoodreadsAPIResponseParser();
+        grSS = new GoodreadsScreenScraper();
 
         // set configurations for modules
-        instance.grAPI.configureWith(props);
-        instance.grAPIPars.configureWith(props);
-        instance.grSS.configureWith(props);
+        grAPI.configureWith(props);
+        grAPIPars.configureWith(props);
+        grSS.configureWith(props);
 
         // initialize modules
-        instance.grAPI.initialize();
-        instance.grAPIPars.initialize();
-        instance.grSS.initialize();
+        grAPI.initialize();
+        grAPIPars.initialize();
+        grSS.initialize();
+
+        hasBeenInitialized = true;
     }
 }
