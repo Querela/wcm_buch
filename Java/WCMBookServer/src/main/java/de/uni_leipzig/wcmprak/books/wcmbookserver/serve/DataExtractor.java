@@ -28,12 +28,14 @@ public class DataExtractor implements Configurable, Initializable {
 
     private boolean hasBeenInitialized = false;
     private String elasticSearchHost = ELASTICSEARCH_HOST;
+    private boolean useCache = true;
 
     private GoodreadsAPIAdapter grAPI;
     private GoodreadsAPIResponseParser grAPIPars;
     private GoodreadsScreenScraper grSS;
 
     public final static String PROP_KEY_ES_HOST = "es.host";
+    public final static String PROP_KEY_DONT_CACHE = "cache.disabled";
     private final static String GOODREADS_BASE_URL = "https://www.goodreads.com/";
     private final static String ELASTICSEARCH_HOST = "localhost:9200";
 
@@ -54,108 +56,164 @@ public class DataExtractor implements Configurable, Initializable {
     }
 
     public SearchResultList getSearchResults(String searchTerm, int page) {
-        String key = "search:/" + searchTerm + ":/" + page;
-        SearchResultList searchResultList = (SearchResultList) DataCache.getInstance().get(key);
-        if (searchResultList != null) {
+        return getSearchResults(searchTerm, page, useCache);
+    }
+
+    public SearchResultList getSearchResults(String searchTerm, int page, boolean cached) {
+        if (cached) {
+            String key = "search:/" + searchTerm + ":/" + page;
+            SearchResultList searchResultList = (SearchResultList) DataCache.getInstance().get(key);
+            if (searchResultList != null) {
+                return searchResultList;
+            } // of
+
+            searchResultList = getSearchResults(searchTerm, page, false);
+            DataCache.getInstance().store(key, searchResultList);
+
             return searchResultList;
-        }
-
-        String searchResultPage = grAPI.getDataForSearchTerm(searchTerm, page);
-        searchResultList = grAPIPars.parseSearchResultData(searchResultPage, GOODREADS_BASE_URL);
-        DataCache.getInstance().store(key, searchResultList);
-
-        return searchResultList;
+        } else {
+            String searchResultPage = grAPI.getDataForSearchTerm(searchTerm, page);
+            return grAPIPars.parseSearchResultData(searchResultPage, GOODREADS_BASE_URL);
+        } // if-else
     }
 
     public SearchResultList getAllSearchResults(String searchTerm) {
-        String key = "search:/" + searchTerm + ":/1";
-        SearchResultList searchResultList = (SearchResultList) DataCache.getInstance().get(key);
-        if (searchResultList != null) {
+        return getAllSearchResults(searchTerm, useCache);
+    }
+
+    public SearchResultList getAllSearchResults(String searchTerm, boolean cached) {
+        if (cached) {
+            String key = "search:/" + searchTerm + ":/all";
+            SearchResultList searchResultList = (SearchResultList) DataCache.getInstance().get(key);
+            if (searchResultList != null) {
+                return searchResultList;
+            } // if
+
+            searchResultList = getAllSearchResults(searchTerm, false);
+            DataCache.getInstance().store(key, searchResultList);
+
             return searchResultList;
-        }
+        } else {
+            String[] searchPages = grAPI.getAllPagesDataForSearchTerm(searchTerm);
 
-        String[] searchPages = grAPI.getAllPagesDataForSearchTerm(searchTerm);
+            String[] urls = new String[searchPages.length];
+            for (int i = 0; i < searchPages.length; i++) urls[i] = GOODREADS_BASE_URL;
 
-        String[] urls = new String[searchPages.length];
-        for (int i = 0; i < searchPages.length; i++) urls[i] = GOODREADS_BASE_URL;
-
-        searchResultList = grAPIPars.parseSearchResultData(searchPages, urls);
-        DataCache.getInstance().store(key, searchResultList);
-
-        return searchResultList;
+            return grAPIPars.parseSearchResultData(searchPages, urls);
+        } // if-else
     }
 
     public Book getBook(String bookID) {
-        String key = "book:/" + bookID;
-        Book book = (Book) DataCache.getInstance().get(key);
-        if (book != null) {
+        return getBook(bookID, useCache);
+    }
+
+    public Book getBook(String bookID, boolean cached) {
+        if (cached) {
+            String key = "book:/" + bookID;
+            Book book = (Book) DataCache.getInstance().get(key);
+            if (book != null) {
+                return book;
+            } // if
+
+            book = getBook(bookID, false);
+            DataCache.getInstance().store(key, book);
+
             return book;
-        }
-
-        String bookContent = grAPI.getDataForBookID(bookID);
-        book = grAPIPars.parseBookData(bookContent, GOODREADS_BASE_URL);
-        DataCache.getInstance().store(key, book);
-
-        return book;
+        } else {
+            String bookContent = grAPI.getDataForBookID(bookID);
+            return grAPIPars.parseBookData(bookContent, GOODREADS_BASE_URL);
+        } // if-else
     }
 
     public BookEditionsList getEditions(String editionsID) {
-        String key = "editions:/" + editionsID;
-        BookEditionsList bookEditionsList = (BookEditionsList) DataCache.getInstance().get(key);
-        if (bookEditionsList != null) {
+        return getEditions(editionsID, useCache);
+    }
+
+    public BookEditionsList getEditions(String editionsID, boolean cached) {
+        if (cached) {
+            String key = "editions:/" + editionsID;
+            BookEditionsList bookEditionsList = (BookEditionsList) DataCache.getInstance().get(key);
+            if (bookEditionsList != null) {
+                return bookEditionsList;
+            } // if
+
+            bookEditionsList = getEditions(editionsID, false);
+            DataCache.getInstance().store(key, bookEditionsList);
+
             return bookEditionsList;
-        }
-
-        bookEditionsList = grSS.parseEditionsPage(String2Int(editionsID));
-        DataCache.getInstance().store(key, bookEditionsList);
-
-        return bookEditionsList;
+        } else {
+            return grSS.parseEditionsPage(String2Int(editionsID));
+        } // if-else
     }
 
     public MapLanguageBookInfo getLanguages(String editionsID) {
-        String key = "languages:/" + editionsID;
-        MapLanguageBookInfo mlbi = (MapLanguageBookInfo) DataCache.getInstance().get(key);
-        if (mlbi != null) {
+        return getLanguages(editionsID, useCache);
+    }
+
+    public MapLanguageBookInfo getLanguages(String editionsID, boolean cached) {
+        if (cached) {
+            String key = "languages:/" + editionsID;
+            MapLanguageBookInfo mlbi = (MapLanguageBookInfo) DataCache.getInstance().get(key);
+            if (mlbi != null) {
+                return mlbi;
+            } // if
+
+            mlbi = getLanguages(editionsID, false);
+            DataCache.getInstance().store(key, mlbi);
+
             return mlbi;
-        }
-
-        BookEditionsList bel = getEditions(editionsID);
-        mlbi = new MapLanguageBookInfo(bel);
-        DataCache.getInstance().store(key, mlbi);
-
-        return mlbi;
+        } else {
+            BookEditionsList bel = getEditions(editionsID);
+            return new MapLanguageBookInfo(bel);
+        } // if-else
     }
 
     public SeriesInfo getSeries(String seriesID) {
-        String key = "series:/" + seriesID;
-        SeriesInfo seriesInfo = (SeriesInfo) DataCache.getInstance().get(key);
-        if (seriesInfo != null) {
+        return getSeries(seriesID, useCache);
+    }
+
+    public SeriesInfo getSeries(String seriesID, boolean cached) {
+        if (cached) {
+            String key = "series:/" + seriesID;
+            SeriesInfo seriesInfo = (SeriesInfo) DataCache.getInstance().get(key);
+            if (seriesInfo != null) {
+                return seriesInfo;
+            } // if
+
+            seriesInfo = getSeries(seriesID, false);
+            DataCache.getInstance().store(key, seriesInfo);
+
             return seriesInfo;
-        }
-
-        String seriesContent = grAPI.getDataForSeriesID(seriesID);
-        seriesInfo = grAPIPars.parseSeriesData(seriesContent, GOODREADS_BASE_URL);
-        DataCache.getInstance().store(key, seriesInfo);
-
-        return seriesInfo;
+        } else {
+            String seriesContent = grAPI.getDataForSeriesID(seriesID);
+            return grAPIPars.parseSeriesData(seriesContent, GOODREADS_BASE_URL);
+        } // if-else
     }
 
     public AuthorInfo getAuthorInfo(String authorID) {
-        String key = "author:/" + authorID;
-        AuthorInfo authorInfo = (AuthorInfo) DataCache.getInstance().get(key);
-        if (authorInfo != null) {
+        return getAuthorInfo(authorID, useCache);
+    }
+
+    public AuthorInfo getAuthorInfo(String authorID, boolean cached) {
+        if (cached) {
+            String key = "author:/" + authorID;
+            AuthorInfo authorInfo = (AuthorInfo) DataCache.getInstance().get(key);
+            if (authorInfo != null) {
+                return authorInfo;
+            } // if
+
+            authorInfo = getAuthorInfo(authorID, false);
+            DataCache.getInstance().store(key, authorInfo);
+
             return authorInfo;
-        }
+        } else {
+            String[] authorsBooks = grAPI.getAllPagesDataForAuthorID(authorID);
 
-        String[] authorsBooks = grAPI.getAllPagesDataForAuthorID(authorID);
+            String[] urls = new String[authorsBooks.length];
+            for (int i = 0; i < authorsBooks.length; i++) urls[i] = GOODREADS_BASE_URL;
 
-        String[] urls = new String[authorsBooks.length];
-        for (int i = 0; i < authorsBooks.length; i++) urls[i] = GOODREADS_BASE_URL;
-
-        authorInfo = grAPIPars.parseAuthorsBookData(authorsBooks, urls);
-        DataCache.getInstance().store(key, authorInfo);
-
-        return authorInfo;
+            return grAPIPars.parseAuthorsBookData(authorsBooks, urls);
+        } // if-else
     }
 
     /**
@@ -258,6 +316,7 @@ public class DataExtractor implements Configurable, Initializable {
         } // if-else
 
         elasticSearchHost = this.props.getStringProp(PROP_KEY_ES_HOST, elasticSearchHost);
+        useCache = !this.props.getBoolProp(PROP_KEY_DONT_CACHE, useCache);
     }
 
     @Override

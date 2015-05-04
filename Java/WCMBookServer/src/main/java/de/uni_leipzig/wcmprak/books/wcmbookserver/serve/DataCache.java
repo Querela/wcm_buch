@@ -136,7 +136,11 @@ public class DataCache implements Configurable, Initializable {
      *
      * @return {@link DataCache}
      */
-    public static DataCache getInstance() {
+    public synchronized static DataCache getInstance() {
+        if (instance == null) {
+            instance = new DataCache();
+        } // if
+
         return instance;
     }
 
